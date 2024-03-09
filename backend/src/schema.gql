@@ -1,0 +1,33 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Video {
+  _id: String!
+  title: String!
+  description: String!
+  duration: Float!
+  source_url: String!
+  height: Float!
+  width: Float!
+  thumbnail_url: String!
+  size: Float!
+  master_playlist_name: String!
+  status: String!
+  tags: [String!]!
+}
+
+type Query {
+  QUery(createVideoInput: CreateVideoInputDto!): Video!
+}
+
+input CreateVideoInputDto {
+  title: String!
+  description: String!
+  source_url: String!
+  tags: [String!]!
+}
+
+type Mutation {
+  CreateVideo(createVideoInput: CreateVideoInputDto!): Video!
+}

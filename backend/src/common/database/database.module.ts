@@ -1,19 +1,21 @@
 import { Global, Module } from '@nestjs/common';
-import dataSource from 'ormconfig';
-import { DataSource } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Global()
 @Module({
-  providers: [
-    {
-      provide: DataSource,
-      useFactory: async () => {
-        await dataSource.initialize();
+  imports: [
+    MongooseModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        console.log('DB URL ', configService.get('MONGO_DB_URL'));
+        return {
+          uri: configService.get('MONGO_DB_URL')
+        };
       }
-    }
+    })
+  ]
 
-  ],
-  exports: [DataSource]
 })
 export class DatabaseModule {
 }
