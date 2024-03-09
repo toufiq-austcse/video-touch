@@ -1,0 +1,13 @@
+version: "3"
+services:
+  nest-boilerplate:
+    build: .
+    hostname: nest-boilerplate
+    image: nest-boilerplate
+    container_name: nest-boilerplate
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - PORT=$PORT
+    ports:
+      - $PORT:$PORT
