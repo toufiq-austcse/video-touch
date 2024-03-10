@@ -1,16 +1,16 @@
-import { FilterQuery, Model, UpdateQuery } from 'mongoose';
-import { AbstractDocument } from '@common/database/schemas/abstract.schema';
+import { FilterQuery, Model, Types, UpdateQuery } from 'mongoose';
+import { AbstractDocument } from '@/src/common/database/schemas/abstract.schema';
 
 export abstract class BaseRepository<T extends AbstractDocument> {
   constructor(protected readonly entityModel: Model<T>) {
   }
 
-  async create(createDataEntity: any): Promise<T> {
-    return new this.entityModel(createDataEntity).save();
-  }
-
-  async createMany(createDataEntity: any[]) {
-    return this.entityModel.insertMany(createDataEntity, { ordered: true });
+  async create(document: Omit<T, '_id'>): Promise<T> {
+    const createdDocument = new this.entityModel({
+      ...document,
+      _id: new Types.ObjectId()
+    });
+    return (await createdDocument.save()).toJSON() as unknown as T;
   }
 
   async find(entityFilterQuery: FilterQuery<T>, projection?: Partial<T | any>): Promise<T[] | null> {

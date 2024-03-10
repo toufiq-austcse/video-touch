@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { IndexModule } from './index/index.module';
-import { AppConfigModule } from '@common/app-config/app-config.module';
-import { HttpClientsModule } from '@common/http-clients/http-clients.module';
-import { DatabaseModule } from '@common/database/database.module';
+import { AppConfigModule } from '@/src/common/app-config/app-config.module';
+import { HttpClientsModule } from '@/src/common/http-clients/http-clients.module';
+import { DatabaseModule } from '@/src/common/database/database.module';
 import { VideosModule } from './videos/videos.module';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';

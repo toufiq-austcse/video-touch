@@ -1,7 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import basicAuth from 'express-basic-auth';
-import { AppConfigService } from '@common/app-config/service/app-config.service';
+import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
+
 
 
 export async function setupSwagger(app: INestApplication, port: number) {

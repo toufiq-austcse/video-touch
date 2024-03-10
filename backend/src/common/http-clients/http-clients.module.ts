@@ -1,6 +1,7 @@
 import {Global, Module} from '@nestjs/common';
 import {HttpModule} from "@nestjs/axios";
-import {DownloaderHttpService} from "@common/http-clients/downloader/downloader-http.service";
+import { DownloaderHttpService } from '@/src/common/http-clients/downloader/downloader-http.service';
+
 
 @Global()
 @Module({

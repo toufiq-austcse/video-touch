@@ -28,44 +28,8 @@
     "noImplicitThis": true,
     "noUncheckedIndexedAccess": true,
     "paths": {
-      "@common/filters/*": [
-        "./src/common/filters/*"
-      ],
-      "@common/interceptors/*": [
-        "./src/common/interceptors/*"
-      ],
-      "@common/http-clients/*": [
-        "./src/common/http-clients/*"
-      ],
-      "@common/app-config/*": [
-        "./src/common/app-config/*"
-      ],
-      "@common/database/*": [
-        "./src/common/database/*"
-      ],
-      "@common/dto/*": [
-        "./src/common/dto/*"
-      ],
-      "@common/guards/*": [
-        "./src/common/guards/*"
-      ],
-      "@common/decorators/*": [
-        "./src/common/decorators/*"
-      ],
-      "@common/constants/*": [
-        "./src/common/constants/*"
-      ],
-      "@common/utils/*": [
-        "./src/common/utils/*"
-      ],
-      "@common/swagger/*": [
-        "./src/common/swagger/*"
-      ],
-      "@common/exceptions/*": [
-        "./src/common/exceptions/*"
-      ],
-      "@common/rabbit-mq/*": [
-        "./src/common/rabbit-mq/*"
+      "@/*": [
+        "*"
       ]
     }
   }
