@@ -69,11 +69,18 @@ input GetVideoInputDto {
 
 type Mutation {
   CreateVideo(createVideoInput: CreateVideoInputDto!): CreateVideoResponse!
+  UpdateVideo(_id: String!, updateVideoInput: UpdateVideoInputDto!): Video!
 }
 
 input CreateVideoInputDto {
   title: String
   description: String
   source_url: String!
+  tags: [String!]
+}
+
+input UpdateVideoInputDto {
+  title: String
+  description: String
   tags: [String!]
 }

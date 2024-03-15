@@ -6,6 +6,7 @@ import { VIDEO_STATUS } from '@/src/common/constants';
 import { VideoRepository } from '@/src/api/videos/repositories/video.repository';
 import { ListVideoInputDto } from '@/src/api/videos/dtos/list-video-input.dto';
 import { GetVideoInputDto } from '@/src/api/videos/dtos/get-video-input.dto';
+import { UpdateVideoInputDto } from '@/src/api/videos/dtos/update-video-input.dto';
 
 
 @Injectable()
@@ -69,6 +70,16 @@ export class VideoService {
     return this.repository.findOne({
       _id: getVideoInputDto._id
     });
+
+  }
+
+  async update(oldVideo: VideoDocument, updateVideoInput: UpdateVideoInputDto) {
+    await this.repository.findOneAndUpdate({ _id: oldVideo._id }, {
+      title: updateVideoInput.title ? updateVideoInput.title : oldVideo.title,
+      description: updateVideoInput.description ? updateVideoInput.description : updateVideoInput.description,
+      tags: updateVideoInput.tags ? updateVideoInput.tags : oldVideo.tags
+    });
+    return this.repository.findOne({ _id: oldVideo._id });
 
   }
 }

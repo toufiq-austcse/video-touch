@@ -33,7 +33,7 @@ export abstract class BaseRepository<T extends AbstractDocument> {
     return this.entityModel.find().lean();
   }
 
-  async findOneAndUpdate(entityFilterQuery: FilterQuery<T>, updateEntityData: UpdateQuery<unknown>): Promise<T | null> {
+  async findOneAndUpdate(entityFilterQuery: FilterQuery<T>, updateEntityData: UpdateQuery<T>): Promise<T | null> {
     return this.entityModel.findOneAndUpdate(entityFilterQuery, updateEntityData);
   }
 
