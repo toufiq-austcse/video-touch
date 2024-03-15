@@ -44,4 +44,8 @@ export abstract class BaseRepository<T extends AbstractDocument> {
   async deleteMany(entityFilterQuery: FilterQuery<T>): Promise<any> {
     return this.entityModel.deleteMany(entityFilterQuery);
   }
+
+  async count(entityFilterQuery: FilterQuery<T>): Promise<number> {
+    return this.entityModel.countDocuments(entityFilterQuery);
+  }
 }

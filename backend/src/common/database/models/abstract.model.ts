@@ -5,3 +5,13 @@ export class AbstractModel {
   @Field()
   _id: string;
 }
+
+export class PageInfo {
+  end_cursor: string;
+  total_pages: number;
+}
+
+export class BasePaginatedResponse<T> {
+  items: T[];
+  pageInfo: PageInfo;
+}
