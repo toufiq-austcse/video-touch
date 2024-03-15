@@ -82,4 +82,11 @@ export class VideoService {
     return this.repository.findOne({ _id: oldVideo._id });
 
   }
+
+  async softDeleteVideo(currentVideo: VideoDocument) {
+    await this.repository.findOneAndUpdate({ _id: currentVideo._id }, {
+      is_deleted: true
+    });
+    return this.repository.findOne({ _id: currentVideo._id });
+  }
 }

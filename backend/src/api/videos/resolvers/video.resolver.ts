@@ -33,6 +33,17 @@ export class VideoResolver {
     return this.videoMapper.toGetVideoResponse(updatedVideo);
   }
 
+  @Mutation(() => String, { name: 'DeleteVideo' })
+  async deleteVideo(@Args('_id') id: string): Promise<string> {
+    let currentVideo = await this.videoService.getVideo({ _id: id });
+    if (!currentVideo) {
+      throw new NotFoundException('Video not found');
+    }
+
+    await this.videoService.softDeleteVideo(currentVideo);
+    return 'Video deleted successfully';
+  }
+
   @Query(() => PaginatedVideoResponse, { name: 'ListVideo' })
   async listVideos(@Args('listVideoInput') listVideoInput: ListVideoInputDto): Promise<PaginatedVideoResponse> {
     console.log('listVideos ', listVideoInput);

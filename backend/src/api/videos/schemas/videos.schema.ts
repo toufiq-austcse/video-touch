@@ -64,6 +64,12 @@ export class VideoDocument extends AbstractDocument {
   })
   tags?: string[];
 
+  @Prop({
+    required: false,
+    default: false
+  })
+  is_deleted?: boolean;
+
 }
 
 export const VideoSchema = SchemaFactory.createForClass(VideoDocument);

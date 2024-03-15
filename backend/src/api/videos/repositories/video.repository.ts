@@ -14,9 +14,9 @@ export class VideoRepository extends BaseRepository<VideoDocument> {
   async getPaginatedVideos(first: number, cursor: string): Promise<BasePaginatedResponse<VideoDocument>> {
     let total = await this.videoModel.countDocuments();
     let docs: VideoDocument[];
-    let filter: FilterQuery<VideoDocument> = null;
+    let filter: FilterQuery<VideoDocument> = { is_deleted: { $ne: true } };
     if (cursor) {
-      filter = { _id: { $gt: cursor } };
+      filter = { ...filter, _id: { $gt: cursor } };
     }
     docs = await this.videoModel.find(filter).limit(first).sort({ createdAt: -1 }).lean();
 
