@@ -11,7 +11,7 @@ async function bootstrap() {
   let PORT = +process.env.PORT || 3000;
   await setupSwagger(app, PORT);
   app.enableCors();
-  // app.useGlobalFilters(new HttpExceptionFilter());
+  // pages.useGlobalFilters(new HttpExceptionFilter());
   morgan.token('remote-addr', (req, res) => {
     let remoteAddr = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     return remoteAddr.toString();
