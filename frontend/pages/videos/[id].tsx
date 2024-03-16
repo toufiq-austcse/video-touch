@@ -1,8 +1,6 @@
 import VideoPlayer from '@/components/ui/video-player';
-import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
-import { StepBack } from 'lucide-react';
 import Step from '@/components/ui/step';
 import Data from '@/components/ui/data';
 
