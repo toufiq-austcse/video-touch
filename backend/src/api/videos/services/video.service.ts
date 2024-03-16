@@ -105,4 +105,9 @@ export class VideoService {
       status: data.latest_status
     };
   }
+
+  async getVideoStatus(video: VideoDocument) {
+    return this.videoStatusRepository.find({ video_id: video._id });
+
+  }
 }

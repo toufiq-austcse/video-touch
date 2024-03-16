@@ -1,5 +1,5 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { CreateVideoResponse, PaginatedVideoResponse, Video } from '../models/videos.model';
+import { CreateVideoResponse, PaginatedVideoResponse, Video, VideoStatus } from '../models/videos.model';
 import { CreateVideoInputDto } from '../dtos/create-video-input.dto';
 import { VideoService } from '../services/video.service';
 import { VideoMapper } from '@/src/api/videos/mapper/video.mapper';
@@ -30,7 +30,10 @@ export class VideoResolver {
     }
 
     let updatedVideo = await this.videoService.update(currentVideo, updateVideoInput);
-    return this.videoMapper.toGetVideoResponse(updatedVideo);
+    let videoStatusDetails = await this.videoService.getVideoStatus(updatedVideo);
+    let videoStatuses: VideoStatus[] = this.videoMapper.toVideoStatuses(videoStatusDetails);
+
+    return this.videoMapper.toGetVideoResponse(updatedVideo, videoStatuses);
   }
 
   @Mutation(() => String, { name: 'DeleteVideo' })
@@ -58,7 +61,10 @@ export class VideoResolver {
     if (!video) {
       throw new NotFoundException('Video not found');
     }
-    return this.videoMapper.toGetVideoResponse(video);
+
+    let videoStatusDetails = await this.videoService.getVideoStatus(video);
+    let videoStatuses: VideoStatus[] = this.videoMapper.toVideoStatuses(videoStatusDetails);
+    return this.videoMapper.toGetVideoResponse(video, videoStatuses);
 
   }
 }

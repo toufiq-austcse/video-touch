@@ -22,7 +22,8 @@ type Video {
   thumbnail_url: String
   size: Float!
   master_playlist_name: String
-  status: String!
+  latest_status: String!
+  status_details: [VideoStatus!]!
   tags: [String!]!
   created_at: DateTime!
   updated_at: DateTime!
@@ -32,6 +33,13 @@ type Video {
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+type VideoStatus {
+  _id: String!
+  video_id: String!
+  status: String!
+  details: String
+}
 
 type VideoMinimalResponse {
   _id: String!

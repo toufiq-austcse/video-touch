@@ -2,11 +2,12 @@ import { Injectable } from '@nestjs/common';
 import {
   CreateVideoResponse,
   PaginatedVideoResponse, Video,
-  VideoMinimalResponse
+  VideoMinimalResponse, VideoStatus
 } from '@/src/api/videos/models/videos.model';
 import { VideoDocument } from '@/src/api/videos/schemas/videos.schema';
 import { plainToClass, plainToInstance } from 'class-transformer';
 import { BasePaginatedResponse } from '@/src/common/database/models/abstract.model';
+import { VideoStatusDocument } from '@/src/api/videos/schemas/videos-status.schema';
 
 @Injectable()
 export class VideoMapper {
@@ -45,7 +46,7 @@ export class VideoMapper {
     };
   }
 
-  toGetVideoResponse(video: VideoDocument): Video {
+  toGetVideoResponse(video: VideoDocument, videoStatuses: VideoStatus[]): Video {
     return plainToInstance(Video, {
       title: video.title,
       description: video.description,
@@ -56,11 +57,27 @@ export class VideoMapper {
       thumbnail_url: video.thumbnail_url,
       size: video.size,
       master_playlist_name: video.master_playlist_name,
-      status: video.latest_status,
+      latest_status: video.latest_status,
+      status_details: videoStatuses,
       tags: video.tags,
       created_at: video.createdAt,
       updated_at: video.updatedAt,
       _id: video._id.toString()
     } as Video, { excludeExtraneousValues: true, enableImplicitConversion: true });
+  }
+
+  toVideoStatuses(videoStatusDetails: VideoStatusDocument[]): VideoStatus[] {
+    let videoStatuses: VideoStatus[] = [];
+    for (let videoStatus of videoStatusDetails) {
+      videoStatuses.push(plainToInstance(VideoStatus, {
+        _id: videoStatus._id.toString(),
+        video_id: videoStatus.video_id.toString(),
+        status: videoStatus.status,
+        details: videoStatus.details,
+        created_at: videoStatus.createdAt,
+        updated_at: videoStatus.updatedAt
+      } as VideoStatus, { excludeExtraneousValues: true, enableImplicitConversion: true }));
+    }
+    return videoStatuses;
   }
 }

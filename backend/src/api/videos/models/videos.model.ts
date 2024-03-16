@@ -74,7 +74,12 @@ export class Video {
 
   @Field()
   @Expose()
-  status: string;
+  latest_status: string;
+
+  @Field(() => [VideoStatus])
+  @Expose()
+  @Transform(value => value.obj.status_details ?? [])
+  status_details: VideoStatus[];
 
   @Field(() => [String])
   @Expose()
@@ -87,6 +92,25 @@ export class Video {
   @Field()
   @Expose()
   updated_at: Date;
+}
+
+@ObjectType()
+export class VideoStatus {
+  @Field()
+  @Expose()
+  _id: string;
+
+  @Field()
+  @Expose()
+  video_id: string;
+
+  @Field()
+  @Expose()
+  status: string;
+
+  @Field({ nullable: true })
+  @Expose()
+  details?: string;
 }
 
 @ObjectType()
