@@ -9,7 +9,7 @@ const Step = ({ title, isFinal = false }: { title: string, isFinal?: boolean }) 
             <path stroke-linecap="round" stroke-linejoin="round"
                   d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
           </svg>
-          {!isFinal && <div className={'py-2.5 pl-6'}>
+          {!isFinal && <div className={'py-2.5 pl-4 pr-4'}>
             <div className={'p-0 border-t-2 border-indigo-500 min-w-32'}></div>
           </div>}
         </div>
