@@ -7,11 +7,13 @@ import { VideoRepository } from '@/src/api/videos/repositories/video.repository'
 import { ListVideoInputDto } from '@/src/api/videos/dtos/list-video-input.dto';
 import { GetVideoInputDto } from '@/src/api/videos/dtos/get-video-input.dto';
 import { UpdateVideoInputDto } from '@/src/api/videos/dtos/update-video-input.dto';
+import { VideoStatusDocument } from '@/src/api/videos/schemas/videos-status.schema';
+import { VideoStatusRepository } from '@/src/api/videos/repositories/video-status.repository';
 
 
 @Injectable()
 export class VideoService {
-  constructor(private repository: VideoRepository) {
+  constructor(private repository: VideoRepository, private videoStatusRepository: VideoStatusRepository) {
 
   }
 
@@ -30,7 +32,7 @@ export class VideoService {
       title: title,
       description: createVideoInput.description,
       source_url: createVideoInput.source_url,
-      status: VIDEO_STATUS.QUEUED,
+      latest_status: VIDEO_STATUS.QUEUED,
       tags: createVideoInput.tags
     };
   }
@@ -88,5 +90,19 @@ export class VideoService {
       is_deleted: true
     });
     return this.repository.findOne({ _id: currentVideo._id });
+  }
+
+  async insertVideoStatus(data: VideoDocument) {
+    let videoStatusDocument = this.buildVideoStatusDocument(data);
+    console.log('videoStatusRepository', this.videoStatusRepository);
+    return this.videoStatusRepository.create(videoStatusDocument);
+
+  }
+
+  private buildVideoStatusDocument(data: VideoDocument): Omit<VideoStatusDocument, '_id'> {
+    return {
+      video_id: data._id,
+      status: data.latest_status
+    };
   }
 }

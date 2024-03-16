@@ -15,7 +15,7 @@ export class VideoMapper {
       _id: videoDocument._id.toString(),
       description: videoDocument.description,
       source_url: videoDocument.source_url,
-      status: videoDocument.status,
+      status: videoDocument.latest_status,
       tags: videoDocument.tags,
       title: videoDocument.title
 
@@ -31,7 +31,7 @@ export class VideoMapper {
         title: video.title,
         thumbnail_url: video.thumbnail_url,
         duration: video.duration,
-        status: video.status,
+        status: video.latest_status,
         created_at: video.createdAt,
         updated_at: video.updatedAt
       } as VideoMinimalResponse, {
@@ -56,7 +56,7 @@ export class VideoMapper {
       thumbnail_url: video.thumbnail_url,
       size: video.size,
       master_playlist_name: video.master_playlist_name,
-      status: video.status,
+      status: video.latest_status,
       tags: video.tags,
       created_at: video.createdAt,
       updated_at: video.updatedAt,

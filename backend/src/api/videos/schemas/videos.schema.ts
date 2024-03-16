@@ -57,7 +57,7 @@ export class VideoDocument extends AbstractDocument {
   @Prop({
     required: true
   })
-  status: string;
+  latest_status?: string;
 
   @Prop({
     required: false
