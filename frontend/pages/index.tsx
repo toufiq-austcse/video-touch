@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import * as React from 'react';
+import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -11,12 +11,12 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable
-} from '@tanstack/react-table';
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from 'lucide-react';
+  useReactTable,
+} from "@tanstack/react-table";
+import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
 
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -24,70 +24,70 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
-} from '@/components/ui/table';
-import { badgeVariants } from '@/components/ui/badge';
-import Image from 'next/image';
-import Link from 'next/link';
-import AppTable from '@/components/ui/app-table';
+  TableRow,
+} from "@/components/ui/table";
+import { badgeVariants } from "@/components/ui/badge";
+import Image from "next/image";
+import Link from "next/link";
+import AppTable from "@/components/ui/app-table";
 
 const data: Video[] = [
   {
-    id: 'm5gr84i9',
-    title: 'video 1',
-    status: 'success',
-    createdAt: new Date()
+    id: "m5gr84i9",
+    title: "video 1",
+    status: "success",
+    createdAt: new Date(),
   },
   {
-    id: '3u1reuv4',
-    title: 'video 1',
-    status: 'success',
-    createdAt: new Date()
+    id: "3u1reuv4",
+    title: "video 1",
+    status: "success",
+    createdAt: new Date(),
   },
   {
-    id: 'derv1ws0',
-    title: 'video 1',
-    status: 'processing',
-    createdAt: new Date()
+    id: "derv1ws0",
+    title: "video 1",
+    status: "processing",
+    createdAt: new Date(),
   },
   {
-    id: '5kma53ae',
-    title: 'video 1',
-    status: 'success',
-    createdAt: new Date()
+    id: "5kma53ae",
+    title: "video 1",
+    status: "success",
+    createdAt: new Date(),
   },
   {
-    id: 'bhqecj4p',
-    title: 'video 1',
-    status: 'failed',
-    createdAt: new Date()
-  }
+    id: "bhqecj4p",
+    title: "video 1",
+    status: "failed",
+    createdAt: new Date(),
+  },
 ];
 
 export type Video = {
-  id: string
-  title: string
-  status: 'pending' | 'processing' | 'success' | 'failed'
-  createdAt: Date
-}
+  id: string;
+  title: string;
+  status: "pending" | "processing" | "success" | "failed";
+  createdAt: Date;
+};
 
 export const columns: ColumnDef<Video>[] = [
   {
-    id: 'select',
+    id: "select",
     header: ({ table }) => (
       <Checkbox
         checked={
           table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
+          (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
@@ -101,55 +101,70 @@ export const columns: ColumnDef<Video>[] = [
       />
     ),
     enableSorting: false,
-    enableHiding: false
+    enableHiding: false,
   },
 
   {
-    accessorKey: 'title',
-    header: 'Title',
+    accessorKey: "title",
+    header: "Title",
     cell: ({ row }) => {
-      return <Link className="flex" href="/videos/dsfsd">
-        <Image
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={100}
-          height={100}
-          priority
-        />
-        <div className="lowercase font-medium">{row.getValue('title')}</div>
-      </Link>;
-    }
+      return (
+        <Link className="flex" href="/videos/dsfsd">
+          <Image
+            src="/next.svg"
+            alt="Next.js Logo"
+            width={100}
+            height={100}
+            priority
+          />
+          <div className="lowercase font-medium">{row.getValue("title")}</div>
+        </Link>
+      );
+    },
   },
   {
-    accessorKey: 'status',
-    header: 'Status',
+    accessorKey: "status",
+    header: "Status",
     cell: ({ row }) => {
-      let status = row.getValue('status');
-      if (status === 'failed') {
-        return <div
-          className={`${badgeVariants({ variant: 'destructive' })} capitalize`}>{row.getValue('status')}</div>;
-      } else if (status === 'processing') {
-        return <div
-          className={`${badgeVariants({ variant: 'default' })} capitalize`}>{row.getValue('status')}</div>;
+      let status = row.getValue("status");
+      if (status === "failed") {
+        return (
+          <div
+            className={`${badgeVariants({ variant: "destructive" })} capitalize`}
+          >
+            {row.getValue("status")}
+          </div>
+        );
+      } else if (status === "processing") {
+        return (
+          <div
+            className={`${badgeVariants({ variant: "default" })} capitalize`}
+          >
+            {row.getValue("status")}
+          </div>
+        );
       }
 
-      return <div className={`${badgeVariants({ variant: 'secondary' })} capitalize`}>{row.getValue('status')}</div>;
-
-
-    }
+      return (
+        <div
+          className={`${badgeVariants({ variant: "secondary" })} capitalize`}
+        >
+          {row.getValue("status")}
+        </div>
+      );
+    },
   },
   {
-    accessorKey: 'createdAt',
-    header: 'CreatedAt',
+    accessorKey: "createdAt",
+    header: "CreatedAt",
     cell: ({ row }) => {
-      const date = new Date(row.getValue('createdAt')).toDateString();
-
+      const date = new Date(row.getValue("createdAt")).toDateString();
 
       return <div>{date}</div>;
-    }
+    },
   },
   {
-    id: 'actions',
+    id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
       const payment = row.original;
@@ -175,8 +190,8 @@ export const columns: ColumnDef<Video>[] = [
           </DropdownMenuContent>
         </DropdownMenu>
       );
-    }
-  }
+    },
+  },
 ];
 
 export default function HomePage() {

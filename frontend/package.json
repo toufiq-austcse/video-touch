@@ -10,7 +10,6 @@
     "lint": "next lint",
     "prepare": "cd .. && husky install frontend/.husky"
   },
-
   "dependencies": {
     "@heroicons/react": "^2.1.1",
     "@radix-ui/react-checkbox": "^1.0.4",
