@@ -24,6 +24,8 @@ export default function VideoDetailsPage() {
         </div>
       </div>
     </div>
+
+
     <div className={'border-2 rounded space-y-4 p-8 w-6/12 h-3/6'}>
       <div>
         <Data label={'Status'} value={'Downloaded'} />
