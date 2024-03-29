@@ -2,9 +2,9 @@ version: "3"
 services:
   nest-boilerplate:
     build: .
-    hostname: nest-boilerplate
-    image: nest-boilerplate
-    container_name: nest-boilerplate
+    hostname: video-touch
+    image: video-touch
+    container_name: video-touch
     restart: unless-stopped
     env_file: .env
     environment:
