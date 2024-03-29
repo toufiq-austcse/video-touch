@@ -1,6 +1,6 @@
 version: "3"
 services:
-  nest-boilerplate:
+  video-touch:
     build: .
     hostname: video-touch
     image: video-touch
