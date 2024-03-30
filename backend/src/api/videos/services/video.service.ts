@@ -12,8 +12,7 @@ import { VideoStatusRepository } from '@/src/api/videos/repositories/video-statu
 
 @Injectable()
 export class VideoService {
-  constructor(private repository: VideoRepository, private videoStatusRepository: VideoStatusRepository) {
-  }
+  constructor(private repository: VideoRepository, private videoStatusRepository: VideoStatusRepository) {}
 
   async create(createVideoInput: CreateVideoInputDto) {
     let videoDocument = this.buildVideoDocument(createVideoInput);
@@ -30,7 +29,7 @@ export class VideoService {
       description: createVideoInput.description,
       source_url: createVideoInput.source_url,
       latest_status: VIDEO_STATUS.QUEUED,
-      tags: createVideoInput.tags
+      tags: createVideoInput.tags,
     };
   }
 
@@ -52,7 +51,7 @@ export class VideoService {
       size: +format.size,
       height: videoInfo.height,
       width: videoInfo.width,
-      duration: +videoInfo.duration
+      duration: +videoInfo.duration,
     };
   }
 
@@ -66,7 +65,7 @@ export class VideoService {
 
   async getVideo(getVideoInputDto: GetVideoInputDto) {
     return this.repository.findOne({
-      _id: getVideoInputDto._id
+      _id: getVideoInputDto._id,
     });
   }
 
@@ -76,7 +75,7 @@ export class VideoService {
       {
         title: updateVideoInput.title ? updateVideoInput.title : oldVideo.title,
         description: updateVideoInput.description ? updateVideoInput.description : updateVideoInput.description,
-        tags: updateVideoInput.tags ? updateVideoInput.tags : oldVideo.tags
+        tags: updateVideoInput.tags ? updateVideoInput.tags : oldVideo.tags,
       }
     );
     return this.repository.findOne({ _id: oldVideo._id });
@@ -86,7 +85,7 @@ export class VideoService {
     await this.repository.findOneAndUpdate(
       { _id: currentVideo._id },
       {
-        is_deleted: true
+        is_deleted: true,
       }
     );
     return this.repository.findOne({ _id: currentVideo._id });
@@ -101,11 +100,18 @@ export class VideoService {
   private buildVideoStatusDocument(data: VideoDocument): Omit<VideoStatusDocument, '_id'> {
     return {
       video_id: data._id,
-      status: data.latest_status
+      status: data.latest_status,
     };
   }
 
   async getVideoStatus(video: VideoDocument) {
-    return this.videoStatusRepository.find({ video_id: video._id }, ['status', '_id', 'video_id', 'details', 'createdAt', 'updatedAt']);
+    return this.videoStatusRepository.find({ video_id: video._id }, [
+      'status',
+      '_id',
+      'video_id',
+      'details',
+      'createdAt',
+      'updatedAt',
+    ]);
   }
 }

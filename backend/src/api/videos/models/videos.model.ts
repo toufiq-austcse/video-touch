@@ -113,7 +113,6 @@ export class VideoStatus {
   @Field()
   @Expose()
   created_at: Date;
-
 }
 
 @ObjectType()
