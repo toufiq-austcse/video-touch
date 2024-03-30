@@ -109,6 +109,10 @@ export class VideoStatus {
   @Field({ nullable: true })
   @Expose()
   details?: string;
+
+  @Field()
+  @Expose()
+  created_at: Date;
 }
 
 @ObjectType()

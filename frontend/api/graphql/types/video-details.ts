@@ -18,4 +18,5 @@ export interface VideoDetails {
 export interface StatusDetail {
   status: string;
   details: null;
+  created_at: Date;
 }

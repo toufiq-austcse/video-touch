@@ -105,6 +105,13 @@ export class VideoService {
   }
 
   async getVideoStatus(video: VideoDocument) {
-    return this.videoStatusRepository.find({ video_id: video._id });
+    return this.videoStatusRepository.find({ video_id: video._id }, [
+      'status',
+      '_id',
+      'video_id',
+      'details',
+      'createdAt',
+      'updatedAt',
+    ]);
   }
 }
