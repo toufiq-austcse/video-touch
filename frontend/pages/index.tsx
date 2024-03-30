@@ -1,95 +1,42 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import * as React from 'react';
+import { ColumnDef } from '@tanstack/react-table';
+import { MoreHorizontal } from 'lucide-react';
 
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { badgeVariants } from "@/components/ui/badge";
-import Image from "next/image";
-import Link from "next/link";
-import AppTable from "@/components/ui/app-table";
-import { useQuery } from "@apollo/client";
-import { LIST_VIDEO_QUERY } from "@/api/graphql/queries/query";
-
-const data: Video[] = [
-  {
-    id: "m5gr84i9",
-    title: "video 1",
-    status: "success",
-    createdAt: new Date(),
-  },
-  {
-    id: "3u1reuv4",
-    title: "video 1",
-    status: "success",
-    createdAt: new Date(),
-  },
-  {
-    id: "derv1ws0",
-    title: "video 1",
-    status: "processing",
-    createdAt: new Date(),
-  },
-  {
-    id: "5kma53ae",
-    title: "video 1",
-    status: "success",
-    createdAt: new Date(),
-  },
-  {
-    id: "bhqecj4p",
-    title: "video 1",
-    status: "failed",
-    createdAt: new Date(),
-  },
-];
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { badgeVariants } from '@/components/ui/badge';
+import Image from 'next/image';
+import Link from 'next/link';
+import AppTable from '@/components/ui/app-table';
+import { useQuery } from '@apollo/client';
+import { LIST_VIDEO_QUERY } from '@/api/graphql/queries/query';
 
 export type Video = {
-  id: string;
+  _id: string;
   title: string;
-  status: "pending" | "processing" | "success" | "failed";
-  createdAt: Date;
+  thumbnail_url: string;
+  status: 'pending' | 'processing' | 'success' | 'failed';
+  created_at: Date;
 };
 
 export const columns: ColumnDef<Video>[] = [
   {
-    id: "select",
+    id: 'select',
     header: ({ table }) => (
       <Checkbox
         checked={
           table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          (table.getIsSomePageRowsSelected() && 'indeterminate')
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
@@ -103,73 +50,73 @@ export const columns: ColumnDef<Video>[] = [
       />
     ),
     enableSorting: false,
-    enableHiding: false,
+    enableHiding: false
   },
 
   {
-    accessorKey: "title",
-    header: "Title",
+    accessorKey: 'title',
+    header: 'Title',
     cell: ({ row }) => {
       return (
-        <Link className="flex" href="/videos/dsfsd">
+        <Link className="flex space-x-4" href="/videos/dsfsd">
           <Image
-            src="/next.svg"
-            alt="Next.js Logo"
+            src="https://assets.gumlet.io/public/img/error_dark_thumb.svg"
+            alt="default thumbnail"
             width={100}
             height={100}
             priority
           />
-          <div className="lowercase font-medium">{row.getValue("title")}</div>
+          <div className="lowercase font-medium">{row.getValue('title')}</div>
         </Link>
       );
-    },
+    }
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: 'status',
+    header: 'Status',
     cell: ({ row }) => {
-      let status = row.getValue("status");
-      if (status === "failed") {
+      let status = row.getValue('status');
+      if (status === 'failed') {
         return (
           <div
-            className={`${badgeVariants({ variant: "destructive" })} capitalize`}
+            className={`${badgeVariants({ variant: 'destructive' })} capitalize`}
           >
-            {row.getValue("status")}
+            {row.getValue('status')}
           </div>
         );
-      } else if (status === "processing") {
+      } else if (status === 'processing') {
         return (
           <div
-            className={`${badgeVariants({ variant: "default" })} capitalize`}
+            className={`${badgeVariants({ variant: 'default' })} capitalize`}
           >
-            {row.getValue("status")}
+            {row.getValue('status')}
           </div>
         );
       }
 
       return (
         <div
-          className={`${badgeVariants({ variant: "secondary" })} capitalize`}
+          className={`${badgeVariants({ variant: 'secondary' })} capitalize`}
         >
-          {row.getValue("status")}
+          {row.getValue('status')}
         </div>
       );
-    },
+    }
   },
   {
-    accessorKey: "createdAt",
-    header: "CreatedAt",
+    accessorKey: 'created_at',
+    header: 'CreatedAt',
     cell: ({ row }) => {
-      const date = new Date(row.getValue("createdAt")).toDateString();
+      const date = new Date(row.getValue('created_at')).toDateString();
 
       return <div>{date}</div>;
-    },
+    }
   },
   {
-    id: "actions",
+    id: 'actions',
     enableHiding: false,
     cell: ({ row }) => {
-      const payment = row.original;
+      const video = row.original;
 
       return (
         <DropdownMenu>
@@ -182,7 +129,7 @@ export const columns: ColumnDef<Video>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
+              onClick={() => navigator.clipboard.writeText(video._id)}
             >
               Copy payment ID
             </DropdownMenuItem>
@@ -192,8 +139,8 @@ export const columns: ColumnDef<Video>[] = [
           </DropdownMenuContent>
         </DropdownMenu>
       );
-    },
-  },
+    }
+  }
 ];
 
 export default function HomePage() {
@@ -204,6 +151,6 @@ export default function HomePage() {
   if (error) {
     return <h2>Error: {error.message}</h2>;
   }
-  console.log("data", data);
-  return <AppTable<Video> data={data} columns={columns} />;
+
+  return <AppTable<Video> data={data.ListVideo.videos} columns={columns} />;
 }
