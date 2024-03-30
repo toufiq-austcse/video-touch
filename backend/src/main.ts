@@ -6,11 +6,15 @@ import { setupSwagger } from '@/src/common/swagger';
 
 
 
+
 async function bootstrap() {
   const app = await NestFactory.create(ApiModule);
+  app.enableCors({
+    credentials: true,
+    origin: true,
+  });
   let PORT = +process.env.PORT || 3000;
   await setupSwagger(app, PORT);
-  app.enableCors();
   // pages.useGlobalFilters(new HttpExceptionFilter());
   morgan.token('remote-addr', (req, res) => {
     let remoteAddr = req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
