@@ -10,17 +10,13 @@ import { UpdateVideoInputDto } from '@/src/api/videos/dtos/update-video-input.dt
 import { VideoStatusDocument } from '@/src/api/videos/schemas/videos-status.schema';
 import { VideoStatusRepository } from '@/src/api/videos/repositories/video-status.repository';
 
-
 @Injectable()
 export class VideoService {
-  constructor(private repository: VideoRepository, private videoStatusRepository: VideoStatusRepository) {
-
-  }
+  constructor(private repository: VideoRepository, private videoStatusRepository: VideoStatusRepository) {}
 
   async create(createVideoInput: CreateVideoInputDto) {
     let videoDocument = this.buildVideoDocument(createVideoInput);
     return this.repository.create(videoDocument);
-
   }
 
   buildVideoDocument(createVideoInput: CreateVideoInputDto): Omit<VideoDocument, '_id'> {
@@ -33,16 +29,16 @@ export class VideoService {
       description: createVideoInput.description,
       source_url: createVideoInput.source_url,
       latest_status: VIDEO_STATUS.QUEUED,
-      tags: createVideoInput.tags
+      tags: createVideoInput.tags,
     };
   }
 
   async getMetadata(url: string): Promise<{
-    file_name: string,
-    size: number,
-    height: number,
-    width: number,
-    duration: number,
+    file_name: string;
+    size: number;
+    height: number;
+    width: number;
+    duration: number;
   }> {
     let extractMetaCommand = `ffprobe -v quiet -show_streams -show_format -print_format json ${url}`;
     let showStreamCommandRes = await terminal(extractMetaCommand);
@@ -55,10 +51,9 @@ export class VideoService {
       size: +format.size,
       height: videoInfo.height,
       width: videoInfo.width,
-      duration: +videoInfo.duration
+      duration: +videoInfo.duration,
     };
   }
-
 
   private parsedTitle(source_url: string) {
     return source_url.split('/').pop().split('.').shift();
@@ -70,25 +65,29 @@ export class VideoService {
 
   async getVideo(getVideoInputDto: GetVideoInputDto) {
     return this.repository.findOne({
-      _id: getVideoInputDto._id
+      _id: getVideoInputDto._id,
     });
-
   }
 
   async update(oldVideo: VideoDocument, updateVideoInput: UpdateVideoInputDto) {
-    await this.repository.findOneAndUpdate({ _id: oldVideo._id }, {
-      title: updateVideoInput.title ? updateVideoInput.title : oldVideo.title,
-      description: updateVideoInput.description ? updateVideoInput.description : updateVideoInput.description,
-      tags: updateVideoInput.tags ? updateVideoInput.tags : oldVideo.tags
-    });
+    await this.repository.findOneAndUpdate(
+      { _id: oldVideo._id },
+      {
+        title: updateVideoInput.title ? updateVideoInput.title : oldVideo.title,
+        description: updateVideoInput.description ? updateVideoInput.description : updateVideoInput.description,
+        tags: updateVideoInput.tags ? updateVideoInput.tags : oldVideo.tags,
+      }
+    );
     return this.repository.findOne({ _id: oldVideo._id });
-
   }
 
   async softDeleteVideo(currentVideo: VideoDocument) {
-    await this.repository.findOneAndUpdate({ _id: currentVideo._id }, {
-      is_deleted: true
-    });
+    await this.repository.findOneAndUpdate(
+      { _id: currentVideo._id },
+      {
+        is_deleted: true,
+      }
+    );
     return this.repository.findOne({ _id: currentVideo._id });
   }
 
@@ -96,18 +95,16 @@ export class VideoService {
     let videoStatusDocument = this.buildVideoStatusDocument(data);
     console.log('videoStatusRepository', this.videoStatusRepository);
     return this.videoStatusRepository.create(videoStatusDocument);
-
   }
 
   private buildVideoStatusDocument(data: VideoDocument): Omit<VideoStatusDocument, '_id'> {
     return {
       video_id: data._id,
-      status: data.latest_status
+      status: data.latest_status,
     };
   }
 
   async getVideoStatus(video: VideoDocument) {
     return this.videoStatusRepository.find({ video_id: video._id });
-
   }
 }

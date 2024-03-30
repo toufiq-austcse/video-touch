@@ -11,7 +11,10 @@ export class AppConfigService {
     AppConfigService.appConfig = {
       PORT: port,
       SWAGGER_SERVER_BASE_URL: this.configService.get('SWAGGER_SERVER_BASE_URL', `http://localhost:${port}`),
-      SWAGGER_SERVER_BASE_URL_DESCRIPTION: this.configService.get('SWAGGER_SERVER_BASE_URL_DESCRIPTION', 'Swagger Server Base URL'),
+      SWAGGER_SERVER_BASE_URL_DESCRIPTION: this.configService.get(
+        'SWAGGER_SERVER_BASE_URL_DESCRIPTION',
+        'Swagger Server Base URL'
+      ),
       SWAGGER_TITLE: this.configService.get('SWAGGER_TITLE', 'NEST BOILERPLATE'),
       SWAGGER_DESCRIPTION: this.configService.get('SWAGGER_DESCRIPTION', 'NEST BOILERPLATE API'),
       SWAGGER_VERSION: this.configService.get('SWAGGER_VERSION', '1.0'),
@@ -23,8 +26,7 @@ export class AppConfigService {
       DB_PORT: this.configService.get('DB_PORT', { infer: true }),
       DB_USER: this.configService.get('DB_USER', { infer: true }),
       SWAGGER_USERNAME: this.configService.get('SWAGGER_USERNAME', 'toufiq'),
-      SWAGGER_PASSWORD: this.configService.get('SWAGGER_PASSWORD', '1010')
-
+      SWAGGER_PASSWORD: this.configService.get('SWAGGER_PASSWORD', '1010'),
     };
   }
 }

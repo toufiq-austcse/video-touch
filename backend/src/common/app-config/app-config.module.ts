@@ -7,11 +7,10 @@ import { AppConfigService } from './service/app-config.service';
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',
-      isGlobal: true
-    })
+      isGlobal: true,
+    }),
   ],
   providers: [AppConfigService],
-  exports: [AppConfigService]
+  exports: [AppConfigService],
 })
-export class AppConfigModule {
-}
+export class AppConfigModule {}

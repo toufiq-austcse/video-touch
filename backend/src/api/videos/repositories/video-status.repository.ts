@@ -9,5 +9,4 @@ export class VideoStatusRepository extends BaseRepository<VideoStatusDocument> {
   constructor(@InjectModel(VIDEO_STATUS_COLLECTION_NAME) videoStatusModel: Model<VideoStatusDocument>) {
     super(videoStatusModel);
   }
-
 }

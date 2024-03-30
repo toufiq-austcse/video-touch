@@ -10,20 +10,19 @@ import { UpdateVideoInputDto } from '@/src/api/videos/dtos/update-video-input.dt
 
 @Resolver(() => Video)
 export class VideoResolver {
-  constructor(private videoService: VideoService, private videoMapper: VideoMapper) {
-  }
+  constructor(private videoService: VideoService, private videoMapper: VideoMapper) {}
 
   @Mutation(() => CreateVideoResponse, { name: 'CreateVideo' })
-  async createVideo(
-    @Args('createVideoInput') createVideoInput: CreateVideoInputDto
-  ): Promise<CreateVideoResponse> {
+  async createVideo(@Args('createVideoInput') createVideoInput: CreateVideoInputDto): Promise<CreateVideoResponse> {
     let createdVideo = await this.videoService.create(createVideoInput);
     return this.videoMapper.toCreateVideoResponse(createdVideo);
-
   }
 
   @Mutation(() => Video, { name: 'UpdateVideo' })
-  async updateVideo(@Args('_id') id: string, @Args('updateVideoInput') updateVideoInput: UpdateVideoInputDto): Promise<Video> {
+  async updateVideo(
+    @Args('_id') id: string,
+    @Args('updateVideoInput') updateVideoInput: UpdateVideoInputDto
+  ): Promise<Video> {
     let currentVideo = await this.videoService.getVideo({ _id: id });
     if (!currentVideo) {
       throw new NotFoundException('Video not found');
@@ -52,7 +51,6 @@ export class VideoResolver {
     console.log('listVideos ', listVideoInput);
     let paginatedResult = await this.videoService.listVideos(listVideoInput);
     return this.videoMapper.toPaginatedVideoResponse(paginatedResult);
-
   }
 
   @Query(() => Video, { name: 'GetVideo' })
@@ -65,6 +63,5 @@ export class VideoResolver {
     let videoStatusDetails = await this.videoService.getVideoStatus(video);
     let videoStatuses: VideoStatus[] = this.videoMapper.toVideoStatuses(videoStatusDetails);
     return this.videoMapper.toGetVideoResponse(video, videoStatuses);
-
   }
 }

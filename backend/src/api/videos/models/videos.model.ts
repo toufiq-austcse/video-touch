@@ -20,9 +20,7 @@ export class CreateVideoResponse {
 
   @Field(() => [String])
   tags: string[];
-
 }
-
 
 @ObjectType()
 export class Video {
@@ -40,7 +38,7 @@ export class Video {
 
   @Field()
   @Expose()
-  @Transform(value => value.obj.duration ?? 0)
+  @Transform((value) => value.obj.duration ?? 0)
   duration: number;
 
   @Field()
@@ -49,27 +47,27 @@ export class Video {
 
   @Field()
   @Expose()
-  @Transform(value => value.obj.height ?? 0)
+  @Transform((value) => value.obj.height ?? 0)
   height: number;
 
   @Field()
   @Expose()
-  @Transform(value => value.obj.width ?? 0)
+  @Transform((value) => value.obj.width ?? 0)
   width: number;
 
   @Field({ nullable: true })
   @Expose()
-  @Transform(value => value.obj.thumbnail_url ?? null)
+  @Transform((value) => value.obj.thumbnail_url ?? null)
   thumbnail_url: string;
 
   @Field()
   @Expose()
-  @Transform(value => value.obj.size ?? 0)
+  @Transform((value) => value.obj.size ?? 0)
   size: number;
 
   @Field({ nullable: true })
   @Expose()
-  @Transform(value => value.obj.thumbnail_url ?? null)
+  @Transform((value) => value.obj.thumbnail_url ?? null)
   master_playlist_name: string;
 
   @Field()
@@ -78,7 +76,7 @@ export class Video {
 
   @Field(() => [VideoStatus])
   @Expose()
-  @Transform(value => value.obj.status_details ?? [])
+  @Transform((value) => value.obj.status_details ?? [])
   status_details: VideoStatus[];
 
   @Field(() => [String])
@@ -125,12 +123,12 @@ export class VideoMinimalResponse {
 
   @Field()
   @Expose()
-  @Transform(value => value.obj.duration ?? 0)
+  @Transform((value) => value.obj.duration ?? 0)
   duration: number;
 
   @Field({ nullable: true })
   @Expose()
-  @Transform(value => value.obj.thumbnail_url ?? null)
+  @Transform((value) => value.obj.thumbnail_url ?? null)
   thumbnail_url: string;
 
   @Field()
@@ -144,7 +142,6 @@ export class VideoMinimalResponse {
   @Field()
   @Expose()
   updated_at: Date;
-
 }
 
 @ObjectType()
@@ -153,7 +150,6 @@ export class PageInfo {
   @Expose()
   end_cursor: string;
 
-
   @Field()
   @Expose()
   total_pages: number;
@@ -161,11 +157,11 @@ export class PageInfo {
 
 @ObjectType()
 export class PaginatedVideoResponse {
-  @Field(type => [VideoMinimalResponse])
+  @Field((type) => [VideoMinimalResponse])
   @Expose()
   videos: VideoMinimalResponse[];
 
-  @Field(type => PageInfo)
+  @Field((type) => PageInfo)
   @Expose()
   page_info: PageInfo;
 }

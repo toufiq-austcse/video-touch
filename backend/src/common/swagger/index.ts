@@ -3,10 +3,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import basicAuth from 'express-basic-auth';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 
-
-
 export async function setupSwagger(app: INestApplication, port: number) {
-
   let swaggerDocPath = '/api-doc';
   let { SWAGGER_USERNAME, SWAGGER_PASSWORD } = process.env;
 
@@ -18,7 +15,10 @@ export async function setupSwagger(app: INestApplication, port: number) {
       { type: 'apiKey', name: 'Authorization', in: 'header', scheme: 'bearer', bearerFormat: 'Bearer' },
       'auth'
     )
-    .addServer(AppConfigService.appConfig.SWAGGER_SERVER_BASE_URL, AppConfigService.appConfig.SWAGGER_SERVER_BASE_URL_DESCRIPTION)
+    .addServer(
+      AppConfigService.appConfig.SWAGGER_SERVER_BASE_URL,
+      AppConfigService.appConfig.SWAGGER_SERVER_BASE_URL_DESCRIPTION
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
@@ -26,11 +26,11 @@ export async function setupSwagger(app: INestApplication, port: number) {
     [swaggerDocPath, swaggerDocPath + '-json'],
     basicAuth({
       challenge: true,
-      users: { [SWAGGER_USERNAME]: SWAGGER_PASSWORD }
+      users: { [SWAGGER_USERNAME]: SWAGGER_PASSWORD },
     })
   );
 
   SwaggerModule.setup(swaggerDocPath, app, document, {
-    swaggerOptions: { persistAuthorization: true, ignoreGlobalPrefix: true }
+    swaggerOptions: { persistAuthorization: true, ignoreGlobalPrefix: true },
   });
 }

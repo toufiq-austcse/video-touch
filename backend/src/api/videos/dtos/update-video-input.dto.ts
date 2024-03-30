@@ -3,20 +3,18 @@ import { IsOptional, IsString } from 'class-validator';
 
 @InputType()
 export class UpdateVideoInputDto {
-
-  @Field({nullable:true})
+  @Field({ nullable: true })
   @IsString()
   @IsOptional()
   title: string;
 
-  @Field({nullable:true})
+  @Field({ nullable: true })
   @IsString()
   @IsOptional()
   description: string;
 
-  @Field(() => [String],{nullable:true})
+  @Field(() => [String], { nullable: true })
   @IsString()
   @IsOptional()
   tags: string[];
-
 }

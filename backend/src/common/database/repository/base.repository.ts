@@ -2,13 +2,12 @@ import { FilterQuery, Model, Types, UpdateQuery } from 'mongoose';
 import { AbstractDocument } from '@/src/common/database/schemas/abstract.schema';
 
 export abstract class BaseRepository<T extends AbstractDocument> {
-  constructor(protected readonly entityModel: Model<T>) {
-  }
+  constructor(protected readonly entityModel: Model<T>) {}
 
   async create(document: Omit<T, '_id'>): Promise<T> {
     const createdDocument = new this.entityModel({
       ...document,
-      _id: new Types.ObjectId()
+      _id: new Types.ObjectId(),
     });
     return (await createdDocument.save()).toJSON() as unknown as T;
   }

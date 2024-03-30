@@ -29,7 +29,7 @@ export function SwaggerBaseApiResponse<T>(type: T, statusCode: number): typeof B
   // will overwrite all previous definitions. i.e., Swagger will have all response types as the same one.
   const isAnArray = Array.isArray(type) ? ' [ ] ' : '';
   Object.defineProperty(ExtendedBaseApiResponse, 'name', {
-    value: `SwaggerBaseApiResponseFor ${type} ${isAnArray}`
+    value: `SwaggerBaseApiResponseFor ${type} ${isAnArray}`,
   });
 
   return ExtendedBaseApiResponse;
@@ -84,7 +84,7 @@ export function SwaggerBaseApiErrorResponse(statusCode: number): typeof BaseApiE
   // will overwrite all previous definitions. i.e., Swagger will have all response types as the same one.
   //const isAnArray = Array.isArray(type) ? ' [ ] ' : '';
   Object.defineProperty(ExtendedBaseApiErrorResponse, 'name', {
-    value: `SwaggerBaseApiErrorResponseFor ${statusCode}`
+    value: `SwaggerBaseApiErrorResponseFor ${statusCode}`,
   });
 
   return ExtendedBaseApiErrorResponse;

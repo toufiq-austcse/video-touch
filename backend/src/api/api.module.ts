@@ -9,19 +9,23 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { join } from 'path';
 
 @Module({
-  imports: [AppConfigModule, DatabaseModule, GraphQLModule.forRoot<ApolloDriverConfig>({
-    cors: {
-      origin: true,
-      credentials: true
-
-    },
-    driver: ApolloDriver,
-    autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-    playground: true
-  }), HttpClientsModule, IndexModule, VideosModule],
+  imports: [
+    AppConfigModule,
+    DatabaseModule,
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      cors: {
+        origin: true,
+        credentials: true,
+      },
+      driver: ApolloDriver,
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      playground: true,
+    }),
+    HttpClientsModule,
+    IndexModule,
+    VideosModule,
+  ],
   controllers: [],
-  providers: []
+  providers: [],
 })
-export class ApiModule {
-
-}
+export class ApiModule {}

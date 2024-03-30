@@ -24,9 +24,8 @@ export class VideoRepository extends BaseRepository<VideoDocument> {
       items: docs,
       pageInfo: {
         end_cursor: docs.length > 0 ? docs[docs.length - 1]._id.toString() : null,
-        total_pages: Math.ceil(total / first)
-      }
+        total_pages: Math.ceil(total / first),
+      },
     };
-
   }
 }

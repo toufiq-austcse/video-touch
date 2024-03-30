@@ -22,5 +22,4 @@ export class CreateVideoInputDto {
   @IsArray()
   @IsOptional()
   tags: string[];
-
 }
