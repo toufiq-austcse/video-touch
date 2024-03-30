@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import Plyr from 'plyr';
+import React, { useEffect, useRef } from "react";
+import Plyr from "plyr";
 
 const VideoPlayer = ({ source }: { source: string }) => {
   const videoRef = useRef(null);
