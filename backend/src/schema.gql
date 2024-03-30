@@ -39,6 +39,7 @@ type VideoStatus {
   video_id: String!
   status: String!
   details: String
+  created_at: DateTime!
 }
 
 type VideoMinimalResponse {

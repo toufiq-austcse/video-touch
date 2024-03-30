@@ -62,6 +62,7 @@ export class VideoResolver {
 
     let videoStatusDetails = await this.videoService.getVideoStatus(video);
     let videoStatuses: VideoStatus[] = this.videoMapper.toVideoStatuses(videoStatusDetails);
+
     return this.videoMapper.toGetVideoResponse(video, videoStatuses);
   }
 }
