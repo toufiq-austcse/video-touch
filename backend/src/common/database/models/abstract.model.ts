@@ -7,7 +7,8 @@ export class AbstractModel {
 }
 
 export class PageInfo {
-  end_cursor: string;
+  prev_cursor: string;
+  next_cursor: string;
   total_pages: number;
 }
 

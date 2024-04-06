@@ -60,7 +60,11 @@ export class VideoService {
   }
 
   async listVideos(listVideoInputDto: ListVideoInputDto) {
-    return this.repository.getPaginatedVideos(listVideoInputDto.first, listVideoInputDto.after);
+    return this.repository.getPaginatedVideos(
+      listVideoInputDto.first,
+      listVideoInputDto.after,
+      listVideoInputDto.before
+    );
   }
 
   async getVideo(getVideoInputDto: GetVideoInputDto) {

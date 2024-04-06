@@ -1,42 +1,42 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
+import * as React from 'react';
+import { ColumnDef } from '@tanstack/react-table';
+import { MoreHorizontal } from 'lucide-react';
 
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { badgeVariants } from "@/components/ui/badge";
-import Image from "next/image";
-import Link from "next/link";
-import AppTable from "@/components/ui/app-table";
-import { useQuery } from "@apollo/client";
-import { LIST_VIDEO_QUERY } from "@/api/graphql/queries/query";
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { badgeVariants } from '@/components/ui/badge';
+import Image from 'next/image';
+import Link from 'next/link';
+import AppTable from '@/components/ui/app-table';
+import { useQuery } from '@apollo/client';
+import { LIST_VIDEO_QUERY } from '@/api/graphql/queries/query';
 
 export type Video = {
   _id: string;
   title: string;
   thumbnail_url: string;
-  status: "pending" | "processing" | "success" | "failed";
+  status: 'pending' | 'processing' | 'success' | 'failed';
   created_at: Date;
 };
 
 export const columns: ColumnDef<Video>[] = [
   {
-    id: "select",
+    id: 'select',
     header: ({ table }) => (
       <Checkbox
         checked={
           table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          (table.getIsSomePageRowsSelected() && 'indeterminate')
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
@@ -50,12 +50,12 @@ export const columns: ColumnDef<Video>[] = [
       />
     ),
     enableSorting: false,
-    enableHiding: false,
+    enableHiding: false
   },
 
   {
-    accessorKey: "title",
-    header: "Title",
+    accessorKey: 'title',
+    header: 'Title',
     cell: ({ row }) => {
       return (
         <Link className="flex space-x-4" href={`/videos/${row.original._id}`}>
@@ -66,54 +66,54 @@ export const columns: ColumnDef<Video>[] = [
             height={100}
             priority
           />
-          <div className="lowercase font-medium">{row.getValue("title")}</div>
+          <div className="lowercase font-medium">{row.getValue('title')}</div>
         </Link>
       );
-    },
+    }
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: 'status',
+    header: 'Status',
     cell: ({ row }) => {
-      let status = row.getValue("status");
-      if (status === "failed") {
+      let status = row.getValue('status');
+      if (status === 'failed') {
         return (
           <div
-            className={`${badgeVariants({ variant: "destructive" })} capitalize`}
+            className={`${badgeVariants({ variant: 'destructive' })} capitalize`}
           >
-            {row.getValue("status")}
+            {row.getValue('status')}
           </div>
         );
-      } else if (status === "processing") {
+      } else if (status === 'processing') {
         return (
           <div
-            className={`${badgeVariants({ variant: "default" })} capitalize`}
+            className={`${badgeVariants({ variant: 'default' })} capitalize`}
           >
-            {row.getValue("status")}
+            {row.getValue('status')}
           </div>
         );
       }
 
       return (
         <div
-          className={`${badgeVariants({ variant: "secondary" })} capitalize`}
+          className={`${badgeVariants({ variant: 'secondary' })} capitalize`}
         >
-          {row.getValue("status")}
+          {row.getValue('status')}
         </div>
       );
-    },
+    }
   },
   {
-    accessorKey: "created_at",
-    header: "CreatedAt",
+    accessorKey: 'created_at',
+    header: 'CreatedAt',
     cell: ({ row }) => {
-      const date = new Date(row.getValue("created_at")).toDateString();
+      const date = new Date(row.getValue('created_at')).toDateString();
 
       return <div>{date}</div>;
-    },
+    }
   },
   {
-    id: "actions",
+    id: 'actions',
     enableHiding: false,
     cell: ({ row }) => {
       const video = row.original;
@@ -139,12 +139,20 @@ export const columns: ColumnDef<Video>[] = [
           </DropdownMenuContent>
         </DropdownMenu>
       );
-    },
-  },
+    }
+  }
 ];
 
 export default function HomePage() {
-  const { data, loading, error } = useQuery(LIST_VIDEO_QUERY);
+  let pageSize = Number(process.env.NEXT_PUBLIC_VIDEO_LIST_PAGE_SIZE) || 4;
+  let [pageIndex, setPageIndex] = React.useState(0);
+
+  let { data, loading, error, fetchMore } = useQuery(LIST_VIDEO_QUERY, {
+    variables: {
+      first: pageSize,
+      after: null
+    }
+  });
   if (loading) {
     return <h2>Loading...</h2>;
   }
@@ -152,5 +160,42 @@ export default function HomePage() {
     return <h2>Error: {error.message}</h2>;
   }
 
-  return <AppTable<Video> data={data.ListVideo.videos} columns={columns} />;
+
+  const nextFunction = () => {
+    console.log('next');
+    fetchMore({
+      variables: {
+        first: pageSize,
+        after: data.ListVideo.page_info.next_cursor
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        setPageIndex((prev) => prev + 1);
+        if (!fetchMoreResult) {
+          return prev;
+        }
+        return fetchMoreResult;
+      }
+    });
+  };
+
+  const prevFunction = () => {
+    console.log('prev');
+    fetchMore({
+      variables: {
+        first: pageSize,
+        before: data.ListVideo.page_info.prev_cursor
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        setPageIndex((prev) => prev - 1);
+        if (!fetchMoreResult) {
+          return prev;
+        }
+        return fetchMoreResult;
+      }
+    });
+  };
+
+  return <AppTable<Video> totalPageCount={data.ListVideo.page_info.total_pages} data={data.ListVideo.videos}
+                          columns={columns}
+                          pageIndex={pageIndex} pageSize={pageSize} next={nextFunction} prev={prevFunction} />;
 }
