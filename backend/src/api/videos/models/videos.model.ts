@@ -150,7 +150,6 @@ export class VideoMinimalResponse {
 
 @ObjectType()
 export class PageInfo {
-
   @Field({ nullable: true })
   @Expose()
   prev_cursor: string;

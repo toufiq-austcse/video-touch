@@ -10,11 +10,10 @@ import { MongooseModule } from '@nestjs/mongoose';
       useFactory: (configService: ConfigService) => {
         console.log('DB URL ', configService.get('MONGO_DB_URL'));
         return {
-          uri: configService.get('MONGO_DB_URL')
+          uri: configService.get('MONGO_DB_URL'),
         };
-      }
-    })
-  ]
+      },
+    }),
+  ],
 })
-export class DatabaseModule {
-}
+export class DatabaseModule {}
