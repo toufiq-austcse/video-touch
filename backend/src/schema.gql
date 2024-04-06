@@ -53,7 +53,8 @@ type VideoMinimalResponse {
 }
 
 type PageInfo {
-  end_cursor: String
+  prev_cursor: String
+  next_cursor: String
   total_pages: Float!
 }
 
@@ -69,6 +70,7 @@ type Query {
 
 input ListVideoInputDto {
   after: String
+  before: String
   first: Float = 30
 }
 

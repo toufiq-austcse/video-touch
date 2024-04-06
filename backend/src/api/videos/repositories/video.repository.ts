@@ -11,21 +11,34 @@ export class VideoRepository extends BaseRepository<VideoDocument> {
     super(videoModel);
   }
 
-  async getPaginatedVideos(first: number, cursor: string): Promise<BasePaginatedResponse<VideoDocument>> {
-    let total = await this.videoModel.countDocuments();
+  async getPaginatedVideos(first: number, afterCursor: string, beforeCursor: string): Promise<BasePaginatedResponse<VideoDocument>> {
     let docs: VideoDocument[];
     let filter: FilterQuery<VideoDocument> = { is_deleted: { $ne: true } };
-    if (cursor) {
-      filter = { ...filter, _id: { $gt: cursor } };
+    let sort: any = { createdAt: -1 };
+    if (afterCursor) {
+      filter = { ...filter, _id: { $lt: afterCursor } };
+      sort = { _id: -1, ...sort };
     }
-    docs = await this.videoModel.find(filter).limit(first).sort({ createdAt: -1 }).lean();
+    if (beforeCursor) {
+      filter = { ...filter, _id: { $gt: beforeCursor } };
+      sort = { _id: 1, ...sort };
+    }
+    console.log(filter);
+
+    let total = await this.videoModel.countDocuments({ is_deleted: { $ne: true } });
+    docs = await this.videoModel.find(filter).sort(sort).limit(first).lean();
+
+    if(beforeCursor){
+      docs = docs.reverse();
+    }
 
     return {
       items: docs,
       pageInfo: {
-        end_cursor: docs.length > 0 ? docs[docs.length - 1]._id.toString() : null,
-        total_pages: Math.ceil(total / first),
-      },
+        prev_cursor: docs.length > 0 ? docs[0]._id.toString() : null,
+        next_cursor: docs.length > 0 ? docs[docs.length - 1]._id.toString() : null,
+        total_pages: Math.ceil(total / first)
+      }
     };
   }
 }

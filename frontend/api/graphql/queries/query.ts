@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const LIST_VIDEO_QUERY = gql`
-query($first:Float,$after:String){
-  ListVideo(listVideoInput:{first:$first,after:$after}){videos{_id,title,status,created_at,thumbnail_url},page_info{total_pages,end_cursor}}
+query($first:Float,$before:String,$after:String){
+  ListVideo(listVideoInput:{first:$first,before:$before,after:$after}){videos{_id,title,status,created_at,thumbnail_url},page_info{total_pages,prev_cursor,next_cursor}}
 }
 `;
 export const GET_VIDEO_QUERY = gql`

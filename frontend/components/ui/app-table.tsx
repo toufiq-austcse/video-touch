@@ -5,13 +5,12 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel, PaginationState,
+  getSortedRowModel,
+  PaginationState,
   SortingState,
   useReactTable,
   VisibilityState
 } from '@tanstack/react-table';
-import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -20,23 +19,26 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table';
-import { columns } from '@/pages';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const AppTable = <T, >({
                          data,
-                         columns
+                         columns,
+                         pageIndex,
+                         pageSize,
+                         totalPageCount,
+                         next,
+                         prev
                        }: {
   data: T[];
   columns: ColumnDef<T, any>[];
+  pageIndex: number;
+  pageSize: number;
+  totalPageCount: number;
+  next: () => void;
+  prev: () => void;
 }) => {
+  console.log('pageIndex', pageIndex);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -44,7 +46,7 @@ const AppTable = <T, >({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [pagination, setPagination] = React.useState<PaginationState>({ pageSize: 0, pageIndex: 0 });
+
 
   const table = useReactTable({
     data,
@@ -52,19 +54,20 @@ const AppTable = <T, >({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    onPaginationChange: setPagination,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    pageCount: totalPageCount,
+    autoResetPageIndex: false,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
-      rowSelection,
-      pagination: pagination
+      rowSelection
     }
   });
+
 
   return (
     <div>
@@ -164,7 +167,10 @@ const AppTable = <T, >({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => table.previousPage()}
+              onClick={() => {
+                prev();
+                table.previousPage();
+              }}
               disabled={!table.getCanPreviousPage()}
             >
               Previous
@@ -172,7 +178,10 @@ const AppTable = <T, >({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => table.nextPage()}
+              onClick={() => {
+                next();
+                table.nextPage();
+              }}
               disabled={!table.getCanNextPage()}
             >
               Next

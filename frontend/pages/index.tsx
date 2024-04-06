@@ -144,10 +144,13 @@ export const columns: ColumnDef<Video>[] = [
 ];
 
 export default function HomePage() {
-  const { data, loading, error } = useQuery(LIST_VIDEO_QUERY, {
+  let pageSize = Number(process.env.NEXT_PUBLIC_VIDEO_LIST_PAGE_SIZE) || 4;
+  let [pageIndex, setPageIndex] = React.useState(0);
+
+  let { data, loading, error, fetchMore } = useQuery(LIST_VIDEO_QUERY, {
     variables: {
-      first: 2,
-      after:null
+      first: pageSize,
+      after: null
     }
   });
   if (loading) {
@@ -157,5 +160,42 @@ export default function HomePage() {
     return <h2>Error: {error.message}</h2>;
   }
 
-  return <AppTable<Video> data={data.ListVideo.videos} columns={columns} />;
+
+  const nextFunction = () => {
+    console.log('next');
+    fetchMore({
+      variables: {
+        first: pageSize,
+        after: data.ListVideo.page_info.next_cursor
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        setPageIndex((prev) => prev + 1);
+        if (!fetchMoreResult) {
+          return prev;
+        }
+        return fetchMoreResult;
+      }
+    });
+  };
+
+  const prevFunction = () => {
+    console.log('prev');
+    fetchMore({
+      variables: {
+        first: pageSize,
+        before: data.ListVideo.page_info.prev_cursor
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        setPageIndex((prev) => prev - 1);
+        if (!fetchMoreResult) {
+          return prev;
+        }
+        return fetchMoreResult;
+      }
+    });
+  };
+
+  return <AppTable<Video> totalPageCount={data.ListVideo.page_info.total_pages} data={data.ListVideo.videos}
+                          columns={columns}
+                          pageIndex={pageIndex} pageSize={pageSize} next={nextFunction} prev={prevFunction} />;
 }

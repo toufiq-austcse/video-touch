@@ -9,6 +9,11 @@ export class ListVideoInputDto {
   after: string;
 
   @Field({ nullable: true })
+  @IsString()
+  @IsOptional()
+  before: string;
+
+  @Field({ nullable: true })
   @IsNumber()
   @IsOptional()
   first: number = 30;
