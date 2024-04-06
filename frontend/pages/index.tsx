@@ -20,6 +20,7 @@ import Link from 'next/link';
 import AppTable from '@/components/ui/app-table';
 import { useQuery } from '@apollo/client';
 import { LIST_VIDEO_QUERY } from '@/api/graphql/queries/query';
+import UploadNew from '@/components/ui/upload-new';
 
 export type Video = {
   _id: string;
@@ -191,16 +192,7 @@ export default function HomePage() {
 
   return <div>
     <div className="flex">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="ml-auto">
-            Upload New <ChevronDown className="ml-2 h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem>Link</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <UploadNew />
     </div>
 
     {loading && <div>Loading...</div>}
