@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
+import { ChevronDown, MoreHorizontal } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -153,12 +153,6 @@ export default function HomePage() {
       after: null
     }
   });
-  if (loading) {
-    return <h2>Loading...</h2>;
-  }
-  if (error) {
-    return <h2>Error: {error.message}</h2>;
-  }
 
 
   const nextFunction = () => {
@@ -195,7 +189,25 @@ export default function HomePage() {
     });
   };
 
-  return <AppTable<Video> totalPageCount={data.ListVideo.page_info.total_pages} data={data.ListVideo.videos}
-                          columns={columns}
-                          pageIndex={pageIndex} pageSize={pageSize} next={nextFunction} prev={prevFunction} />;
+  return <div>
+    <div className="flex">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" className="ml-auto">
+            Upload New <ChevronDown className="ml-2 h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem>Link</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+
+    {loading && <div>Loading...</div>}
+    {error && <div>Error: {error.message}</div>}
+    {!loading && !error &&
+      <AppTable<Video> totalPageCount={data.ListVideo.page_info.total_pages} data={data.ListVideo.videos}
+                       columns={columns}
+                       pageIndex={pageIndex} pageSize={pageSize} next={nextFunction} prev={prevFunction} />}
+  </div>;
 }
