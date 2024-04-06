@@ -1,17 +1,16 @@
-import React from 'react';
+import React from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { ChevronDown } from 'lucide-react';
-import LinkImportDialog from '@/components/ui/link-import-dialog';
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
+import LinkImportDialog from "@/components/ui/link-import-dialog";
 
 const UploadNew = () => {
   const [openLinkImportDialog, setOpenLinkImportDialog] = React.useState(false);
-
 
   const onLinkClick = () => {
     setOpenLinkImportDialog(true);
@@ -29,7 +28,10 @@ const UploadNew = () => {
           <DropdownMenuItem onClick={onLinkClick}>Link</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <LinkImportDialog open={openLinkImportDialog} setOpen={setOpenLinkImportDialog} />
+      <LinkImportDialog
+        open={openLinkImportDialog}
+        setOpen={setOpenLinkImportDialog}
+      />
     </>
   );
 };
