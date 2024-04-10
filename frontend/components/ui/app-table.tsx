@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -9,27 +9,34 @@ import {
   PaginationState,
   SortingState,
   useReactTable,
-  VisibilityState
-} from '@tanstack/react-table';
+  VisibilityState,
+} from "@tanstack/react-table";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { ChevronDown } from 'lucide-react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
-const AppTable = <T, >({
-                         data,
-                         columns,
-                         pageIndex,
-                         pageSize,
-                         totalPageCount,
-                         next,
-                         prev
-                       }: {
+const AppTable = <T,>({
+  data,
+  columns,
+  pageIndex,
+  pageSize,
+  totalPageCount,
+  next,
+  prev,
+}: {
   data: T[];
   columns: ColumnDef<T, any>[];
   pageIndex: number;
@@ -38,15 +45,14 @@ const AppTable = <T, >({
   next: () => void;
   prev: () => void;
 }) => {
-  console.log('pageIndex', pageIndex);
+  console.log("pageIndex", pageIndex);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-
 
   const table = useReactTable({
     data,
@@ -64,10 +70,9 @@ const AppTable = <T, >({
       sorting,
       columnFilters,
       columnVisibility,
-      rowSelection
-    }
+      rowSelection,
+    },
   });
-
 
   return (
     <div>
@@ -81,32 +86,6 @@ const AppTable = <T, >({
           {/*  }*/}
           {/*  className="max-w-sm"*/}
           {/*/>*/}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
-                Columns <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
         <div className="rounded-md border">
           <Table>
@@ -119,9 +98,9 @@ const AppTable = <T, >({
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
                       </TableHead>
                     );
                   })}
@@ -133,13 +112,13 @@ const AppTable = <T, >({
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
+                    data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     ))}
@@ -160,7 +139,7 @@ const AppTable = <T, >({
         </div>
         <div className="flex items-center justify-end space-x-2 py-4">
           <div className="flex-1 text-sm text-muted-foreground">
-            {table.getFilteredSelectedRowModel().rows.length} of{' '}
+            {table.getFilteredSelectedRowModel().rows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
           <div className="space-x-2">
