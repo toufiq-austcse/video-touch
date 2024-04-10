@@ -3,70 +3,60 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import React from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+  DialogTitle
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import React from 'react';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
-import { CREATE_VIDEO_MUTATION } from "@/api/graphql/queries/query";
-import { useMutation } from "@apollo/client";
+  FormMessage
+} from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
+import { CREATE_VIDEO_MUTATION } from '@/api/graphql/queries/query';
+import { useMutation } from '@apollo/client';
 
 const formSchema = z.object({
   link: z.string().url({
-    message: "Please enter a valid URL.",
+    message: 'Please enter a valid URL.'
   }),
   title: z.string().optional(),
-  description: z.string().optional(),
+  description: z.string().optional()
 });
 const LinkImportDialog = ({
-  open,
-  setOpen,
-}: {
+                            open,
+                            setOpen,
+                            onSubmit
+                          }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  onSubmit: (sourceUrl: string, title: string, description: string) => void
 }) => {
-  const [createVideo] = useMutation(CREATE_VIDEO_MUTATION);
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      link: "",
-      title: "",
-      description: "",
-    },
+      link: '',
+      title: '',
+      description: ''
+    }
   });
-
-  // 2. Define a submit handler.
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    let res = await createVideo({
-      variables: {
-        source_url: values.link,
-        title: values.title,
-        description: values.description,
-      },
-    });
-    console.log("Success:", res);
-    setOpen(false);
+  const onFormSubmit = async (values: z.infer<typeof formSchema>) => {
+    onSubmit(values.link, values.title as string, values.description as string);
+    form.reset();
   };
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Form {...form}>
-        <form id="link-form" onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="link-form" onSubmit={form.handleSubmit(onFormSubmit)}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Import From Link</DialogTitle>
