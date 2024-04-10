@@ -1,15 +1,15 @@
-import React from 'react';
+import React from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { ChevronDown } from 'lucide-react';
-import LinkImportDialog from '@/components/ui/link-import-dialog';
-import { useMutation } from '@apollo/client';
-import { CREATE_VIDEO_MUTATION } from '@/api/graphql/queries/query';
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
+import LinkImportDialog from "@/components/ui/link-import-dialog";
+import { useMutation } from "@apollo/client";
+import { CREATE_VIDEO_MUTATION } from "@/api/graphql/queries/query";
 
 const UploadNew = ({ refetch }: { refetch: () => void }) => {
   const [createVideo] = useMutation(CREATE_VIDEO_MUTATION);
@@ -19,15 +19,19 @@ const UploadNew = ({ refetch }: { refetch: () => void }) => {
     setOpenLinkImportDialog(true);
   };
 
-  const onSubmit = async (sourceUrl: string, title: string, description: string) => {
+  const onSubmit = async (
+    sourceUrl: string,
+    title: string,
+    description: string,
+  ) => {
     let res = await createVideo({
       variables: {
         source_url: sourceUrl,
         title: title,
-        description: description
-      }
+        description: description,
+      },
     });
-    console.log('Success:', res);
+    console.log("Success:", res);
     setOpenLinkImportDialog(false);
     refetch();
   };
