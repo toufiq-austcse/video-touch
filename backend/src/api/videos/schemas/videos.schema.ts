@@ -5,67 +5,67 @@ export const VIDEO_COLLECTION_NAME = 'videos';
 
 @Schema({
   timestamps: true,
-  collection: VIDEO_COLLECTION_NAME,
+  collection: VIDEO_COLLECTION_NAME
 })
 export class VideoDocument extends AbstractDocument {
   @Prop({
-    required: true,
+    required: true
   })
   title: string;
 
   @Prop({
-    required: false,
+    required: false
   })
   description?: string;
 
   @Prop({
-    required: false,
+    required: false
   })
   duration?: number;
 
   @Prop({
-    required: true,
+    required: true
   })
   source_url?: string;
 
   @Prop({
-    required: false,
+    required: false
   })
   height?: number;
 
   @Prop({
-    required: false,
+    required: false
   })
   width?: number;
 
   @Prop({
-    required: false,
+    required: false
   })
   thumbnail_url?: string;
 
   @Prop({
-    required: false,
+    required: false
   })
   size?: number;
 
   @Prop({
-    required: false,
+    required: false
   })
   master_playlist_name?: string;
 
   @Prop({
-    required: true,
+    required: false
   })
   latest_status?: string;
 
   @Prop({
-    required: false,
+    required: false
   })
   tags?: string[];
 
   @Prop({
     required: false,
-    default: false,
+    default: false
   })
   is_deleted?: boolean;
 }

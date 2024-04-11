@@ -27,6 +27,10 @@ export class AppConfigService {
       DB_USER: this.configService.get('DB_USER', { infer: true }),
       SWAGGER_USERNAME: this.configService.get('SWAGGER_USERNAME', 'toufiq'),
       SWAGGER_PASSWORD: this.configService.get('SWAGGER_PASSWORD', '1010'),
+      RABBIT_MQ_URL: this.configService.getOrThrow('RABBIT_MQ_URL'),
+      RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE: this.configService.get('RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE'),
+      RABBIT_MQ_DOWNLOAD_VIDEO_QUEUE: this.configService.get('RABBIT_MQ_DOWNLOAD_VIDEO_QUEUE'),
+      RABBIT_MQ_DOWNLOAD_VIDEO_ROUTING_KEY: this.configService.get('RABBIT_MQ_DOWNLOAD_VIDEO_ROUTING_KEY')
     };
   }
 }

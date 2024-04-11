@@ -7,25 +7,29 @@ import { VideosModule } from './videos/videos.module';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
 import { join } from 'path';
+import { RabbitMQModule } from '@/src/common/rabbit-mq/rabbit-mq.module';
+
 
 @Module({
   imports: [
     AppConfigModule,
     DatabaseModule,
+    RabbitMQModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       cors: {
         origin: true,
-        credentials: true,
+        credentials: true
       },
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      playground: true,
+      playground: true
     }),
     HttpClientsModule,
     IndexModule,
-    VideosModule,
+    VideosModule
   ],
   controllers: [],
-  providers: [],
+  providers: []
 })
-export class ApiModule {}
+export class ApiModule {
+}

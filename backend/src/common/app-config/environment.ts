@@ -16,4 +16,9 @@ export interface EnvironmentVariables {
   DB_HOST: string;
   DB_PORT: number;
   DB_MIGRATE: string;
+
+  RABBIT_MQ_URL: string;
+  RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE: string;
+  RABBIT_MQ_DOWNLOAD_VIDEO_QUEUE: string;
+  RABBIT_MQ_DOWNLOAD_VIDEO_ROUTING_KEY: string;
 }

@@ -2,17 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { CreateVideoInputDto } from '../dtos/create-video-input.dto';
 import { VideoDocument } from '../schemas/videos.schema';
 import { terminal } from '@/src/common/utils/terminal';
-import { VIDEO_STATUS } from '@/src/common/constants';
 import { VideoRepository } from '@/src/api/videos/repositories/video.repository';
 import { ListVideoInputDto } from '@/src/api/videos/dtos/list-video-input.dto';
 import { GetVideoInputDto } from '@/src/api/videos/dtos/get-video-input.dto';
 import { UpdateVideoInputDto } from '@/src/api/videos/dtos/update-video-input.dto';
 import { VideoStatusDocument } from '@/src/api/videos/schemas/videos-status.schema';
 import { VideoStatusRepository } from '@/src/api/videos/repositories/video-status.repository';
+import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
+import { VideoDownloadJobModel } from '@/src/api/videos/models/job.mode';
+import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
+import mongoose from 'mongoose';
 
 @Injectable()
 export class VideoService {
-  constructor(private repository: VideoRepository, private videoStatusRepository: VideoStatusRepository) {}
+
+  constructor(private repository: VideoRepository, private videoStatusRepository: VideoStatusRepository,
+              private rabbitMqService: RabbitMqService) {
+  }
 
   async create(createVideoInput: CreateVideoInputDto) {
     let videoDocument = this.buildVideoDocument(createVideoInput);
@@ -28,8 +34,7 @@ export class VideoService {
       title: title,
       description: createVideoInput.description,
       source_url: createVideoInput.source_url,
-      latest_status: VIDEO_STATUS.QUEUED,
-      tags: createVideoInput.tags,
+      tags: createVideoInput.tags
     };
   }
 
@@ -51,7 +56,7 @@ export class VideoService {
       size: +format.size,
       height: videoInfo.height,
       width: videoInfo.width,
-      duration: +videoInfo.duration,
+      duration: +videoInfo.duration
     };
   }
 
@@ -69,7 +74,7 @@ export class VideoService {
 
   async getVideo(getVideoInputDto: GetVideoInputDto) {
     return this.repository.findOne({
-      _id: getVideoInputDto._id,
+      _id: getVideoInputDto._id
     });
   }
 
@@ -79,7 +84,7 @@ export class VideoService {
       {
         title: updateVideoInput.title ? updateVideoInput.title : oldVideo.title,
         description: updateVideoInput.description ? updateVideoInput.description : updateVideoInput.description,
-        tags: updateVideoInput.tags ? updateVideoInput.tags : oldVideo.tags,
+        tags: updateVideoInput.tags ? updateVideoInput.tags : oldVideo.tags
       }
     );
     return this.repository.findOne({ _id: oldVideo._id });
@@ -89,22 +94,22 @@ export class VideoService {
     await this.repository.findOneAndUpdate(
       { _id: currentVideo._id },
       {
-        is_deleted: true,
+        is_deleted: true
       }
     );
     return this.repository.findOne({ _id: currentVideo._id });
   }
 
-  async insertVideoStatus(data: VideoDocument) {
-    let videoStatusDocument = this.buildVideoStatusDocument(data);
-    console.log('videoStatusRepository', this.videoStatusRepository);
+  async insertVideoStatus(videoId: string, status: string, details: string) {
+    let videoStatusDocument = this.buildVideoStatusDocument(videoId, status, details);
     return this.videoStatusRepository.create(videoStatusDocument);
   }
 
-  private buildVideoStatusDocument(data: VideoDocument): Omit<VideoStatusDocument, '_id'> {
+  private buildVideoStatusDocument(videoId: string, status: string, details: string): Omit<VideoStatusDocument, '_id'> {
     return {
-      video_id: data._id,
-      status: data.latest_status,
+      video_id: mongoose.Types.ObjectId(videoId),
+      status: status,
+      details: details
     };
   }
 
@@ -115,7 +120,22 @@ export class VideoService {
       'video_id',
       'details',
       'createdAt',
-      'updatedAt',
+      'updatedAt'
     ]);
   }
+
+  async pushDownloadVideoJob(videoDocument: VideoDocument) {
+    let downloadVideoJob = this.buildDownloadVideoJob(videoDocument);
+    return this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE, AppConfigService.appConfig.RABBIT_MQ_DOWNLOAD_VIDEO_ROUTING_KEY, downloadVideoJob);
+  }
+
+  private buildDownloadVideoJob(videoDocument: VideoDocument): VideoDownloadJobModel {
+    return {
+      _id: videoDocument._id.toString(),
+      source_url: videoDocument.source_url
+    };
+
+
+  }
+
 }

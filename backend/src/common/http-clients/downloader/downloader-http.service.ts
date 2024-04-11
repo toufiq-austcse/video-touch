@@ -6,7 +6,8 @@ import axios from 'axios';
 
 @Injectable()
 export class DownloaderHttpService {
-  constructor(private httpService: HttpService) {}
+  constructor(private httpService: HttpService) {
+  }
 
   async download(url: string) {
     let response = await firstValueFrom(this.httpService.get(url, { responseType: 'stream' }));
@@ -26,6 +27,10 @@ export class DownloaderHttpService {
 
   async downloadVideo(videoUrl: string, outputFilePath: string): Promise<string> {
     const response = await axios.get(videoUrl, { responseType: 'stream' });
+    if (response.headers['content-type'] !== 'video/mp4') {
+      throw new Error('Invalid video URL');
+    }
+
     const totalSize = response.headers['content-length'];
     let downloadedSize = 0;
     const writer = fs.createWriteStream(outputFilePath);
