@@ -9,7 +9,7 @@ import { UpdateVideoInputDto } from '@/src/api/videos/dtos/update-video-input.dt
 import { VideoStatusDocument } from '@/src/api/videos/schemas/videos-status.schema';
 import { VideoStatusRepository } from '@/src/api/videos/repositories/video-status.repository';
 import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
-import { VideoDownloadJobModel } from '@/src/api/videos/models/job.mode';
+import { VideoDownloadJobModel } from '@/src/api/videos/models/job.model';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import mongoose from 'mongoose';
 
@@ -135,7 +135,8 @@ export class VideoService {
       source_url: videoDocument.source_url
     };
 
-
   }
+
+
 
 }

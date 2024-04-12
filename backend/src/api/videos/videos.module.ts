@@ -12,6 +12,9 @@ import { VIDEO_STATUS } from '@/src/common/constants';
 import { VideoDownloadService } from '@/src/api/videos/services/video-download.service';
 import { DownloadVideoJobHandler } from '@/src/api/videos/job-handler/download-video-job.handler';
 import mongoose from 'mongoose';
+import { VideoValidationJobHandler } from '@/src/api/videos/job-handler/video-validation-job.handler';
+import { VideoProcessorJobHandler } from '@/src/api/videos/job-handler/video-processer-job-handler.service';
+import { TranscodingService } from '@/src/api/videos/services/transcoding.service';
 
 @Module({
   imports: [
@@ -22,7 +25,7 @@ import mongoose from 'mongoose';
         useFactory: (moduleRef: ModuleRef) => {
           let schema = VideoSchema;
           schema.pre('save', async function() {
-            console.log('video pre save hook');
+            console.log('videos pre save hook');
             const video = this;
             (video as any).latest_status = VIDEO_STATUS.QUEUED;
           });
@@ -33,9 +36,9 @@ import mongoose from 'mongoose';
             const video: any = this;
             await videoService.insertVideoStatus(video._id, video.latest_status, null);
             videoService.pushDownloadVideoJob(video).then(() => {
-              console.log('pushed download video job');
+              console.log('pushed download videos job');
             }).catch(err => {
-              console.log('error pushing download video job', err);
+              console.log('error pushing download videos job', err);
             });
             return;
           });
@@ -51,7 +54,7 @@ import mongoose from 'mongoose';
           schema.post('save', async function() {
             let videoRepository = moduleRef.get<VideoRepository>(VideoRepository, { strict: false });
 
-            console.log('post save hook called in video status schema');
+            console.log('post save hook called in videos status schema');
 
             const videoStatus: any = this;
             await videoRepository.findOneAndUpdate({
@@ -59,7 +62,7 @@ import mongoose from 'mongoose';
             }, {
               latest_status: videoStatus.status
             });
-            console.log('updated video status');
+            console.log('updated videos status');
 
             return;
           });
@@ -69,7 +72,8 @@ import mongoose from 'mongoose';
       }
     ])
   ],
-  providers: [VideoRepository, VideoStatusRepository, VideoService, VideoResolver, VideoMapper, VideoDownloadService, DownloadVideoJobHandler]
+  providers: [VideoRepository, VideoStatusRepository, VideoService, VideoResolver, VideoMapper, VideoDownloadService,
+    TranscodingService, DownloadVideoJobHandler, VideoValidationJobHandler, VideoProcessorJobHandler]
 })
 export class VideosModule {
 }

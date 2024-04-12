@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { VideoDownloadJobModel } from '@/src/api/videos/models/job.mode';
+import { VideoDownloadJobModel } from '@/src/api/videos/models/job.model';
 import { DownloaderHttpService } from '@/src/common/http-clients/downloader/downloader-http.service';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class VideoDownloadService {
   async download(msg: VideoDownloadJobModel) {
     let destinationPath = 'videos/test.mp4';
     let res = await this.downloadHttpService.downloadVideo(msg.source_url, destinationPath);
-    console.log('video downloaded:', res);
+    console.log('videos downloaded:', res);
 
   }
 }
