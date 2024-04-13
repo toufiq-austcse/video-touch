@@ -13,8 +13,10 @@ import { VideoDownloadService } from '@/src/api/videos/services/video-download.s
 import { DownloadVideoJobHandler } from '@/src/api/videos/job-handler/download-video-job.handler';
 import mongoose from 'mongoose';
 import { VideoValidationJobHandler } from '@/src/api/videos/job-handler/video-validation-job.handler';
-import { VideoProcessorJobHandler } from '@/src/api/videos/job-handler/video-processer-job-handler.service';
+import { VideoProcessorJobHandler } from '@/src/api/videos/job-handler/video-processer-job.handler';
 import { TranscodingService } from '@/src/api/videos/services/transcoding.service';
+import { VideoUploaderJobHandler } from '@/src/api/videos/job-handler/video-uploader-job.handler';
+import { JobManagerService } from '@/src/api/videos/services/job-manager.service';
 
 @Module({
   imports: [
@@ -73,7 +75,7 @@ import { TranscodingService } from '@/src/api/videos/services/transcoding.servic
     ])
   ],
   providers: [VideoRepository, VideoStatusRepository, VideoService, VideoResolver, VideoMapper, VideoDownloadService,
-    TranscodingService, DownloadVideoJobHandler, VideoValidationJobHandler, VideoProcessorJobHandler]
+    TranscodingService, DownloadVideoJobHandler, VideoValidationJobHandler, VideoProcessorJobHandler, VideoUploaderJobHandler, JobManagerService]
 })
 export class VideosModule {
 }

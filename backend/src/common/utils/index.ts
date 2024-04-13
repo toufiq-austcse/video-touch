@@ -17,7 +17,7 @@ export function getLocalVideoMp4Path(videoId: string) {
 }
 
 export function getLocalVideoRootPath(videoId: string) {
-  return `videos/${videoId}`;
+  return `temp_videos/${videoId}`;
 }
 
 export function getLocalResolutionPath(videoId: string, height: number) {
@@ -27,3 +27,4 @@ export function getLocalResolutionPath(videoId: string, height: number) {
   }
   return path;
 }
+

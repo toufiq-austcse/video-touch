@@ -8,6 +8,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
 import { join } from 'path';
 import { RabbitMQModule } from '@/src/common/rabbit-mq/rabbit-mq.module';
+import { AwsModule } from '@/src/common/aws/aws.module';
 
 
 @Module({
@@ -26,7 +27,8 @@ import { RabbitMQModule } from '@/src/common/rabbit-mq/rabbit-mq.module';
     }),
     HttpClientsModule,
     IndexModule,
-    VideosModule
+    VideosModule,
+    AwsModule
   ],
   controllers: [],
   providers: []

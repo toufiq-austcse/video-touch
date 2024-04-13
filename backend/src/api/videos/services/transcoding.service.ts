@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { terminal } from '@/src/common/utils/terminal';
 import { getLocalResolutionPath, getLocalVideoMp4Path } from '@/src/common/utils';
 import { VideoService } from '@/src/api/videos/services/video.service';
-import { VIDEO_STATUS } from '@/src/common/constants';
+import { VIDEO_RESOLUTION, VIDEO_STATUS } from '@/src/common/constants';
 
 @Injectable()
 export class TranscodingService {
@@ -18,8 +18,7 @@ export class TranscodingService {
   async transcode360pVideo(videoId: string) {
     let result = null;
     try {
-      let height = 360;
-      let width = 640;
+      let { height, width } = VIDEO_RESOLUTION['360p'];
       let inputFilePath = getLocalVideoMp4Path(videoId);
       let outputFolderPath = getLocalResolutionPath(videoId, height);
 
@@ -39,8 +38,7 @@ export class TranscodingService {
   async transcode480pVideo(videoId: string) {
     let result = null;
     try {
-      let height = 480;
-      let width = 854;
+      let { height, width } = VIDEO_RESOLUTION['480p'];
       let inputFilePath = getLocalVideoMp4Path(videoId);
       let outputFolderPath = getLocalResolutionPath(videoId, height);
 
@@ -60,8 +58,7 @@ export class TranscodingService {
   async transcode540pVideo(videoId: string) {
     let result = null;
     try {
-      let height = 540;
-      let width = 960;
+      let { height, width } = VIDEO_RESOLUTION['540p'];
       let inputFilePath = getLocalVideoMp4Path(videoId);
       let outputFolderPath = getLocalResolutionPath(videoId, height);
 
@@ -81,8 +78,8 @@ export class TranscodingService {
   async transcode720pVideo(videoId: string) {
     let result = null;
     try {
-      let height = 720;
-      let width = 1280;
+
+      let { height, width } = VIDEO_RESOLUTION['720p'];
       let inputFilePath = getLocalVideoMp4Path(videoId);
       let outputFolderPath = getLocalResolutionPath(videoId, height);
 
@@ -102,8 +99,7 @@ export class TranscodingService {
   async transcode1080pVideo(videoId: string) {
     let result = null;
     try {
-      let height = 1080;
-      let width = 1920;
+      let { height, width } = VIDEO_RESOLUTION['1080p'];
       let inputFilePath = getLocalVideoMp4Path(videoId);
       let outputFolderPath = getLocalResolutionPath(videoId, height);
 

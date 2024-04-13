@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
-import * as process from 'process';
 import { VideoDownloadJobModel, VideoValidationJobModel } from '@/src/api/videos/models/job.model';
 import { VideoService } from '@/src/api/videos/services/video.service';
 import { VIDEO_STATUS } from '@/src/common/constants';
