@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { BaseRepository } from '@/src/common/database/repository/base.repository';
-import { RenditionDocument, VIDEO_COLLECTION_NAME, VideoDocument } from '../schemas/videos.schema';
+import { ASSET_COLLECTION_NAME, AssetDocument } from '../schemas/assets.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { BasePaginatedResponse } from '@/src/common/database/models/abstract.model';
 
 @Injectable()
-export class VideoRepository extends BaseRepository<VideoDocument> {
-  constructor(@InjectModel(VIDEO_COLLECTION_NAME) private videoModel: Model<VideoDocument>) {
+export class AssetRepository extends BaseRepository<AssetDocument> {
+  constructor(@InjectModel(ASSET_COLLECTION_NAME) private videoModel: Model<AssetDocument>) {
     super(videoModel);
   }
 
@@ -15,9 +15,9 @@ export class VideoRepository extends BaseRepository<VideoDocument> {
     first: number,
     afterCursor: string,
     beforeCursor: string
-  ): Promise<BasePaginatedResponse<VideoDocument>> {
-    let docs: VideoDocument[];
-    let filter: FilterQuery<VideoDocument> = { is_deleted: { $ne: true } };
+  ): Promise<BasePaginatedResponse<AssetDocument>> {
+    let docs: AssetDocument[];
+    let filter: FilterQuery<AssetDocument> = { is_deleted: { $ne: true } };
     let sort: any = { createdAt: -1 };
     if (afterCursor) {
       filter = { ...filter, _id: { $lt: afterCursor } };
@@ -46,8 +46,4 @@ export class VideoRepository extends BaseRepository<VideoDocument> {
     };
   }
 
-  async pushRendition(videoId: string, rendition: Omit<RenditionDocument, '_id'>) {
-    return this.videoModel.updateOne({ _id: videoId }, { $push: { renditions: rendition } });
-
-  }
 }

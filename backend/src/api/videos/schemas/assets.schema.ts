@@ -1,32 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { AbstractDocument } from '@/src/common/database/schemas/abstract.schema';
+import { StatusDocument, StatusSchema } from '@/src/api/videos/schemas/status.schema';
 
-export const VIDEO_COLLECTION_NAME = 'videos';
+export const ASSET_COLLECTION_NAME = 'assets';
 
-@Schema({
-  timestamps: true
-})
-export class RenditionDocument extends AbstractDocument {
-  @Prop()
-  playlist_path: string;
-
-  @Prop()
-  height: number;
-
-  @Prop()
-  width: number;
-
-  @Prop()
-  size: number;
-}
-
-export const RenditionSchema = SchemaFactory.createForClass(RenditionDocument);
 
 @Schema({
   timestamps: true,
-  collection: VIDEO_COLLECTION_NAME
+  collection: ASSET_COLLECTION_NAME
 })
-export class VideoDocument extends AbstractDocument {
+export class AssetDocument extends AbstractDocument {
   @Prop({
     required: true
   })
@@ -57,10 +40,6 @@ export class VideoDocument extends AbstractDocument {
   })
   width?: number;
 
-  @Prop({
-    required: false
-  })
-  thumbnail_url?: string;
 
   @Prop({
     required: false
@@ -70,7 +49,7 @@ export class VideoDocument extends AbstractDocument {
   @Prop({
     required: false
   })
-  master_playlist_name?: string;
+  master_file_name?: string;
 
   @Prop({
     required: false
@@ -88,19 +67,9 @@ export class VideoDocument extends AbstractDocument {
   })
   is_deleted?: boolean;
 
-
-  @Prop({
-    required: false,
-    default: [],
-    type: [RenditionSchema]
-  })
-  renditions?: {
-    playlist_path: string;
-    height: number;
-    width: number;
-    size: number;
-  }[];
+  @Prop({ required: false, default: [], type: [StatusSchema] })
+  status_logs?: [Omit<StatusDocument, '_id'>];
 
 }
 
-export const VideoSchema = SchemaFactory.createForClass(VideoDocument);
+export const VideoSchema = SchemaFactory.createForClass(AssetDocument);

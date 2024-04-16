@@ -8,6 +8,12 @@ export const VIDEO_STATUS = {
   FAILED: 'FAILED'
 };
 
+export const FILE_STATUS = {
+  QUEUED: 'QUEUED',
+  PROCESSING: 'PROCESSING',
+  READY: 'READY',
+  FAILED: 'FAILED'
+};
 export const VIDEO_RESOLUTION = {
   '360p': { height: 360, width: 640 },
   '480p': { height: 480, width: 854 },

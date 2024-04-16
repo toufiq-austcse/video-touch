@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { VideoUploadJobModel } from '@/src/api/videos/models/job.model';
-import { getDirSize, getLocalResolutionPath, getRefPlayListPath, getS3VideoPath } from '@/src/common/utils';
+import { getDirSize, getLocalResolutionPath, getS3VideoPath } from '@/src/common/utils';
 import { terminal } from '@/src/common/utils/terminal';
-import { VideoRepository } from '@/src/api/videos/repositories/video.repository';
-import { VideoService } from '@/src/api/videos/services/video.service';
+import { AssetRepository } from '@/src/api/videos/repositories/asset.repository';
 import mongoose from 'mongoose';
-import { VIDEO_STATUS } from '@/src/common/constants';
+import { FILE_STATUS, VIDEO_STATUS } from '@/src/common/constants';
+import { FileService } from '@/src/api/videos/services/file.service';
+import { AssetService } from '@/src/api/videos/services/asset.service';
 
 @Injectable()
 export class VideoUploaderJobHandler {
-  constructor(private videoRepository: VideoRepository, private videoService: VideoService) {
+  constructor(private assetService: AssetService, private assetRepository: AssetRepository, private fileService: FileService) {
   }
 
   async syncDirToS3(localDir: string, s3Dir: string) {
@@ -28,7 +29,7 @@ export class VideoUploaderJobHandler {
   public async handle360PUpload(msg: VideoUploadJobModel) {
     console.log('uploading 360p video', msg._id.toString());
     try {
-      let video = await this.videoRepository.findOne({
+      let video = await this.assetRepository.findOne({
         _id: mongoose.Types.ObjectId(msg._id.toString())
       });
 
@@ -42,15 +43,13 @@ export class VideoUploaderJobHandler {
       let res = await this.syncDirToS3(localFilePath, s3VideoPath);
       console.log('video 360p uploaded:', res);
 
-      let referencePlayListPath = getRefPlayListPath(msg._id.toString(), msg.height);
       let dirSize = await getDirSize(localFilePath);
       console.log('dir size:', dirSize);
 
-      let renditionDoc = this.videoService.buildRenditionDocument(referencePlayListPath, msg.height, msg.width, dirSize);
+      await this.fileService.updateFileStatus(msg._id.toString(), msg.height, FILE_STATUS.READY, 'File uploaded', dirSize);
 
-      await this.videoRepository.pushRendition(msg._id.toString(), renditionDoc);
       if (video.latest_status !== VIDEO_STATUS.READY) {
-        await this.videoService.insertVideoStatus(msg._id.toString(), VIDEO_STATUS.READY, 'Video is ready');
+        await this.assetService.updateVideoStatus(msg._id.toString(), VIDEO_STATUS.READY, 'Video ready');
       }
 
     } catch (e) {

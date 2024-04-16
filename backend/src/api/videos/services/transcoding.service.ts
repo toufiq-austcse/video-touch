@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { terminal } from '@/src/common/utils/terminal';
 import { getLocalResolutionPath, getLocalVideoMp4Path } from '@/src/common/utils';
-import { VideoService } from '@/src/api/videos/services/video.service';
 import { VIDEO_RESOLUTION, VIDEO_STATUS } from '@/src/common/constants';
+import { AssetService } from '@/src/api/videos/services/asset.service';
 
 @Injectable()
 export class TranscodingService {
-  constructor(private videoServie: VideoService) {
+  constructor(private assetService: AssetService) {
+
   }
 
   async transcodeVideo(inputFilePath: string, outputFolderPath: string, height: number, width: number) {
@@ -25,7 +26,7 @@ export class TranscodingService {
       result = await this.transcodeVideo(inputFilePath, outputFolderPath, height, width);
     } catch (e: any) {
       try {
-        await this.videoServie.insertVideoStatus(videoId, VIDEO_STATUS.FAILED, e.message);
+        await this.assetService.updateVideoStatus(videoId, VIDEO_STATUS.FAILED, e.message);
       } catch (e) {
         console.log('Error inserting video status', e);
       }
@@ -45,7 +46,7 @@ export class TranscodingService {
       result = await this.transcodeVideo(inputFilePath, outputFolderPath, height, width);
     } catch (e: any) {
       try {
-        await this.videoServie.insertVideoStatus(videoId, VIDEO_STATUS.FAILED, e.message);
+        //  await this.videoServie.insertVideoStatus(videoId, VIDEO_STATUS.FAILED, e.message);
       } catch (e) {
         console.log('Error inserting video status', e);
       }
@@ -65,7 +66,7 @@ export class TranscodingService {
       result = await this.transcodeVideo(inputFilePath, outputFolderPath, height, width);
     } catch (e: any) {
       try {
-        await this.videoServie.insertVideoStatus(videoId, VIDEO_STATUS.FAILED, e.message);
+        //  await this.videoServie.insertVideoStatus(videoId, VIDEO_STATUS.FAILED, e.message);
       } catch (e) {
         console.log('Error inserting video status', e);
       }
@@ -86,7 +87,7 @@ export class TranscodingService {
       result = await this.transcodeVideo(inputFilePath, outputFolderPath, height, width);
     } catch (e: any) {
       try {
-        await this.videoServie.insertVideoStatus(videoId, VIDEO_STATUS.FAILED, e.message);
+        //  await this.videoServie.insertVideoStatus(videoId, VIDEO_STATUS.FAILED, e.message);
       } catch (e) {
         console.log('Error inserting video status', e);
       }
@@ -106,7 +107,7 @@ export class TranscodingService {
       result = await this.transcodeVideo(inputFilePath, outputFolderPath, height, width);
     } catch (e: any) {
       try {
-        await this.videoServie.insertVideoStatus(videoId, VIDEO_STATUS.FAILED, e.message);
+        //await this.videoServie.insertVideoStatus(videoId, VIDEO_STATUS.FAILED, e.message);
       } catch (e) {
         console.log('Error inserting video status', e);
       }

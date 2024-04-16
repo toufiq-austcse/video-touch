@@ -100,10 +100,6 @@ export class VideoStatus {
 
   @Field()
   @Expose()
-  video_id: string;
-
-  @Field()
-  @Expose()
   status: string;
 
   @Field({ nullable: true })

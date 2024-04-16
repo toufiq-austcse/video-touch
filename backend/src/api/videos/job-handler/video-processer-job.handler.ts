@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
-import { VideoUploadJobModel, VideoValidationJobModel } from '@/src/api/videos/models/job.model';
+import { VideoProcessingJobModel, VideoUploadJobModel } from '@/src/api/videos/models/job.model';
 import { TranscodingService } from '@/src/api/videos/services/transcoding.service';
 import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
-import { VIDEO_RESOLUTION } from '@/src/common/constants';
+import { FILE_STATUS, VIDEO_RESOLUTION } from '@/src/common/constants';
 import { JobManagerService } from '@/src/api/videos/services/job-manager.service';
+import { FileService } from '@/src/api/videos/services/file.service';
 
 @Injectable()
 export class VideoProcessorJobHandler {
   constructor(private transcodingService: TranscodingService, private rabbitMqService: RabbitMqService,
-              private jobManagerService: JobManagerService) {
+              private jobManagerService: JobManagerService, private fileService: FileService) {
   }
 
   @RabbitSubscribe({
@@ -18,13 +19,15 @@ export class VideoProcessorJobHandler {
     routingKey: process.env.RABBIT_MQ_360P_PROCESS_VIDEO_ROUTING_KEY,
     queue: process.env.RABBIT_MQ_360P_PROCESS_VIDEO_QUEUE
   })
-  public async handle360(msg: VideoValidationJobModel) {
+  public async handle360(msg: VideoProcessingJobModel) {
     console.log('Video360pProcessingJobHandler', msg);
     try {
+      let { height, width } = VIDEO_RESOLUTION['360p'];
+
+      await this.fileService.updateFileStatus(msg._id, height, FILE_STATUS.PROCESSING, 'File processing');
+
       let res = await this.transcodingService.transcode360pVideo(msg._id.toString());
       console.log('video 360p transcoded:', res);
-
-      let { height, width } = VIDEO_RESOLUTION['360p'];
 
       this.publishVideoUploadJob(msg._id.toString(), height, width);
     } catch (e) {

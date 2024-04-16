@@ -36,7 +36,6 @@ scalar DateTime
 
 type VideoStatus {
   _id: String!
-  video_id: String!
   status: String!
   details: String
   created_at: DateTime!

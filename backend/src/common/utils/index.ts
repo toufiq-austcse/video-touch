@@ -36,6 +36,10 @@ export function getRefPlayListPath(videoId: string, height: number) {
   return `${videoId}/${height}/${height}_out.m3u8`;
 }
 
+export function getFileName(height: number) {
+  return `${height}_out.m3u8`;
+}
+
 export function getS3VideoPath(videoId: string, height: number) {
   return `s3://${AppConfigService.appConfig.AWS_S3_BUCKET_NAME}/videos/${videoId}/${height}`;
 }

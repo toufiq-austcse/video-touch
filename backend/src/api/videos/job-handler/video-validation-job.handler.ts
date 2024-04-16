@@ -1,19 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 
-import { VideoService } from '@/src/api/videos/services/video.service';
+import { AssetService } from '@/src/api/videos/services/asset.service';
 import { getLocalVideoMp4Path } from '@/src/common/utils';
-import { VideoProcessingJobModel, VideoValidationJobModel } from '@/src/api/videos/models/job.model';
-import { VideoRepository } from '@/src/api/videos/repositories/video.repository';
+import { JobMetadataModel, VideoProcessingJobModel, VideoValidationJobModel } from '@/src/api/videos/models/job.model';
+import { AssetRepository } from '@/src/api/videos/repositories/asset.repository';
 import mongoose from 'mongoose';
-import { VIDEO_STATUS } from '@/src/common/constants';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
 import { JobManagerService } from '@/src/api/videos/services/job-manager.service';
+import { VIDEO_STATUS } from '@/src/common/constants';
+import { FileService } from '@/src/api/videos/services/file.service';
 
 @Injectable()
 export class VideoValidationJobHandler {
-  constructor(private videoService: VideoService, private videoRepository: VideoRepository, private rabbitMqService: RabbitMqService,
+  constructor(private assetService: AssetService,
+              private fileService: FileService,
+              private assetRepository: AssetRepository,
+              private rabbitMqService: RabbitMqService,
               private jobManagerService: JobManagerService) {
   }
 
@@ -26,10 +30,10 @@ export class VideoValidationJobHandler {
     console.log('VideoValidationJobHandler', msg);
     try {
       let videoPath = getLocalVideoMp4Path(msg._id.toString());
-      let metadata = await this.videoService.getMetadata(videoPath);
+      let metadata = await this.assetService.getMetadata(videoPath);
       console.log('metadata', metadata);
 
-      await this.videoRepository.findOneAndUpdate({
+      await this.assetRepository.findOneAndUpdate({
         _id: mongoose.Types.ObjectId(msg._id)
       }, {
         size: metadata.size,
@@ -37,25 +41,36 @@ export class VideoValidationJobHandler {
         width: metadata.width,
         duration: metadata.duration
       });
-      await this.videoService.insertVideoStatus(msg._id, VIDEO_STATUS.VALIDATED, 'Video validated');
-      this.publishVideoProcessingJob(msg, metadata.height, metadata.width);
-      await this.videoService.insertVideoStatus(msg._id, VIDEO_STATUS.PROCESSING, 'Video processing');
+      await this.assetService.updateVideoStatus(msg._id, VIDEO_STATUS.VALIDATED, 'Video validated');
 
-    } catch (e) {
+      let jobData = this.jobManagerService.getRenditionWiseJobDataByHeight(metadata.height);
+      this.publishVideoProcessingJob(msg, jobData);
+      await this.insertFilesData(msg, jobData);
+
+      await this.assetService.updateVideoStatus(msg._id, VIDEO_STATUS.PROCESSING, 'Video processing');
+
+    } catch (e: any) {
       console.log('error in video validation job handler', e);
+      await this.assetService.updateVideoStatus(msg._id, VIDEO_STATUS.FAILED, e.message);
     }
   }
 
-  publishVideoProcessingJob(msg: VideoValidationJobModel, height: number, width: number) {
+  publishVideoProcessingJob(msg: VideoValidationJobModel, jobMetadata: JobMetadataModel[]) {
     let jobModel: VideoProcessingJobModel = {
       _id: msg._id.toString()
     };
-    let jobData = this.jobManagerService.getRenditionWiseJobDataByHeight(height);
-    jobData.forEach(data => {
+
+    jobMetadata.forEach(data => {
       this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE, data.processRoutingKey, jobModel);
       console.log('published video processing job', data.processRoutingKey);
     });
   }
 
 
+  private async insertFilesData(msg: VideoValidationJobModel, jobData: JobMetadataModel[]) {
+    for (let data of jobData) {
+      await this.fileService.createFileAfterValidation(msg, data);
+    }
+
+  }
 }
