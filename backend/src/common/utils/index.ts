@@ -1,4 +1,8 @@
 import * as fs from 'fs';
+import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
+import * as path from 'path';
+import { readdir, stat } from 'fs/promises';
+
 
 export function concatObject(obj: Object, separator: string = ', ') {
   return Object.keys(obj)
@@ -28,3 +32,17 @@ export function getLocalResolutionPath(videoId: string, height: number) {
   return path;
 }
 
+export function getRefPlayListPath(videoId: string, height: number) {
+  return `${videoId}/${height}/${height}_out.m3u8`;
+}
+
+export function getS3VideoPath(videoId: string, height: number) {
+  return `s3://${AppConfigService.appConfig.AWS_S3_BUCKET_NAME}/videos/${videoId}/${height}`;
+}
+
+export async function getDirSize(directory: string) {
+  const files = await readdir(directory);
+  const stats = files.map(file => stat(path.join(directory, file)));
+
+  return (await Promise.all(stats)).reduce((accumulator, { size }) => accumulator + size, 0);
+}

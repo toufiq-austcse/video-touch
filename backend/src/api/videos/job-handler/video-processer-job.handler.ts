@@ -24,7 +24,9 @@ export class VideoProcessorJobHandler {
       let res = await this.transcodingService.transcode360pVideo(msg._id.toString());
       console.log('video 360p transcoded:', res);
 
-      this.publishVideoUploadJob(msg._id.toString(), VIDEO_RESOLUTION['360p'].height);
+      let { height, width } = VIDEO_RESOLUTION['360p'];
+
+      this.publishVideoUploadJob(msg._id.toString(), height, width);
     } catch (e) {
       console.log('error in video 360p processing job handler', e);
 
@@ -104,9 +106,11 @@ export class VideoProcessorJobHandler {
   // }
 
 
-  publishVideoUploadJob(_id: string, height: number) {
+  publishVideoUploadJob(_id: string, height: number, width: number) {
     let jobModel: VideoUploadJobModel = {
-      _id: _id
+      _id: _id,
+      height: height,
+      width: width
     };
 
     let jobDataByHeight = this.jobManagerService.getJobDataByHeight(height);

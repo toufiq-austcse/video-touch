@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateVideoInputDto } from '../dtos/create-video-input.dto';
-import { VideoDocument } from '../schemas/videos.schema';
+import { RenditionDocument, VideoDocument } from '../schemas/videos.schema';
 import { terminal } from '@/src/common/utils/terminal';
 import { VideoRepository } from '@/src/api/videos/repositories/video.repository';
 import { ListVideoInputDto } from '@/src/api/videos/dtos/list-video-input.dto';
@@ -137,6 +137,15 @@ export class VideoService {
 
   }
 
+  buildRenditionDocument(playListPath: string, height: number, width: number, size: number): Omit<RenditionDocument, '_id'> {
+    return {
+      playlist_path: playListPath,
+      height: height,
+      width: width,
+      size: size
+    };
+
+  }
 
 
 }

@@ -4,6 +4,25 @@ import { AbstractDocument } from '@/src/common/database/schemas/abstract.schema'
 export const VIDEO_COLLECTION_NAME = 'videos';
 
 @Schema({
+  timestamps: true
+})
+export class RenditionDocument extends AbstractDocument {
+  @Prop()
+  playlist_path: string;
+
+  @Prop()
+  height: number;
+
+  @Prop()
+  width: number;
+
+  @Prop()
+  size: number;
+}
+
+export const RenditionSchema = SchemaFactory.createForClass(RenditionDocument);
+
+@Schema({
   timestamps: true,
   collection: VIDEO_COLLECTION_NAME
 })
@@ -68,6 +87,20 @@ export class VideoDocument extends AbstractDocument {
     default: false
   })
   is_deleted?: boolean;
+
+
+  @Prop({
+    required: false,
+    default: [],
+    type: [RenditionSchema]
+  })
+  renditions?: {
+    playlist_path: string;
+    height: number;
+    width: number;
+    size: number;
+  }[];
+
 }
 
 export const VideoSchema = SchemaFactory.createForClass(VideoDocument);

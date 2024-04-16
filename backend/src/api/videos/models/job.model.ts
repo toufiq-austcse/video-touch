@@ -13,4 +13,6 @@ export interface VideoProcessingJobModel {
 
 export interface VideoUploadJobModel {
   _id: string;
+  height: number;
+  width: number;
 }

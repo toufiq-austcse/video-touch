@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { BaseRepository } from '@/src/common/database/repository/base.repository';
-import { VIDEO_COLLECTION_NAME, VideoDocument } from '../schemas/videos.schema';
+import { RenditionDocument, VIDEO_COLLECTION_NAME, VideoDocument } from '../schemas/videos.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { BasePaginatedResponse } from '@/src/common/database/models/abstract.model';
@@ -41,8 +41,13 @@ export class VideoRepository extends BaseRepository<VideoDocument> {
       pageInfo: {
         prev_cursor: docs.length > 0 ? docs[0]._id.toString() : null,
         next_cursor: docs.length > 0 ? docs[docs.length - 1]._id.toString() : null,
-        total_pages: Math.ceil(total / first),
-      },
+        total_pages: Math.ceil(total / first)
+      }
     };
+  }
+
+  async pushRendition(videoId: string, rendition: Omit<RenditionDocument, '_id'>) {
+    return this.videoModel.updateOne({ _id: videoId }, { $push: { renditions: rendition } });
+
   }
 }
