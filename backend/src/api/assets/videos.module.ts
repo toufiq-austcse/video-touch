@@ -30,14 +30,14 @@ import { getMainManifestFileName } from '@/src/common/utils';
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = VideoSchema;
-          schema.pre('save', async function() {
+          schema.pre('save', async function () {
             console.log('assets pre save hook');
             const video = this;
             (video as any).master_file_name = getMainManifestFileName();
             (video as any).latest_status = VIDEO_STATUS.QUEUED;
             (video as any).status_logs = StatusMapper.mapForSave(VIDEO_STATUS.QUEUED, 'Video is queued');
           });
-          schema.post('save', async function() {
+          schema.post('save', async function () {
             let assetService = moduleRef.get<AssetService>(AssetService, { strict: false });
             console.log('post save hook');
             const video: any = this;
@@ -53,7 +53,7 @@ import { getMainManifestFileName } from '@/src/common/utils';
             return;
           });
           return schema;
-        }
+        },
       },
       // {
       //   name: FILE_COLLECTION_NAME,
@@ -84,9 +84,9 @@ import { getMainManifestFileName } from '@/src/common/utils';
         name: FILE_COLLECTION_NAME,
         useFactory: () => {
           return FileSchema;
-        }
-      }
-    ])
+        },
+      },
+    ]),
   ],
   providers: [
     AssetRepository,
@@ -102,8 +102,7 @@ import { getMainManifestFileName } from '@/src/common/utils';
     VideoProcessorJobHandler,
     VideoUploaderJobHandler,
     JobManagerService,
-    ManifestService
-  ]
+    ManifestService,
+  ],
 })
-export class VideosModule {
-}
+export class VideosModule {}
