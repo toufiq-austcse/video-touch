@@ -58,7 +58,7 @@ export class DownloaderHttpService {
         resolve(outputFilePath);
       });
       writer.on('error', (err) => {
-        console.error('Error downloading videos:', err);
+        console.error('Error downloading assets:', err);
         reject(err);
       });
     });

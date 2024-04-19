@@ -2,9 +2,9 @@ version: "3"
 services:
   video-touch:
     build: .
-    hostname: videos-touch
+    hostname: assets-touch
     image: video-touch
-    container_name: videos-touch
+    container_name: assets-touch
     restart: unless-stopped
     env_file: .env
     environment:

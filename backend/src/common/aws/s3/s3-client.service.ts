@@ -3,7 +3,7 @@ import fs from 'fs';
 import * as AWS from 'aws-sdk';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { UploadObjModel } from '@/src/common/aws/s3/models/upload-obj.model';
-import { VideoUploadJobModel } from '@/src/api/videos/models/job.model';
+import { VideoUploadJobModel } from '@/src/api/assets/models/job.model';
 
 @Injectable()
 export class S3ClientService implements OnModuleInit {

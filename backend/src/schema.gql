@@ -2,7 +2,19 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type CreateVideoResponse {
+type StatusLogResponse {
+  status: String!
+  details: String!
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type CreateAssetResponse {
   _id: String!
   title: String!
   description: String
@@ -11,7 +23,7 @@ type CreateVideoResponse {
   tags: [String!]!
 }
 
-type Video {
+type Asset {
   _id: String!
   title: String!
   description: String
@@ -23,25 +35,13 @@ type Video {
   size: Float!
   master_playlist_name: String
   latest_status: String!
-  status_details: [VideoStatus!]!
+  status_logs: [StatusLogResponse!]!
   tags: [String!]!
   created_at: DateTime!
   updated_at: DateTime!
 }
 
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
-type VideoStatus {
-  _id: String!
-  status: String!
-  details: String
-  created_at: DateTime!
-}
-
-type VideoMinimalResponse {
+type AssetMinimalResponse {
   _id: String!
   title: String!
   duration: Float!
@@ -57,40 +57,40 @@ type PageInfo {
   total_pages: Float!
 }
 
-type PaginatedVideoResponse {
-  videos: [VideoMinimalResponse!]!
+type PaginatedAssetResponse {
+  assets: [AssetMinimalResponse!]!
   page_info: PageInfo!
 }
 
 type Query {
-  ListVideo(listVideoInput: ListVideoInputDto!): PaginatedVideoResponse!
-  GetVideo(getVideoInput: GetVideoInputDto!): Video!
+  ListAsset(listAssetInputDto: ListAssetInputDto!): PaginatedAssetResponse!
+  GetAsset(getAssetInputDto: GetAssetInputDto!): Asset!
 }
 
-input ListVideoInputDto {
+input ListAssetInputDto {
   after: String
   before: String
   first: Float = 30
 }
 
-input GetVideoInputDto {
+input GetAssetInputDto {
   _id: String!
 }
 
 type Mutation {
-  CreateVideo(createVideoInput: CreateVideoInputDto!): CreateVideoResponse!
-  UpdateVideo(_id: String!, updateVideoInput: UpdateVideoInputDto!): Video!
-  DeleteVideo(_id: String!): String!
+  CreateAsset(createAssetInput: CreateAssetInputDto!): CreateAssetResponse!
+  UpdateAsset(_id: String!, updateAssetInputDto: UpdateAssetInputDto!): Asset!
+  DeleteAsset(_id: String!): String!
 }
 
-input CreateVideoInputDto {
+input CreateAssetInputDto {
   title: String
   description: String
   source_url: String!
   tags: [String!]
 }
 
-input UpdateVideoInputDto {
+input UpdateAssetInputDto {
   title: String
   description: String
   tags: [String!]
