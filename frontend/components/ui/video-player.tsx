@@ -71,7 +71,7 @@ const PlyrHlsPlayer = ({ source }: { source: string }) => {
   }
 
   return (
-    <div>
+    <div className="h-fit">
       <video ref={videoRef}></video>
     </div>
   );
