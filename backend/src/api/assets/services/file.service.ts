@@ -17,6 +17,7 @@ export class FileService {
 
   }
 
+
   async updateFileStatus(assetId: string, height: number, status: string, details: string, size?: number) {
     let updatedData: mongoose.UpdateQuery<FileDocument> = {
       latest_status: status,
