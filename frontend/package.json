@@ -23,6 +23,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "graphql": "^16.8.1",
+    "hls.js": "^1.1.5",
     "lucide-react": "^0.358.0",
     "next": "13.4.7",
     "plyr": "^3.7.8",

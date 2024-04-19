@@ -17,13 +17,12 @@ export class VideoProcessorJobHandler {
     private jobManagerService: JobManagerService,
     private fileService: FileService,
     private manifestService: ManifestService
-  ) {
-  }
+  ) {}
 
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_360P_PROCESS_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_360P_PROCESS_VIDEO_QUEUE
+    queue: process.env.RABBIT_MQ_360P_PROCESS_VIDEO_QUEUE,
   })
   public async handle360(msg: VideoProcessingJobModel) {
     console.log('Video360pProcessingJobHandler', msg);
@@ -118,7 +117,7 @@ export class VideoProcessorJobHandler {
     let jobModel: VideoUploadJobModel = {
       _id: _id,
       height: height,
-      width: width
+      width: width,
     };
 
     let jobDataByHeight = this.jobManagerService.getJobDataByHeight(height);

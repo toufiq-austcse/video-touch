@@ -58,6 +58,10 @@ export function getMainManifestPath(assetId: string) {
   return `${getLocalVideoRootPath(assetId)}/${getMainManifestFileName()}`;
 }
 
+export function getMasterPlaylistUrl(assetId: string) {
+  return `${AppConfigService.appConfig.VIDEO_BASE_URL}/${assetId}/${getMainManifestFileName()}`;
+}
+
 export function getMainManifestFileName() {
   return 'main.m3u8';
 }

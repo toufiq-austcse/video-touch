@@ -20,6 +20,7 @@ import { StatusMapper } from '@/src/api/assets/mapper/status.mapper';
 import { FileRepository } from '@/src/api/assets/repositories/file.repository';
 import { FileService } from '@/src/api/assets/services/file.service';
 import { ManifestService } from '@/src/api/assets/services/manifest.service';
+import { getMainManifestFileName } from '@/src/common/utils';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ManifestService } from '@/src/api/assets/services/manifest.service';
           schema.pre('save', async function() {
             console.log('assets pre save hook');
             const video = this;
+            (video as any).master_file_name = getMainManifestFileName();
             (video as any).latest_status = VIDEO_STATUS.QUEUED;
             (video as any).status_logs = StatusMapper.mapForSave(VIDEO_STATUS.QUEUED, 'Video is queued');
           });

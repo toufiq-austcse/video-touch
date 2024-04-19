@@ -13,6 +13,7 @@ export interface VideoDetails {
   updated_at: Date;
   thumbnail_url: string;
   latest_status: string;
+  master_playlist_url: string;
 }
 
 export interface StatusLog {

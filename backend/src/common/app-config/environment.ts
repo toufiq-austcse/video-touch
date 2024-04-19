@@ -51,4 +51,5 @@ export interface EnvironmentVariables {
   AWS_REGION: string;
   AWS_SECRET_ACCESS_KEY: string;
   AWS_S3_BUCKET_NAME: string;
+  VIDEO_BASE_URL: string;
 }

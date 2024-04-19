@@ -68,8 +68,8 @@ export class Asset {
 
   @Field({ nullable: true })
   @Expose()
-  @Transform((value) => value.obj.thumbnail_url ?? null)
-  master_playlist_name: string;
+  @Transform((value) => value.obj.master_playlist_url ?? null)
+  master_playlist_url: string;
 
   @Field()
   @Expose()

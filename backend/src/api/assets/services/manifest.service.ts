@@ -5,8 +5,7 @@ import { VIDEO_RESOLUTION } from '@/src/common/constants';
 
 @Injectable()
 export class ManifestService {
-  constructor() {
-  }
+  constructor() {}
 
   appendManifest(assetId: string, height: number) {
     let manifestFilePath = getMainManifestPath(assetId);
@@ -32,7 +31,6 @@ export class ManifestService {
       return this.get1080pRule();
     }
     return '';
-
   }
 
   private get360pRule(): string {
@@ -53,20 +51,16 @@ export class ManifestService {
   private get720pRule(): string {
     let { height, width } = VIDEO_RESOLUTION['720p'];
     return `#EXT-X-STREAM-INF:BANDWIDTH=2000000,RESOLUTION=${width}x${height}\n${height}/${height}_out.m3u8`;
-
   }
 
   private get1080pRule(): string {
     let { height, width } = VIDEO_RESOLUTION['1080p'];
     return `#EXT-X-STREAM-INF:BANDWIDTH=3500000,RESOLUTION=${width}x${height}\n${height}/${height}_out.m3u8`;
-
   }
 
   private createManifestFile(path: string) {
     if (!fs.existsSync(path)) {
       fs.writeFileSync(path, '#EXTM3U');
     }
-
   }
-
 }

@@ -70,6 +70,7 @@ export class AppConfigService {
       AWS_REGION: this.configService.getOrThrow('AWS_REGION'),
       AWS_SECRET_ACCESS_KEY: this.configService.getOrThrow('AWS_SECRET_ACCESS_KEY'),
       AWS_S3_BUCKET_NAME: this.configService.getOrThrow('AWS_S3_BUCKET_NAME'),
+      VIDEO_BASE_URL: this.configService.getOrThrow('VIDEO_BASE_URL')
     };
   }
 }

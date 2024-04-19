@@ -3,13 +3,15 @@ import {
   Asset,
   AssetMinimalResponse,
   CreateAssetResponse,
-  PaginatedAssetResponse,
+  PaginatedAssetResponse
 } from '@/src/api/assets/models/asset.model';
 import { AssetDocument } from '@/src/api/assets/schemas/assets.schema';
 import { plainToClass, plainToInstance } from 'class-transformer';
 import { BasePaginatedResponse } from '@/src/common/database/models/abstract.model';
 import { StatusDocument } from '@/src/api/assets/schemas/status.schema';
 import { StatusLogResponse } from '@/src/api/assets/models/status-logs.model';
+import { getMasterPlaylistUrl } from '@/src/common/utils';
+import { VIDEO_STATUS } from '@/src/common/constants';
 
 @Injectable()
 export class AssetMapper {
@@ -20,7 +22,7 @@ export class AssetMapper {
       source_url: videoDocument.source_url,
       status: videoDocument.latest_status,
       tags: videoDocument.tags,
-      title: videoDocument.title,
+      title: videoDocument.title
     };
   }
 
@@ -37,18 +39,18 @@ export class AssetMapper {
             duration: video.duration,
             status: video.latest_status,
             created_at: video.createdAt,
-            updated_at: video.updatedAt,
+            updated_at: video.updatedAt
           } as AssetMinimalResponse,
           {
             excludeExtraneousValues: true,
-            enableImplicitConversion: true,
+            enableImplicitConversion: true
           }
         )
       );
     }
     return {
       assets: videos,
-      page_info: paginatedVideoResponse.pageInfo,
+      page_info: paginatedVideoResponse.pageInfo
     };
   }
 
@@ -64,13 +66,13 @@ export class AssetMapper {
         width: asset.width,
         thumbnail_url: null,
         size: asset.size,
-        master_playlist_name: null,
+        master_playlist_url: asset.latest_status === VIDEO_STATUS.READY ? getMasterPlaylistUrl(asset._id.toString()) : null,
         latest_status: asset.latest_status,
         status_logs: statusLogs,
         tags: asset.tags,
         created_at: asset.createdAt,
         updated_at: asset.updatedAt,
-        _id: asset._id.toString(),
+        _id: asset._id.toString()
       } as Asset,
       { excludeExtraneousValues: true, enableImplicitConversion: true }
     );
@@ -86,11 +88,11 @@ export class AssetMapper {
           {
             ...log,
             created_at: log.createdAt,
-            updated_at: log.updatedAt,
+            updated_at: log.updatedAt
           } as StatusLogResponse,
           {
             excludeExtraneousValues: true,
-            enableImplicitConversion: true,
+            enableImplicitConversion: true
           }
         )
       );

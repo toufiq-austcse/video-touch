@@ -33,7 +33,7 @@ type Asset {
   width: Float!
   thumbnail_url: String
   size: Float!
-  master_playlist_name: String
+  master_playlist_url: String
   latest_status: String!
   status_logs: [StatusLogResponse!]!
   tags: [String!]!
