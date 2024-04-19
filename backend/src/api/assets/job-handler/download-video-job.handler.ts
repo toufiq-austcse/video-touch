@@ -14,13 +14,12 @@ export class DownloadVideoJobHandler {
     private assetService: AssetService,
     private downloadHttpService: DownloaderHttpService,
     private rabbitMqService: RabbitMqService
-  ) {
-  }
+  ) {}
 
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_DOWNLOAD_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_DOWNLOAD_VIDEO_QUEUE
+    queue: process.env.RABBIT_MQ_DOWNLOAD_VIDEO_QUEUE,
   })
   public async handle(msg: VideoDownloadJobModel) {
     try {
@@ -35,7 +34,7 @@ export class DownloadVideoJobHandler {
         AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
         AppConfigService.appConfig.RABBIT_MQ_VALIDATE_VIDEO_ROUTING_KEY,
         {
-          _id: msg._id
+          _id: msg._id,
         } as VideoValidationJobModel
       );
     } catch (e: any) {

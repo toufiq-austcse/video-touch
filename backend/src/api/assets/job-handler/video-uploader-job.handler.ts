@@ -6,7 +6,7 @@ import {
   getLocalResolutionPath,
   getMainManifestPath,
   getS3ManifestPath,
-  getS3VideoPath
+  getS3VideoPath,
 } from '@/src/common/utils';
 import { terminal } from '@/src/common/utils/terminal';
 import { AssetRepository } from '@/src/api/assets/repositories/asset.repository';
@@ -24,8 +24,7 @@ export class VideoUploaderJobHandler {
     private assetRepository: AssetRepository,
     private fileService: FileService,
     private s3ClientService: S3ClientService
-  ) {
-  }
+  ) {}
 
   async syncDirToS3(localDir: string, s3Dir: string) {
     console.log('syncing dir to s3', localDir, s3Dir);
@@ -37,7 +36,7 @@ export class VideoUploaderJobHandler {
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_360P_UPLOAD_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_360P_UPLOAD_VIDEO_QUEUE
+    queue: process.env.RABBIT_MQ_360P_UPLOAD_VIDEO_QUEUE,
   })
   public async handle360PUpload(msg: VideoUploadJobModel) {
     console.log('uploading 360p video', msg._id.toString());
@@ -55,7 +54,7 @@ export class VideoUploaderJobHandler {
         key: s3ManifestPath,
         filePath: mainManifestPath,
         acl: 'public-read',
-        contentType: 'application/vnd.apple.mpegurl'
+        contentType: 'application/vnd.apple.mpegurl',
       });
       console.log('manifest uploaded:', resManifest);
 
@@ -71,7 +70,7 @@ export class VideoUploaderJobHandler {
       );
 
       let video = await this.assetRepository.findOne({
-        _id: mongoose.Types.ObjectId(msg._id.toString())
+        _id: mongoose.Types.ObjectId(msg._id.toString()),
       });
 
       if (!video) {
@@ -90,7 +89,7 @@ export class VideoUploaderJobHandler {
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_480P_UPLOAD_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_480P_UPLOAD_VIDEO_QUEUE
+    queue: process.env.RABBIT_MQ_480P_UPLOAD_VIDEO_QUEUE,
   })
   public async handle480PUpload(msg: VideoUploadJobModel) {
     console.log('uploading 480p video', msg._id.toString());
@@ -108,7 +107,7 @@ export class VideoUploaderJobHandler {
         key: s3ManifestPath,
         filePath: mainManifestPath,
         acl: 'public-read',
-        contentType: 'application/vnd.apple.mpegurl'
+        contentType: 'application/vnd.apple.mpegurl',
       });
       console.log('manifest uploaded:', resManifest);
 
@@ -124,14 +123,13 @@ export class VideoUploaderJobHandler {
       );
 
       let video = await this.assetRepository.findOne({
-        _id: mongoose.Types.ObjectId(msg._id.toString())
+        _id: mongoose.Types.ObjectId(msg._id.toString()),
       });
 
       if (!video) {
         console.log('video not found');
         return;
       }
-
 
       if (video.latest_status !== VIDEO_STATUS.READY) {
         await this.assetService.updateVideoStatus(msg._id.toString(), VIDEO_STATUS.READY, 'Video ready');
@@ -144,7 +142,7 @@ export class VideoUploaderJobHandler {
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_540P_UPLOAD_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_540P_UPLOAD_VIDEO_QUEUE
+    queue: process.env.RABBIT_MQ_540P_UPLOAD_VIDEO_QUEUE,
   })
   public async handle540PUpload(msg: VideoUploadJobModel) {
     console.log('uploading 540p video', msg._id.toString());
@@ -162,7 +160,7 @@ export class VideoUploaderJobHandler {
         key: s3ManifestPath,
         filePath: mainManifestPath,
         acl: 'public-read',
-        contentType: 'application/vnd.apple.mpegurl'
+        contentType: 'application/vnd.apple.mpegurl',
       });
       console.log('manifest uploaded:', resManifest);
 
@@ -178,7 +176,7 @@ export class VideoUploaderJobHandler {
       );
 
       let video = await this.assetRepository.findOne({
-        _id: mongoose.Types.ObjectId(msg._id.toString())
+        _id: mongoose.Types.ObjectId(msg._id.toString()),
       });
 
       if (!video) {
@@ -196,7 +194,7 @@ export class VideoUploaderJobHandler {
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_720P_UPLOAD_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_720P_UPLOAD_VIDEO_QUEUE
+    queue: process.env.RABBIT_MQ_720P_UPLOAD_VIDEO_QUEUE,
   })
   public async handle720PUpload(msg: VideoUploadJobModel) {
     console.log('uploading 720p video', msg._id.toString());
@@ -214,7 +212,7 @@ export class VideoUploaderJobHandler {
         key: s3ManifestPath,
         filePath: mainManifestPath,
         acl: 'public-read',
-        contentType: 'application/vnd.apple.mpegurl'
+        contentType: 'application/vnd.apple.mpegurl',
       });
       console.log('manifest uploaded:', resManifest);
 
@@ -230,7 +228,7 @@ export class VideoUploaderJobHandler {
       );
 
       let video = await this.assetRepository.findOne({
-        _id: mongoose.Types.ObjectId(msg._id.toString())
+        _id: mongoose.Types.ObjectId(msg._id.toString()),
       });
 
       if (!video) {
@@ -248,12 +246,11 @@ export class VideoUploaderJobHandler {
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_1080P_UPLOAD_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_1080P_UPLOAD_VIDEO_QUEUE
+    queue: process.env.RABBIT_MQ_1080P_UPLOAD_VIDEO_QUEUE,
   })
   public async handle10800PUpload(msg: VideoUploadJobModel) {
     console.log('uploading 1080p video', msg._id.toString());
     try {
-
       let localFilePath = getLocalResolutionPath(msg._id.toString(), msg.height);
       let s3VideoPath = getS3VideoPath(msg._id.toString(), msg.height);
       let res = await this.syncDirToS3(localFilePath, s3VideoPath);
@@ -267,7 +264,7 @@ export class VideoUploaderJobHandler {
         key: s3ManifestPath,
         filePath: mainManifestPath,
         acl: 'public-read',
-        contentType: 'application/vnd.apple.mpegurl'
+        contentType: 'application/vnd.apple.mpegurl',
       });
       console.log('manifest uploaded:', resManifest);
 
@@ -283,7 +280,7 @@ export class VideoUploaderJobHandler {
       );
 
       let video = await this.assetRepository.findOne({
-        _id: mongoose.Types.ObjectId(msg._id.toString())
+        _id: mongoose.Types.ObjectId(msg._id.toString()),
       });
 
       if (!video) {
