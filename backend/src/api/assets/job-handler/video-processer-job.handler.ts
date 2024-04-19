@@ -7,6 +7,7 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
 import { FILE_STATUS, VIDEO_RESOLUTION } from '@/src/common/constants';
 import { JobManagerService } from '@/src/api/assets/services/job-manager.service';
 import { FileService } from '@/src/api/assets/services/file.service';
+import { ManifestService } from '@/src/api/assets/services/manifest.service';
 
 @Injectable()
 export class VideoProcessorJobHandler {
@@ -14,13 +15,15 @@ export class VideoProcessorJobHandler {
     private transcodingService: TranscodingService,
     private rabbitMqService: RabbitMqService,
     private jobManagerService: JobManagerService,
-    private fileService: FileService
-  ) {}
+    private fileService: FileService,
+    private manifestService: ManifestService
+  ) {
+  }
 
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_360P_PROCESS_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_360P_PROCESS_VIDEO_QUEUE,
+    queue: process.env.RABBIT_MQ_360P_PROCESS_VIDEO_QUEUE
   })
   public async handle360(msg: VideoProcessingJobModel) {
     console.log('Video360pProcessingJobHandler', msg);
@@ -31,6 +34,7 @@ export class VideoProcessorJobHandler {
 
       let res = await this.transcodingService.transcode360pVideo(msg._id.toString());
       console.log('video 360p transcoded:', res);
+      this.manifestService.appendManifest(msg._id.toString(), height);
 
       this.publishVideoUploadJob(msg._id.toString(), height, width);
     } catch (e) {
@@ -114,7 +118,7 @@ export class VideoProcessorJobHandler {
     let jobModel: VideoUploadJobModel = {
       _id: _id,
       height: height,
-      width: width,
+      width: width
     };
 
     let jobDataByHeight = this.jobManagerService.getJobDataByHeight(height);

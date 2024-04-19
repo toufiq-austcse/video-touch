@@ -1,21 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { VideoUploadJobModel } from '@/src/api/assets/models/job.model';
-import { getDirSize, getLocalResolutionPath, getS3VideoPath } from '@/src/common/utils';
+import {
+  getDirSize,
+  getLocalResolutionPath,
+  getMainManifestPath,
+  getS3ManifestPath,
+  getS3VideoPath
+} from '@/src/common/utils';
 import { terminal } from '@/src/common/utils/terminal';
 import { AssetRepository } from '@/src/api/assets/repositories/asset.repository';
 import mongoose from 'mongoose';
 import { FILE_STATUS, VIDEO_STATUS } from '@/src/common/constants';
 import { AssetService } from '@/src/api/assets/services/asset.service';
 import { FileService } from '@/src/api/assets/services/file.service';
+import { S3ClientService } from '@/src/common/aws/s3/s3-client.service';
+import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 
 @Injectable()
 export class VideoUploaderJobHandler {
   constructor(
     private assetService: AssetService,
     private assetRepository: AssetRepository,
-    private fileService: FileService
-  ) {}
+    private fileService: FileService,
+    private s3ClientService: S3ClientService
+  ) {
+  }
 
   async syncDirToS3(localDir: string, s3Dir: string) {
     console.log('syncing dir to s3', localDir, s3Dir);
@@ -27,13 +37,13 @@ export class VideoUploaderJobHandler {
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_360P_UPLOAD_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_360P_UPLOAD_VIDEO_QUEUE,
+    queue: process.env.RABBIT_MQ_360P_UPLOAD_VIDEO_QUEUE
   })
   public async handle360PUpload(msg: VideoUploadJobModel) {
     console.log('uploading 360p video', msg._id.toString());
     try {
       let video = await this.assetRepository.findOne({
-        _id: mongoose.Types.ObjectId(msg._id.toString()),
+        _id: mongoose.Types.ObjectId(msg._id.toString())
       });
 
       if (!video) {
@@ -45,6 +55,18 @@ export class VideoUploaderJobHandler {
       let s3VideoPath = getS3VideoPath(msg._id.toString(), msg.height);
       let res = await this.syncDirToS3(localFilePath, s3VideoPath);
       console.log('video 360p uploaded:', res);
+
+      let mainManifestPath = getMainManifestPath(msg._id.toString());
+      let s3ManifestPath = getS3ManifestPath(msg._id.toString());
+
+      let resManifest = await this.s3ClientService.uploadObject({
+        bucket: AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
+        key: s3ManifestPath,
+        filePath: mainManifestPath,
+        acl: 'public-read',
+        contentType: 'application/vnd.apple.mpegurl'
+      });
+      console.log('manifest uploaded:', resManifest);
 
       let dirSize = await getDirSize(localFilePath);
       console.log('dir size:', dirSize);
