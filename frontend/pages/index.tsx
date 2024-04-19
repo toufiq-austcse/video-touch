@@ -148,15 +148,12 @@ export default function HomePage() {
   let pageSize = Number(process.env.NEXT_PUBLIC_VIDEO_LIST_PAGE_SIZE) || 4;
   let [pageIndex, setPageIndex] = React.useState(0);
 
-  let { data, loading, error, fetchMore, refetch } = useQuery(
-    LIST_ASSETS,
-    {
-      variables: {
-        first: pageSize,
-        after: null,
-      },
+  let { data, loading, error, fetchMore, refetch } = useQuery(LIST_ASSETS, {
+    variables: {
+      first: pageSize,
+      after: null,
     },
-  );
+  });
 
   const nextFunction = () => {
     console.log("next");
