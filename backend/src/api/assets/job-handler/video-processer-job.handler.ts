@@ -24,7 +24,7 @@ export class VideoProcessorJobHandler {
     try {
       let { height, width } = VIDEO_RESOLUTION['360p'];
 
-      await this.fileService.updateFileStatus(msg._id, height, FILE_STATUS.PROCESSING, 'File processing');
+      await this.fileService.updateFileStatus(msg._id.toString(), height, FILE_STATUS.PROCESSING, 'File processing');
 
       let res = await this.transcodingService.transcode360pVideo(msg._id.toString());
       console.log('video 360p transcoded:', res);

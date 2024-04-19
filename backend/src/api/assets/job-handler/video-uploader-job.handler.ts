@@ -6,8 +6,8 @@ import { terminal } from '@/src/common/utils/terminal';
 import { AssetRepository } from '@/src/api/assets/repositories/asset.repository';
 import mongoose from 'mongoose';
 import { FILE_STATUS, VIDEO_STATUS } from '@/src/common/constants';
-import { FileService } from '@/src/api/assets/services/file.service';
 import { AssetService } from '@/src/api/assets/services/asset.service';
+import { FileService } from '@/src/api/assets/services/file.service';
 
 @Injectable()
 export class VideoUploaderJobHandler {

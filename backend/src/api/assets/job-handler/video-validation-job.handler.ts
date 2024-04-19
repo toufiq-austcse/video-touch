@@ -44,8 +44,9 @@ export class VideoValidationJobHandler {
       await this.assetService.updateVideoStatus(msg._id, VIDEO_STATUS.VALIDATED, 'Video validated');
 
       let jobData = this.jobManagerService.getRenditionWiseJobDataByHeight(metadata.height);
-      this.publishVideoProcessingJob(msg, jobData);
       await this.insertFilesData(msg, jobData);
+
+      this.publishVideoProcessingJob(msg, jobData);
 
       await this.assetService.updateVideoStatus(msg._id, VIDEO_STATUS.PROCESSING, 'Video processing');
 

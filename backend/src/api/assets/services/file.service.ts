@@ -33,6 +33,8 @@ export class FileService {
         size: size
       };
     }
+    console.log('assetId', assetId, 'height ', height, 'updatedData', updatedData);
+
     return this.repository.findOneAndUpdate({
       asset_id: mongoose.Types.ObjectId(assetId),
       height: height
