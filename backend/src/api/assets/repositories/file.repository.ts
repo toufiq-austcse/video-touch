@@ -6,10 +6,7 @@ import { FILE_COLLECTION_NAME, FileDocument } from '@/src/api/assets/schemas/fil
 
 @Injectable()
 export class FileRepository extends BaseRepository<FileDocument> {
-  constructor(@InjectModel(FILE_COLLECTION_NAME)  fileDocumentModel: Model<FileDocument>) {
+  constructor(@InjectModel(FILE_COLLECTION_NAME) fileDocumentModel: Model<FileDocument>) {
     super(fileDocumentModel);
   }
-
-
-
 }

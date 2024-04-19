@@ -3,7 +3,6 @@ import { RabbitMQModule as MQModule } from '@golevelup/nestjs-rabbitmq';
 import { RabbitMqService } from './service/rabbitmq.service';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 
-
 @Global()
 @Module({
   imports: [
@@ -13,13 +12,12 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
         console.log('RABBIT_MQ_URL ', AppConfigService.appConfig.RABBIT_MQ_URL);
         return {
           uri: AppConfigService.appConfig.RABBIT_MQ_URL,
-          connectionInitOptions: { wait: false }
+          connectionInitOptions: { wait: false },
         };
-      }
-    })
+      },
+    }),
   ],
   providers: [RabbitMqService],
-  exports: [RabbitMqService]
+  exports: [RabbitMqService],
 })
-export class RabbitMQModule {
-}
+export class RabbitMQModule {}

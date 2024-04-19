@@ -7,8 +7,7 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
 
 @Injectable()
 export class DownloaderHttpService {
-  constructor(private httpService: HttpService) {
-  }
+  constructor(private httpService: HttpService) {}
 
   async download(url: string) {
     let response = await firstValueFrom(this.httpService.get(url, { responseType: 'stream' }));

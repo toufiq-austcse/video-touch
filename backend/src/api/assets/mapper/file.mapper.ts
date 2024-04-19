@@ -20,9 +20,7 @@ export class FileMapper {
       name: getFileName(height),
       size: 0,
       status_logs: [StatusMapper.mapForSave(status, status_details)],
-      type: type
-
+      type: type,
     };
-
   }
 }

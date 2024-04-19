@@ -13,10 +13,7 @@ import mongoose from 'mongoose';
 
 @Injectable()
 export class AssetService {
-
-  constructor(private repository: AssetRepository,
-              private rabbitMqService: RabbitMqService) {
-  }
+  constructor(private repository: AssetRepository, private rabbitMqService: RabbitMqService) {}
 
   async create(createVideoInput: CreateAssetInputDto) {
     let videoDocument = this.buildAssetDocument(createVideoInput);
@@ -32,7 +29,7 @@ export class AssetService {
       title: title,
       description: createVideoInput.description,
       source_url: createVideoInput.source_url,
-      tags: createVideoInput.tags
+      tags: createVideoInput.tags,
     };
   }
 
@@ -54,7 +51,7 @@ export class AssetService {
       size: +format.size,
       height: videoInfo.height,
       width: videoInfo.width,
-      duration: +videoInfo.duration
+      duration: +videoInfo.duration,
     };
   }
 
@@ -72,7 +69,7 @@ export class AssetService {
 
   async getAsset(getVideoInputDto: GetAssetInputDto) {
     return this.repository.findOne({
-      _id: getVideoInputDto._id
+      _id: getVideoInputDto._id,
     });
   }
 
@@ -82,7 +79,7 @@ export class AssetService {
       {
         title: updateVideoInput.title ? updateVideoInput.title : oldVideo.title,
         description: updateVideoInput.description ? updateVideoInput.description : updateVideoInput.description,
-        tags: updateVideoInput.tags ? updateVideoInput.tags : oldVideo.tags
+        tags: updateVideoInput.tags ? updateVideoInput.tags : oldVideo.tags,
       }
     );
     return this.repository.findOne({ _id: oldVideo._id });
@@ -92,7 +89,7 @@ export class AssetService {
     await this.repository.findOneAndUpdate(
       { _id: currentVideo._id },
       {
-        is_deleted: true
+        is_deleted: true,
       }
     );
     return this.repository.findOne({ _id: currentVideo._id });
@@ -104,17 +101,20 @@ export class AssetService {
   // }
 
   async updateVideoStatus(videoId: string, status: string, details: string) {
-    return this.repository.findOneAndUpdate({
-      _id: mongoose.Types.ObjectId(videoId)
-    }, {
-      latest_status: status,
-      $push: {
-        status_logs: {
-          status: status,
-          details: details
-        }
+    return this.repository.findOneAndUpdate(
+      {
+        _id: mongoose.Types.ObjectId(videoId),
+      },
+      {
+        latest_status: status,
+        $push: {
+          status_logs: {
+            status: status,
+            details: details,
+          },
+        },
       }
-    });
+    );
   }
 
   // private buildStatusDocument(videoId: string, status: string, details: string): Omit<StatusDocument, '_id'> {
@@ -138,15 +138,17 @@ export class AssetService {
 
   async pushDownloadVideoJob(videoDocument: AssetDocument) {
     let downloadVideoJob = this.buildDownloadVideoJob(videoDocument);
-    return this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE, AppConfigService.appConfig.RABBIT_MQ_DOWNLOAD_VIDEO_ROUTING_KEY, downloadVideoJob);
+    return this.rabbitMqService.publish(
+      AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
+      AppConfigService.appConfig.RABBIT_MQ_DOWNLOAD_VIDEO_ROUTING_KEY,
+      downloadVideoJob
+    );
   }
 
   private buildDownloadVideoJob(videoDocument: AssetDocument): VideoDownloadJobModel {
     return {
       _id: videoDocument._id.toString(),
-      source_url: videoDocument.source_url
+      source_url: videoDocument.source_url,
     };
-
   }
-
 }

@@ -2,10 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { AbstractDocument } from '@/src/common/database/schemas/abstract.schema';
 
 @Schema({
-  timestamps: true
+  timestamps: true,
 })
 export class StatusDocument extends AbstractDocument {
-
   @Prop({ required: true })
   status: string;
 

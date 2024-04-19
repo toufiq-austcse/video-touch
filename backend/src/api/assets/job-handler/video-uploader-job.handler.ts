@@ -11,8 +11,11 @@ import { FileService } from '@/src/api/assets/services/file.service';
 
 @Injectable()
 export class VideoUploaderJobHandler {
-  constructor(private assetService: AssetService, private assetRepository: AssetRepository, private fileService: FileService) {
-  }
+  constructor(
+    private assetService: AssetService,
+    private assetRepository: AssetRepository,
+    private fileService: FileService
+  ) {}
 
   async syncDirToS3(localDir: string, s3Dir: string) {
     console.log('syncing dir to s3', localDir, s3Dir);
@@ -24,13 +27,13 @@ export class VideoUploaderJobHandler {
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_360P_UPLOAD_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_360P_UPLOAD_VIDEO_QUEUE
+    queue: process.env.RABBIT_MQ_360P_UPLOAD_VIDEO_QUEUE,
   })
   public async handle360PUpload(msg: VideoUploadJobModel) {
     console.log('uploading 360p video', msg._id.toString());
     try {
       let video = await this.assetRepository.findOne({
-        _id: mongoose.Types.ObjectId(msg._id.toString())
+        _id: mongoose.Types.ObjectId(msg._id.toString()),
       });
 
       if (!video) {
@@ -46,16 +49,19 @@ export class VideoUploaderJobHandler {
       let dirSize = await getDirSize(localFilePath);
       console.log('dir size:', dirSize);
 
-      await this.fileService.updateFileStatus(msg._id.toString(), msg.height, FILE_STATUS.READY, 'File uploaded', dirSize);
+      await this.fileService.updateFileStatus(
+        msg._id.toString(),
+        msg.height,
+        FILE_STATUS.READY,
+        'File uploaded',
+        dirSize
+      );
 
       if (video.latest_status !== VIDEO_STATUS.READY) {
         await this.assetService.updateVideoStatus(msg._id.toString(), VIDEO_STATUS.READY, 'Video ready');
       }
-
     } catch (e) {
       console.log('error in video 360p upload job handler', e);
-
     }
-
   }
 }

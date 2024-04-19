@@ -8,15 +8,19 @@ import { FileDocument } from '@/src/api/assets/schemas/files.schema';
 
 @Injectable()
 export class FileService {
-  constructor(private repository: FileRepository) {
-  }
+  constructor(private repository: FileRepository) {}
 
   async createFileAfterValidation(msg: VideoValidationJobModel, jobData: JobMetadataModel) {
-    let doc = FileMapper.mapForSave(msg._id, 'playlist', jobData.height, jobData.width, FILE_STATUS.QUEUED, 'File queued for processing');
+    let doc = FileMapper.mapForSave(
+      msg._id,
+      'playlist',
+      jobData.height,
+      jobData.width,
+      FILE_STATUS.QUEUED,
+      'File queued for processing'
+    );
     return this.repository.create(doc);
-
   }
-
 
   async updateFileStatus(assetId: string, height: number, status: string, details: string, size?: number) {
     let updatedData: mongoose.UpdateQuery<FileDocument> = {
@@ -24,22 +28,24 @@ export class FileService {
       $push: {
         status_logs: {
           status: status,
-          details: details
-        }
-      }
+          details: details,
+        },
+      },
     };
     if (size) {
       updatedData = {
         ...updatedData,
-        size: size
+        size: size,
       };
     }
     console.log('assetId', assetId, 'height ', height, 'updatedData', updatedData);
 
-    return this.repository.findOneAndUpdate({
-      asset_id: mongoose.Types.ObjectId(assetId),
-      height: height
-    }, updatedData);
+    return this.repository.findOneAndUpdate(
+      {
+        asset_id: mongoose.Types.ObjectId(assetId),
+        height: height,
+      },
+      updatedData
+    );
   }
-
 }

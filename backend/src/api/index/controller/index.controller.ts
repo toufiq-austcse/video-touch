@@ -81,5 +81,4 @@ export class IndexController {
       duration: +videoInfo.duration,
     };
   }
-
 }

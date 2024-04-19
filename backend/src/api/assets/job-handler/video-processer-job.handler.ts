@@ -10,14 +10,17 @@ import { FileService } from '@/src/api/assets/services/file.service';
 
 @Injectable()
 export class VideoProcessorJobHandler {
-  constructor(private transcodingService: TranscodingService, private rabbitMqService: RabbitMqService,
-              private jobManagerService: JobManagerService, private fileService: FileService) {
-  }
+  constructor(
+    private transcodingService: TranscodingService,
+    private rabbitMqService: RabbitMqService,
+    private jobManagerService: JobManagerService,
+    private fileService: FileService
+  ) {}
 
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_360P_PROCESS_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_360P_PROCESS_VIDEO_QUEUE
+    queue: process.env.RABBIT_MQ_360P_PROCESS_VIDEO_QUEUE,
   })
   public async handle360(msg: VideoProcessingJobModel) {
     console.log('Video360pProcessingJobHandler', msg);
@@ -32,7 +35,6 @@ export class VideoProcessorJobHandler {
       this.publishVideoUploadJob(msg._id.toString(), height, width);
     } catch (e) {
       console.log('error in video 360p processing job handler', e);
-
     }
   }
 
@@ -108,12 +110,11 @@ export class VideoProcessorJobHandler {
   //   }
   // }
 
-
   publishVideoUploadJob(_id: string, height: number, width: number) {
     let jobModel: VideoUploadJobModel = {
       _id: _id,
       height: height,
-      width: width
+      width: width,
     };
 
     let jobDataByHeight = this.jobManagerService.getJobDataByHeight(height);
@@ -121,9 +122,10 @@ export class VideoProcessorJobHandler {
       console.log('No job data found for height:', height);
       return;
     }
-    return this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE, jobDataByHeight.uploadRoutingKey, jobModel);
-
+    return this.rabbitMqService.publish(
+      AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
+      jobDataByHeight.uploadRoutingKey,
+      jobModel
+    );
   }
-
-
 }

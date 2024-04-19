@@ -93,7 +93,6 @@ export class Asset {
   updated_at: Date;
 }
 
-
 @ObjectType()
 export class AssetMinimalResponse {
   @Field()

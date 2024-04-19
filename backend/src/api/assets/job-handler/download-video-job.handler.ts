@@ -13,13 +13,13 @@ export class DownloadVideoJobHandler {
   constructor(
     private assetService: AssetService,
     private downloadHttpService: DownloaderHttpService,
-    private rabbitMqService: RabbitMqService) {
-  }
+    private rabbitMqService: RabbitMqService
+  ) {}
 
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_DOWNLOAD_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_DOWNLOAD_VIDEO_QUEUE
+    queue: process.env.RABBIT_MQ_DOWNLOAD_VIDEO_QUEUE,
   })
   public async handle(msg: VideoDownloadJobModel) {
     try {
@@ -30,15 +30,16 @@ export class DownloadVideoJobHandler {
       await this.download(msg, destinationPath);
       await this.assetService.updateVideoStatus(msg._id, VIDEO_STATUS.DOWNLOADED, 'Video downloaded');
 
-      this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE, AppConfigService.appConfig.RABBIT_MQ_VALIDATE_VIDEO_ROUTING_KEY, {
-        _id: msg._id
-      } as VideoValidationJobModel);
-
+      this.rabbitMqService.publish(
+        AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
+        AppConfigService.appConfig.RABBIT_MQ_VALIDATE_VIDEO_ROUTING_KEY,
+        {
+          _id: msg._id,
+        } as VideoValidationJobModel
+      );
     } catch (e) {
       console.log('error in video download job handler', e);
     }
-
-
   }
 
   async download(msg: VideoDownloadJobModel, destinationPath: string) {
@@ -52,7 +53,6 @@ export class DownloadVideoJobHandler {
       } catch (e: any) {
         console.log('Error inserting video status', e.message);
       }
-
     }
   }
 }

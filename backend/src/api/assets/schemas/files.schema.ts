@@ -7,7 +7,7 @@ export const FILE_COLLECTION_NAME = 'files';
 
 @Schema({
   timestamps: true,
-  collection: FILE_COLLECTION_NAME
+  collection: FILE_COLLECTION_NAME,
 })
 export class FileDocument extends AbstractDocument {
   @Prop({ required: true, index: true })
