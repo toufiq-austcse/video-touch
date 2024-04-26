@@ -5,7 +5,7 @@ import { readdir, stat } from 'fs/promises';
 
 export function concatObject(obj: Object, separator: string = ', ') {
   return Object.keys(obj)
-    .map(function (key, index) {
+    .map(function(key, index) {
       return (obj as any)[key];
     })
     .join(separator);
@@ -14,7 +14,7 @@ export function concatObject(obj: Object, separator: string = ', ') {
 export function getLocalVideoMp4Path(videoId: string) {
   let path = getLocalVideoRootPath(videoId);
   if (!fs.existsSync(path)) {
-    fs.mkdirSync(path);
+    fs.mkdirSync(path, { recursive: true });
   }
   return `${path}/${videoId}.mp4`;
 }

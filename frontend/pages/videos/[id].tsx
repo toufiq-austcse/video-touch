@@ -79,7 +79,7 @@ export default function VideoDetailsPage() {
         </div>
         <div className={"flex flex-col overflow-auto"}>
           <div className={"flex justify-between"}>
-            {[...videoDetails.status_logs].reverse().map((status, index) => {
+            {[...videoDetails.status_logs].map((status, index) => {
               if (index === videoDetails.status_logs.length - 1) {
                 return (
                   <Step
