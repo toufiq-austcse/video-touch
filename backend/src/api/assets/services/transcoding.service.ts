@@ -24,7 +24,7 @@ export class TranscodingService {
       result = await this.transcodeVideo(inputFilePath, outputFolderPath, height, width);
     } catch (e: any) {
       try {
-        await this.assetService.updateVideoStatus(videoId, VIDEO_STATUS.FAILED, e.message);
+        await this.assetService.updateAssetStatus(videoId, VIDEO_STATUS.FAILED, e.message);
       } catch (e) {
         console.log('Error inserting video status', e);
       }

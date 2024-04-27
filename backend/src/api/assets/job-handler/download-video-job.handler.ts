@@ -24,11 +24,11 @@ export class DownloadVideoJobHandler {
   public async handle(msg: VideoDownloadJobModel) {
     try {
       console.log('DownloadVideoJobHandler', msg);
-      await this.assetService.updateVideoStatus(msg._id, VIDEO_STATUS.DOWNLOADING, 'Downloading assets');
+      await this.assetService.updateAssetStatus(msg._id, VIDEO_STATUS.DOWNLOADING, 'Downloading assets');
 
       let destinationPath = getLocalVideoMp4Path(msg._id.toString());
       await this.download(msg, destinationPath);
-      await this.assetService.updateVideoStatus(msg._id, VIDEO_STATUS.DOWNLOADED, 'Video downloaded');
+      await this.assetService.updateAssetStatus(msg._id, VIDEO_STATUS.DOWNLOADED, 'Video downloaded');
 
       this.rabbitMqService.publish(
         AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
@@ -38,7 +38,7 @@ export class DownloadVideoJobHandler {
         } as VideoValidationJobModel
       );
     } catch (e: any) {
-      await this.assetService.updateVideoStatus(msg._id, VIDEO_STATUS.FAILED, e.message);
+      await this.assetService.updateAssetStatus(msg._id, VIDEO_STATUS.FAILED, e.message);
       console.log('error in video download job handler', e);
     }
   }
