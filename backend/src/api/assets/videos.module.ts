@@ -31,14 +31,14 @@ import mongoose from 'mongoose';
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = VideoSchema;
-          schema.pre('save', async function () {
+          schema.pre('save', async function() {
             console.log('assets pre save hook');
             const asset = this;
             (asset as any).master_file_name = getMainManifestFileName();
             (asset as any).latest_status = VIDEO_STATUS.QUEUED;
             (asset as any).status_logs = StatusMapper.mapForSave(VIDEO_STATUS.QUEUED, 'Video is queued');
           });
-          schema.post('save', async function () {
+          schema.post('save', async function() {
             let assetService = moduleRef.get<AssetService>(AssetService, { strict: false });
             console.log('post save hook');
             const video: any = this;
@@ -54,11 +54,11 @@ import mongoose from 'mongoose';
             return;
           });
 
-          schema.post('findOneAndUpdate', async function (doc) {
+          schema.post('findOneAndUpdate', async function(doc) {
             console.log('update one called in assets ');
 
             let updatedAsset = await this.findOne({
-              _id: mongoose.Types.ObjectId(doc._id),
+              _id: mongoose.Types.ObjectId(doc._id)
             });
             if (updatedAsset.latest_status === VIDEO_STATUS.FAILED) {
               let assetService = moduleRef.get<AssetService>(AssetService, { strict: false });
@@ -68,20 +68,22 @@ import mongoose from 'mongoose';
           });
 
           return schema;
-        },
+        }
       },
       {
         name: FILE_COLLECTION_NAME,
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = FileSchema;
-          schema.post('findOneAndUpdate', async function (doc) {
+          schema.post('findOneAndUpdate', async function(doc) {
+            let assetService = moduleRef.get<AssetService>(AssetService, { strict: false });
+
             let updatedFile = await this.findOne({
-              _id: mongoose.Types.ObjectId(doc._id),
+              _id: mongoose.Types.ObjectId(doc._id)
             });
+            let assetId = updatedFile.asset_id;
+
             if (updatedFile.latest_status == FILE_STATUS.READY) {
-              let assetService = moduleRef.get<AssetService>(AssetService, { strict: false });
-              let assetId = updatedFile.asset_id;
 
               await assetService
                 .checkForDeleteLocalAssetFile(assetId)
@@ -92,13 +94,16 @@ import mongoose from 'mongoose';
                   console.log('error while checking local file ', err);
                 });
             }
+            if (updatedFile.latest_status === FILE_STATUS.FAILED) {
+              await assetService.checkForAssetFailedStatus(assetId);
+            }
             return;
           });
 
           return schema;
-        },
-      },
-    ]),
+        }
+      }
+    ])
   ],
   providers: [
     AssetRepository,
@@ -114,7 +119,8 @@ import mongoose from 'mongoose';
     VideoProcessorJobHandler,
     VideoUploaderJobHandler,
     JobManagerService,
-    ManifestService,
-  ],
+    ManifestService
+  ]
 })
-export class VideosModule {}
+export class VideosModule {
+}
