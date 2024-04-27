@@ -17,8 +17,11 @@ import { FILE_STATUS } from '@/src/common/constants';
 
 @Injectable()
 export class AssetService {
-  constructor(private repository: AssetRepository, private rabbitMqService: RabbitMqService, private fileRepository: FileRepository) {
-  }
+  constructor(
+    private repository: AssetRepository,
+    private rabbitMqService: RabbitMqService,
+    private fileRepository: FileRepository
+  ) {}
 
   async create(createVideoInput: CreateAssetInputDto) {
     let videoDocument = this.buildAssetDocument(createVideoInput);
@@ -34,7 +37,7 @@ export class AssetService {
       title: title,
       description: createVideoInput.description,
       source_url: createVideoInput.source_url,
-      tags: createVideoInput.tags
+      tags: createVideoInput.tags,
     };
   }
 
@@ -56,7 +59,7 @@ export class AssetService {
       size: +format.size,
       height: videoInfo.height,
       width: videoInfo.width,
-      duration: +videoInfo.duration
+      duration: +videoInfo.duration,
     };
   }
 
@@ -74,7 +77,7 @@ export class AssetService {
 
   async getAsset(getVideoInputDto: GetAssetInputDto) {
     return this.repository.findOne({
-      _id: getVideoInputDto._id
+      _id: getVideoInputDto._id,
     });
   }
 
@@ -84,7 +87,7 @@ export class AssetService {
       {
         title: updateVideoInput.title ? updateVideoInput.title : oldVideo.title,
         description: updateVideoInput.description ? updateVideoInput.description : updateVideoInput.description,
-        tags: updateVideoInput.tags ? updateVideoInput.tags : oldVideo.tags
+        tags: updateVideoInput.tags ? updateVideoInput.tags : oldVideo.tags,
       }
     );
     return this.repository.findOne({ _id: oldVideo._id });
@@ -94,7 +97,7 @@ export class AssetService {
     await this.repository.findOneAndUpdate(
       { _id: currentVideo._id },
       {
-        is_deleted: true
+        is_deleted: true,
       }
     );
     return this.repository.findOne({ _id: currentVideo._id });
@@ -108,16 +111,16 @@ export class AssetService {
   async updateAssetStatus(videoId: string, status: string, details: string) {
     return this.repository.findOneAndUpdate(
       {
-        _id: mongoose.Types.ObjectId(videoId)
+        _id: mongoose.Types.ObjectId(videoId),
       },
       {
         latest_status: status,
         $push: {
           status_logs: {
             status: status,
-            details: details
-          }
-        }
+            details: details,
+          },
+        },
       }
     );
   }
@@ -153,7 +156,7 @@ export class AssetService {
   private buildDownloadVideoJob(videoDocument: AssetDocument): VideoDownloadJobModel {
     return {
       _id: videoDocument._id.toString(),
-      source_url: videoDocument.source_url
+      source_url: videoDocument.source_url,
     };
   }
 
@@ -164,15 +167,14 @@ export class AssetService {
     if (fs.existsSync(localPath)) {
       fs.rmSync(localPath, { recursive: true, force: true });
     }
-
   }
 
   async checkForDeleteLocalAssetFile(assetId: string) {
     console.log('checking for ', assetId);
     let files = await this.fileRepository.find({
-      asset_id: mongoose.Types.ObjectId(assetId)
+      asset_id: mongoose.Types.ObjectId(assetId),
     });
-    let filesWithReadyStatus = files.filter(file => file.latest_status === FILE_STATUS.READY);
+    let filesWithReadyStatus = files.filter((file) => file.latest_status === FILE_STATUS.READY);
     if (files.length === filesWithReadyStatus.length) {
       this.deleteLocalAssetFile(assetId);
     }

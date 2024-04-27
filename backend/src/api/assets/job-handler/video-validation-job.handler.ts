@@ -20,13 +20,12 @@ export class VideoValidationJobHandler {
     private assetRepository: AssetRepository,
     private rabbitMqService: RabbitMqService,
     private jobManagerService: JobManagerService
-  ) {
-  }
+  ) {}
 
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_VALIDATE_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_VALIDATE_VIDEO_QUEUE
+    queue: process.env.RABBIT_MQ_VALIDATE_VIDEO_QUEUE,
   })
   public async handle(msg: VideoValidationJobModel) {
     console.log('VideoValidationJobHandler', msg);
@@ -37,13 +36,13 @@ export class VideoValidationJobHandler {
 
       await this.assetRepository.findOneAndUpdate(
         {
-          _id: mongoose.Types.ObjectId(msg._id)
+          _id: mongoose.Types.ObjectId(msg._id),
         },
         {
           size: metadata.size,
           height: metadata.height,
           width: metadata.width,
-          duration: metadata.duration
+          duration: metadata.duration,
         }
       );
       await this.assetService.updateAssetStatus(msg._id, VIDEO_STATUS.VALIDATED, 'Video validated');
@@ -56,17 +55,20 @@ export class VideoValidationJobHandler {
       await this.assetService.updateAssetStatus(msg._id, VIDEO_STATUS.PROCESSING, 'Video processing');
     } catch (e: any) {
       console.log('error in video validation job handler', e);
-      this.assetService.updateAssetStatus(msg._id, VIDEO_STATUS.FAILED, e.message).then(() => {
-        console.log('updated asset as failed');
-      }).catch(err => {
-        console.log('error while seeting asset status as failed ', err);
-      });
+      this.assetService
+        .updateAssetStatus(msg._id, VIDEO_STATUS.FAILED, e.message)
+        .then(() => {
+          console.log('updated asset as failed');
+        })
+        .catch((err) => {
+          console.log('error while seeting asset status as failed ', err);
+        });
     }
   }
 
   publishVideoProcessingJob(msg: VideoValidationJobModel, jobMetadata: JobMetadataModel[]) {
     let jobModel: VideoProcessingJobModel = {
-      _id: msg._id.toString()
+      _id: msg._id.toString(),
     };
 
     jobMetadata.forEach((data) => {
