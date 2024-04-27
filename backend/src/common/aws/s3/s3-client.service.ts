@@ -10,8 +10,7 @@ import { getMainManifestPath, getS3ManifestPath } from '@/src/common/utils';
 export class S3ClientService implements OnModuleInit {
   private s3: AWS.S3;
 
-  constructor() {
-  }
+  constructor() {}
 
   onModuleInit() {
     this.s3 = new AWS.S3({
@@ -19,8 +18,8 @@ export class S3ClientService implements OnModuleInit {
       secretAccessKey: AppConfigService.appConfig.AWS_SECRET_ACCESS_KEY,
       region: AppConfigService.appConfig.AWS_REGION,
       httpOptions: {
-        timeout: 0
-      }
+        timeout: 0,
+      },
     });
   }
 
@@ -33,7 +32,7 @@ export class S3ClientService implements OnModuleInit {
         Key: key,
         Body: fs.createReadStream(filePath),
         ACL: acl,
-        ContentType: contentType
+        ContentType: contentType,
       };
 
       let res = await this.s3.upload(params).promise();
@@ -58,7 +57,7 @@ export class S3ClientService implements OnModuleInit {
       key: `video-touch/${data._id}`,
       filePath: localFilePath,
       acl: 'public-read',
-      contentType: 'video/mp4'
+      contentType: 'video/mp4',
     };
   }
 
@@ -70,7 +69,7 @@ export class S3ClientService implements OnModuleInit {
       key: s3ManifestPath,
       filePath: mainManifestPath,
       acl: 'public-read',
-      contentType: 'application/vnd.apple.mpegurl'
+      contentType: 'application/vnd.apple.mpegurl',
     });
     console.log('manifest uploaded:', res);
     return res;

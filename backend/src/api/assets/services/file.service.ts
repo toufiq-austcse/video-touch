@@ -8,8 +8,7 @@ import { FileDocument } from '@/src/api/assets/schemas/files.schema';
 
 @Injectable()
 export class FileService {
-  constructor(private repository: FileRepository) {
-  }
+  constructor(private repository: FileRepository) {}
 
   async createFileAfterValidation(msg: VideoValidationJobModel, jobData: JobMetadataModel) {
     let doc = FileMapper.mapForSave(
@@ -29,21 +28,21 @@ export class FileService {
       $push: {
         status_logs: {
           status: status,
-          details: details
-        }
-      }
+          details: details,
+        },
+      },
     };
     if (size) {
       updatedData = {
         ...updatedData,
-        size: size
+        size: size,
       };
     }
 
     return this.repository.findOneAndUpdate(
       {
         asset_id: mongoose.Types.ObjectId(assetId),
-        height: height
+        height: height,
       },
       updatedData
     );

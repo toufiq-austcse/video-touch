@@ -17,8 +17,7 @@ export class VideoUploaderJobHandler {
     private assetRepository: AssetRepository,
     private fileService: FileService,
     private s3ClientService: S3ClientService
-  ) {
-  }
+  ) {}
 
   async syncDirToS3(localDir: string, s3Dir: string) {
     console.log('syncing dir to s3', localDir, s3Dir);
@@ -48,7 +47,7 @@ export class VideoUploaderJobHandler {
       );
 
       let video = await this.assetRepository.findOne({
-        _id: mongoose.Types.ObjectId(msg._id.toString())
+        _id: mongoose.Types.ObjectId(msg._id.toString()),
       });
 
       if (!video) {
@@ -58,22 +57,21 @@ export class VideoUploaderJobHandler {
       if (video.latest_status !== VIDEO_STATUS.READY) {
         await this.assetService.updateAssetStatus(msg._id.toString(), VIDEO_STATUS.READY, 'Video ready');
       }
-
     } catch (err: any) {
       console.log('error in uploading ', msg.height);
-      this.fileService.updateFileStatus(msg._id.toString(), msg.height, FILE_STATUS.FAILED, err.message)
+      this.fileService
+        .updateFileStatus(msg._id.toString(), msg.height, FILE_STATUS.FAILED, err.message)
         .then()
-        .catch(err => {
+        .catch((err) => {
           console.log('error while updating files status ', err);
         });
-
     }
   }
 
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_360P_UPLOAD_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_360P_UPLOAD_VIDEO_QUEUE
+    queue: process.env.RABBIT_MQ_360P_UPLOAD_VIDEO_QUEUE,
   })
   public async handle360PUpload(msg: VideoUploadJobModel) {
     console.log('uploading 360p video', msg._id.toString());
@@ -83,7 +81,7 @@ export class VideoUploaderJobHandler {
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_480P_UPLOAD_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_480P_UPLOAD_VIDEO_QUEUE
+    queue: process.env.RABBIT_MQ_480P_UPLOAD_VIDEO_QUEUE,
   })
   public async handle480PUpload(msg: VideoUploadJobModel) {
     console.log('uploading 480p video', msg._id.toString());
@@ -93,7 +91,7 @@ export class VideoUploaderJobHandler {
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_540P_UPLOAD_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_540P_UPLOAD_VIDEO_QUEUE
+    queue: process.env.RABBIT_MQ_540P_UPLOAD_VIDEO_QUEUE,
   })
   public async handle540PUpload(msg: VideoUploadJobModel) {
     console.log('uploading 540p video', msg._id.toString());
@@ -103,7 +101,7 @@ export class VideoUploaderJobHandler {
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_720P_UPLOAD_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_720P_UPLOAD_VIDEO_QUEUE
+    queue: process.env.RABBIT_MQ_720P_UPLOAD_VIDEO_QUEUE,
   })
   public async handle720PUpload(msg: VideoUploadJobModel) {
     console.log('uploading 720p video', msg._id.toString());
@@ -113,7 +111,7 @@ export class VideoUploaderJobHandler {
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_1080P_UPLOAD_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_1080P_UPLOAD_VIDEO_QUEUE
+    queue: process.env.RABBIT_MQ_1080P_UPLOAD_VIDEO_QUEUE,
   })
   public async handle10800PUpload(msg: VideoUploadJobModel) {
     console.log('uploading 1080p video', msg._id.toString());
