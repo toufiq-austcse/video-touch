@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(jsx|tsx|json)\"",
-    "lint": "next lint",
-    "prepare": "cd .. && husky install frontend/.husky"
+    "lint": "next lint"
   },
   "dependencies": {
     "@apollo/client": "^3.9.9",
@@ -24,6 +23,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "graphql": "^16.8.1",
+    "hls.js": "^1.1.5",
     "lucide-react": "^0.358.0",
     "next": "13.4.7",
     "plyr": "^3.7.8",
@@ -35,15 +35,12 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.6.7",
-    "@commitlint/config-conventional": "^17.6.7",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10",
     "eslint": "^8",
     "eslint-config-next": "13.5.6",
-    "husky": "^8.0.3",
     "postcss": "^8",
     "prettier": "^3.0.3",
     "tailwindcss": "^3",

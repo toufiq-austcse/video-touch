@@ -11,3 +11,5 @@ services:
       - PORT=$PORT
     ports:
       - $PORT:$PORT
+    volumes:
+      - ~/.aws:/root/.aws

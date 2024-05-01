@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import * as fs from 'fs';
 import axios from 'axios';
+import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 
 @Injectable()
 export class DownloaderHttpService {
@@ -26,9 +27,19 @@ export class DownloaderHttpService {
 
   async downloadVideo(videoUrl: string, outputFilePath: string): Promise<string> {
     const response = await axios.get(videoUrl, { responseType: 'stream' });
+    console.log('Response:', response.headers['content-type']);
+    if (response.headers['content-type'] !== 'video/mp4') {
+      throw new Error('Invalid video URL');
+    }
+
     const totalSize = response.headers['content-length'];
+    console.log('Total size:', totalSize);
+    if (totalSize > AppConfigService.appConfig.MAX_VIDEO_SIZE_IN_BYTES) {
+      throw new Error('Video size is greater than allowed size');
+    }
+
     let downloadedSize = 0;
-    const writer = fs.createWriteStream(outputFilePath);
+    const writer = fs.createWriteStream(outputFilePath, { flags: 'w' });
 
     response.data.on('data', (chunk) => {
       downloadedSize += chunk.length;
@@ -46,7 +57,7 @@ export class DownloaderHttpService {
         resolve(outputFilePath);
       });
       writer.on('error', (err) => {
-        console.error('Error downloading video:', err);
+        console.error('Error downloading assets:', err);
         reject(err);
       });
     });

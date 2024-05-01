@@ -3,7 +3,7 @@
   "exclude": [
     "node_modules",
     "test",
-    "videos",
+    "temp_videos",
     "dist",
     "**/*spec.ts"
   ]

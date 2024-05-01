@@ -5,7 +5,7 @@ export interface VideoDetails {
   width: number;
   duration: number;
   description: null;
-  status_details: StatusDetail[];
+  status_logs: StatusLog[];
   size: number;
   source_url: string;
   tags: string[];
@@ -13,9 +13,10 @@ export interface VideoDetails {
   updated_at: Date;
   thumbnail_url: string;
   latest_status: string;
+  master_playlist_url: string;
 }
 
-export interface StatusDetail {
+export interface StatusLog {
   status: string;
   details: null;
   created_at: Date;

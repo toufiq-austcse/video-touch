@@ -1,20 +1,18 @@
-import VideoPlayer from "@/components/ui/video-player";
+import PlyrHlsPlayer from "@/components/ui/video-player";
 import { Separator } from "@/components/ui/separator";
-import { Label } from "@/components/ui/label";
 import Step from "@/components/ui/step";
 import Data from "@/components/ui/data";
 import { useRouter } from "next/router";
 import { useQuery } from "@apollo/client";
-import { GET_VIDEO_QUERY } from "@/api/graphql/queries/query";
+import { GET_ASSET_QUERY } from "@/api/graphql/queries/query";
 import { VideoDetails } from "@/api/graphql/types/video-details";
 import { bytesToMegaBytes } from "@/lib/utils";
-import { VIDEO_STATUS } from "@/lib/constant";
 
 export default function VideoDetailsPage() {
   const router = useRouter();
   const { id } = router.query;
 
-  const { data, loading, error } = useQuery(GET_VIDEO_QUERY, {
+  const { data, loading, error } = useQuery(GET_ASSET_QUERY, {
     variables: {
       id: id,
     },
@@ -22,11 +20,8 @@ export default function VideoDetailsPage() {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error...</div>;
 
-  let videoDetails: VideoDetails = data.GetVideo;
-  const masterPlaylistUrl =
-    videoDetails.latest_status === VIDEO_STATUS.READY
-      ? `https://s3.ap-southeast-1.amazonaws.com/cdn.10minuteschool.com/${videoDetails._id}/master.m3u8`
-      : null;
+  let videoDetails: VideoDetails = data.GetAsset;
+  const masterPlaylistUrl = videoDetails.master_playlist_url;
 
   return (
     <div className={"flex space-x-4"}>
@@ -36,9 +31,9 @@ export default function VideoDetailsPage() {
         </div>
 
         <Separator />
-        <div className={"border-2 min-h-[500px]"}>
+        <div className={"border-2 min-h-[300px]"}>
           {masterPlaylistUrl ? (
-            <VideoPlayer source={`${masterPlaylistUrl}`} />
+            <PlyrHlsPlayer source={masterPlaylistUrl} />
           ) : (
             <div
               className={
@@ -82,10 +77,10 @@ export default function VideoDetailsPage() {
             value={`${bytesToMegaBytes(videoDetails.size)} MB`}
           />
         </div>
-        <div className={"flex flex-col"}>
-          <div className={"flex justify-between"}>
-            {videoDetails.status_details.map((status, index) => {
-              if (index === videoDetails.status_details.length - 1) {
+        <div className={"flex flex-col overflow-auto"}>
+          <div className={"flex flex-start"}>
+            {[...videoDetails.status_logs].map((status, index) => {
+              if (index === videoDetails.status_logs.length - 1) {
                 return (
                   <Step
                     key={index}

@@ -19,8 +19,9 @@ import Image from "next/image";
 import Link from "next/link";
 import AppTable from "@/components/ui/app-table";
 import { useQuery } from "@apollo/client";
-import { LIST_VIDEO_QUERY } from "@/api/graphql/queries/query";
+import { LIST_ASSETS } from "@/api/graphql/queries/query";
 import UploadNew from "@/components/ui/upload-new";
+import { VIDEO_STATUS } from "@/lib/constant";
 
 export type Video = {
   _id: string;
@@ -77,7 +78,7 @@ export const columns: ColumnDef<Video>[] = [
     header: "Status",
     cell: ({ row }) => {
       let status = row.getValue("status");
-      if (status === "failed") {
+      if (status === VIDEO_STATUS.FAILED) {
         return (
           <div
             className={`${badgeVariants({ variant: "destructive" })} capitalize`}
@@ -85,7 +86,7 @@ export const columns: ColumnDef<Video>[] = [
             {row.getValue("status")}
           </div>
         );
-      } else if (status === "processing") {
+      } else if (status === VIDEO_STATUS.PROCESSING) {
         return (
           <div
             className={`${badgeVariants({ variant: "default" })} capitalize`}
@@ -132,11 +133,9 @@ export const columns: ColumnDef<Video>[] = [
             <DropdownMenuItem
               onClick={() => navigator.clipboard.writeText(video._id)}
             >
-              Copy payment ID
+              Copy Video ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -148,22 +147,19 @@ export default function HomePage() {
   let pageSize = Number(process.env.NEXT_PUBLIC_VIDEO_LIST_PAGE_SIZE) || 4;
   let [pageIndex, setPageIndex] = React.useState(0);
 
-  let { data, loading, error, fetchMore, refetch } = useQuery(
-    LIST_VIDEO_QUERY,
-    {
-      variables: {
-        first: pageSize,
-        after: null,
-      },
+  let { data, loading, error, fetchMore, refetch } = useQuery(LIST_ASSETS, {
+    variables: {
+      first: pageSize,
+      after: null,
     },
-  );
+  });
 
   const nextFunction = () => {
     console.log("next");
     fetchMore({
       variables: {
         first: pageSize,
-        after: data.ListVideo.page_info.next_cursor,
+        after: data.ListAsset.page_info.next_cursor,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         setPageIndex((prev) => prev + 1);
@@ -180,7 +176,7 @@ export default function HomePage() {
     fetchMore({
       variables: {
         first: pageSize,
-        before: data.ListVideo.page_info.prev_cursor,
+        before: data.ListAsset.page_info.prev_cursor,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
         setPageIndex((prev) => prev - 1);
@@ -202,8 +198,8 @@ export default function HomePage() {
       {error && <div>Error: {error.message}</div>}
       {!loading && !error && (
         <AppTable<Video>
-          totalPageCount={data.ListVideo.page_info.total_pages}
-          data={data.ListVideo.videos}
+          totalPageCount={data.ListAsset.page_info.total_pages}
+          data={data.ListAsset.assets}
           columns={columns}
           pageIndex={pageIndex}
           pageSize={pageSize}
