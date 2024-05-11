@@ -6,62 +6,62 @@ export const ASSET_COLLECTION_NAME = 'assets';
 
 @Schema({
   timestamps: true,
-  collection: ASSET_COLLECTION_NAME
+  collection: ASSET_COLLECTION_NAME,
 })
 export class AssetDocument extends AbstractDocument {
   @Prop({
-    required: true
+    required: true,
   })
   title: string;
 
   @Prop({
-    required: false
+    required: false,
   })
   description?: string;
 
   @Prop({
-    required: false
+    required: false,
   })
   duration?: number;
 
   @Prop({
-    required: false
+    required: false,
   })
   source_url?: string;
 
   @Prop({
-    required: false
+    required: false,
   })
   height?: number;
 
   @Prop({
-    required: false
+    required: false,
   })
   width?: number;
 
   @Prop({
-    required: false
+    required: false,
   })
   size?: number;
 
   @Prop({
-    required: false
+    required: false,
   })
   master_file_name?: string;
 
   @Prop({
-    required: false
+    required: false,
   })
   latest_status?: string;
 
   @Prop({
-    required: false
+    required: false,
   })
   tags?: string[];
 
   @Prop({
     required: false,
-    default: false
+    default: false,
   })
   is_deleted?: boolean;
 

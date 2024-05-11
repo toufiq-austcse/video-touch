@@ -8,16 +8,12 @@ import { VIDEO_STATUS } from '@/src/common/constants';
 
 @Injectable()
 export class DownloadVideoJobHandler {
-  constructor(
-    private assetService: AssetService,
-    private downloadHttpService: DownloaderHttpService
-  ) {
-  }
+  constructor(private assetService: AssetService, private downloadHttpService: DownloaderHttpService) {}
 
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_DOWNLOAD_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_DOWNLOAD_VIDEO_QUEUE
+    queue: process.env.RABBIT_MQ_DOWNLOAD_VIDEO_QUEUE,
   })
   public async handle(msg: VideoDownloadJobModel) {
     try {
