@@ -7,7 +7,7 @@ import { ListAssetInputDto } from '@/src/api/assets/dtos/list-asset-input.dto';
 import { GetAssetInputDto } from '@/src/api/assets/dtos/get-asset-input.dto';
 import { UpdateAssetInputDto } from '@/src/api/assets/dtos/update-asset-input.dto';
 import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
-import { VideoDownloadJobModel } from '@/src/api/assets/models/job.model';
+import { VideoDownloadJobModel, VideoValidationJobModel } from '@/src/api/assets/models/job.model';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import mongoose from 'mongoose';
 import fs from 'fs';
@@ -24,15 +24,26 @@ export class AssetService {
     private rabbitMqService: RabbitMqService,
     private fileRepository: FileRepository,
     private assetMapper: AssetMapper
-  ) {}
+  ) {
+  }
 
   async create(createVideoInput: CreateAssetInputDto) {
     let assetDocument = this.assetMapper.buildAssetDocumentForSaving(createVideoInput);
     return this.repository.create(assetDocument);
   }
 
-  async createAssetFromUploadReq(uploadAssetReqDto: UploadAssetReqDto) {
-    // let assetDocument=this.assetMapper.
+  async createAssetFromUploadReq(uploadAssetReqDto: UploadAssetReqDto, file: Express.Multer.File) {
+    let assetDocument = this.assetMapper.buildAssetDocumentFromUploadReq(uploadAssetReqDto, file.originalname);
+    let newAsset = await this.repository.create(assetDocument);
+
+    let rootPath = getLocalVideoRootPath(newAsset._id.toString());
+    if (!fs.existsSync(rootPath)) {
+      fs.mkdirSync(rootPath, { recursive: true });
+    }
+    let destinationFilePath = `${rootPath}/${newAsset._id.toString()}.mp4`;
+    fs.renameSync(file.path, destinationFilePath);
+
+    return newAsset;
   }
 
   async getMetadata(url: string): Promise<{
@@ -53,7 +64,7 @@ export class AssetService {
       size: +format.size,
       height: videoInfo.height,
       width: videoInfo.width,
-      duration: +videoInfo.duration,
+      duration: +videoInfo.duration
     };
   }
 
@@ -67,7 +78,7 @@ export class AssetService {
 
   async getAsset(getVideoInputDto: GetAssetInputDto) {
     return this.repository.findOne({
-      _id: getVideoInputDto._id,
+      _id: getVideoInputDto._id
     });
   }
 
@@ -77,7 +88,7 @@ export class AssetService {
       {
         title: updateVideoInput.title ? updateVideoInput.title : oldVideo.title,
         description: updateVideoInput.description ? updateVideoInput.description : updateVideoInput.description,
-        tags: updateVideoInput.tags ? updateVideoInput.tags : oldVideo.tags,
+        tags: updateVideoInput.tags ? updateVideoInput.tags : oldVideo.tags
       }
     );
     return this.repository.findOne({ _id: oldVideo._id });
@@ -87,7 +98,7 @@ export class AssetService {
     await this.repository.findOneAndUpdate(
       { _id: currentVideo._id },
       {
-        is_deleted: true,
+        is_deleted: true
       }
     );
     return this.repository.findOne({ _id: currentVideo._id });
@@ -98,17 +109,17 @@ export class AssetService {
       {
         _id: mongoose.Types.ObjectId(videoId),
         latest_status: {
-          $ne: status,
-        },
+          $ne: status
+        }
       },
       {
         latest_status: status,
         $push: {
           status_logs: {
             status: status,
-            details: details,
-          },
-        },
+            details: details
+          }
+        }
       }
     );
   }
@@ -122,10 +133,26 @@ export class AssetService {
     );
   }
 
+  async pushValidateVideoJob(assetId: string) {
+    let validateVideoJob = this.buildValidateVideoJob(assetId);
+    return this.rabbitMqService.publish(
+      AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
+      AppConfigService.appConfig.RABBIT_MQ_VALIDATE_VIDEO_ROUTING_KEY,
+      validateVideoJob
+    );
+
+  }
+
   private buildDownloadVideoJob(videoDocument: AssetDocument): VideoDownloadJobModel {
     return {
       _id: videoDocument._id.toString(),
-      source_url: videoDocument.source_url,
+      source_url: videoDocument.source_url
+    };
+  }
+
+  private buildValidateVideoJob(assetId: string): VideoValidationJobModel {
+    return {
+      _id: assetId
     };
   }
 
@@ -141,7 +168,7 @@ export class AssetService {
   async checkForDeleteLocalAssetFile(assetId: string) {
     console.log('checking for ', assetId);
     let files = await this.fileRepository.find({
-      asset_id: mongoose.Types.ObjectId(assetId),
+      asset_id: mongoose.Types.ObjectId(assetId)
     });
     let filesWithReadyStatus = files.filter((file) => file.latest_status === FILE_STATUS.READY);
     if (files.length === filesWithReadyStatus.length) {
@@ -154,8 +181,8 @@ export class AssetService {
       let notFailedFilesCount = await this.fileRepository.count({
         asset_id: mongoose.Types.ObjectId(assetId),
         latest_status: {
-          $ne: FILE_STATUS.FAILED,
-        },
+          $ne: FILE_STATUS.FAILED
+        }
       });
 
       if (notFailedFilesCount > 0) {
@@ -163,7 +190,7 @@ export class AssetService {
       }
 
       let files = await this.fileRepository.find({
-        asset_id: mongoose.Types.ObjectId(assetId),
+        asset_id: mongoose.Types.ObjectId(assetId)
       });
 
       let failedFiles = files.filter((file) => file.latest_status === FILE_STATUS.FAILED);
@@ -178,7 +205,7 @@ export class AssetService {
 
   async afterUpdate(oldDoc: AssetDocument) {
     let updatedAsset = await this.repository.findOne({
-      _id: mongoose.Types.ObjectId(oldDoc._id.toString()),
+      _id: mongoose.Types.ObjectId(oldDoc._id.toString())
     });
 
     console.log('updatedAsset ', updatedAsset);
@@ -189,12 +216,21 @@ export class AssetService {
   }
 
   async afterSave(doc: AssetDocument) {
-    this.pushDownloadVideoJob(doc)
-      .then(() => {
-        console.log('pushed download assets job');
-      })
-      .catch((err) => {
-        console.log('error pushing download assets job', err);
+    if (doc.source_url) {
+      this.pushDownloadVideoJob(doc)
+        .then(() => {
+          console.log('pushed download assets job');
+        })
+        .catch((err) => {
+          console.log('error pushing download assets job', err);
+        });
+    } else {
+      this.pushValidateVideoJob(doc._id.toString()).then(() => {
+        console.log('pushed validate assets job');
+      }).catch((err) => {
+        console.log('error pushing validate assets job', err);
       });
+    }
+
   }
 }
