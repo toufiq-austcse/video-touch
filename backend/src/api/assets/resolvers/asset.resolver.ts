@@ -11,7 +11,8 @@ import { StatusDocument } from '@/src/api/assets/schemas/status.schema';
 
 @Resolver(() => Asset)
 export class AssetResolver {
-  constructor(private assetService: AssetService, private assetMapper: AssetMapper) {}
+  constructor(private assetService: AssetService, private assetMapper: AssetMapper) {
+  }
 
   @Mutation(() => CreateAssetResponse, { name: 'CreateAsset' })
   async createVideo(@Args('createAssetInput') createAssetInputDto: CreateAssetInputDto): Promise<CreateAssetResponse> {
