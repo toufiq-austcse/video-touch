@@ -33,7 +33,7 @@ export class AssetService {
   }
 
   async createAssetFromUploadReq(uploadAssetReqDto: UploadAssetReqDto) {
-    let assetDocument=this.assetMapper.
+   // let assetDocument=this.assetMapper.
   }
 
 

@@ -1,6 +1,5 @@
 import { IsArray, IsOptional, IsString } from 'class-validator';
 
-
 export class UploadAssetReqDto {
   @IsString()
   @IsOptional()

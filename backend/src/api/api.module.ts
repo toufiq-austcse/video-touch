@@ -10,7 +10,6 @@ import { join } from 'path';
 import { RabbitMQModule } from '@/src/common/rabbit-mq/rabbit-mq.module';
 import { AwsModule } from '@/src/common/aws/aws.module';
 
-
 @Module({
   imports: [
     AppConfigModule,
@@ -19,19 +18,18 @@ import { AwsModule } from '@/src/common/aws/aws.module';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       cors: {
         origin: true,
-        credentials: true
+        credentials: true,
       },
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      playground: true
+      playground: true,
     }),
     HttpClientsModule,
     IndexModule,
     AssetsModule,
-    AwsModule
+    AwsModule,
   ],
   controllers: [],
-  providers: []
+  providers: [],
 })
-export class ApiModule {
-}
+export class ApiModule {}
