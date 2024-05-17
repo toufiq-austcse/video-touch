@@ -4,8 +4,7 @@ import { Request, Response } from 'express';
 
 @Controller('upload')
 export class UploadController {
-  constructor(private tusService: TusService) {
-  }
+  constructor(private tusService: TusService) {}
 
   @All()
   async uploadFile(@Req() req: Request, @Res() res: Response) {
@@ -39,7 +38,6 @@ export class UploadController {
       res.status(500).send('An error occurred while uploading the file');
     }
   }
-
 
   //
   // @Post('upload')
