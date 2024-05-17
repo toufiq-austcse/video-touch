@@ -22,6 +22,7 @@ import { FileService } from '@/src/api/assets/services/file.service';
 import { ManifestService } from '@/src/api/assets/services/manifest.service';
 import { getMainManifestFileName } from '@/src/common/utils';
 import { UploadController } from '@/src/api/assets/controllers/upload.controller';
+import { TusService } from '@/src/api/assets/services/tus.service';
 
 @Module({
   imports: [
@@ -31,21 +32,21 @@ import { UploadController } from '@/src/api/assets/controllers/upload.controller
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = VideoSchema;
-          schema.pre('save', async function () {
+          schema.pre('save', async function() {
             console.log('assets pre save hook');
             const asset = this;
             (asset as any).master_file_name = getMainManifestFileName();
             (asset as any).latest_status = VIDEO_STATUS.QUEUED;
             (asset as any).status_logs = StatusMapper.mapForSave(VIDEO_STATUS.QUEUED, 'Video is queued');
           });
-          schema.post('save', async function (doc) {
+          schema.post('save', async function(doc) {
             let assetService = moduleRef.get<AssetService>(AssetService, { strict: false });
             console.log('post save hook');
             await assetService.afterSave(doc);
             return;
           });
 
-          schema.post('findOneAndUpdate', async function (doc) {
+          schema.post('findOneAndUpdate', async function(doc) {
             console.log('update one called in assets ', doc);
 
             let assetService = moduleRef.get<AssetService>(AssetService, { strict: false });
@@ -55,23 +56,23 @@ import { UploadController } from '@/src/api/assets/controllers/upload.controller
           });
 
           return schema;
-        },
+        }
       },
       {
         name: FILE_COLLECTION_NAME,
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = FileSchema;
-          schema.post('findOneAndUpdate', async function (doc) {
+          schema.post('findOneAndUpdate', async function(doc) {
             let fileService = moduleRef.get<FileService>(FileService, { strict: false });
             await fileService.afterUpdate(doc);
             return;
           });
 
           return schema;
-        },
-      },
-    ]),
+        }
+      }
+    ])
   ],
   controllers: [UploadController],
   providers: [
@@ -89,6 +90,8 @@ import { UploadController } from '@/src/api/assets/controllers/upload.controller
     VideoUploaderJobHandler,
     JobManagerService,
     ManifestService,
-  ],
+    TusService
+  ]
 })
-export class AssetsModule {}
+export class AssetsModule {
+}

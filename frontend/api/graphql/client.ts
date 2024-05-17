@@ -2,7 +2,7 @@ import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client';
 
 const createApolloClient = () => {
   const httpLink = createHttpLink({
-    uri: process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL,
+    uri: `${process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL}/graphql`,
     credentials: 'include'
   });
 

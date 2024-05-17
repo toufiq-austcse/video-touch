@@ -44,10 +44,6 @@ export class Asset {
 
   @Field()
   @Expose()
-  source_url: string;
-
-  @Field()
-  @Expose()
   @Transform((value) => value.obj.height ?? 0)
   height: number;
 

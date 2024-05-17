@@ -1,39 +1,61 @@
-import React from "react";
+import React from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
-import LinkImportDialog from "@/components/ui/link-import-dialog";
-import { useMutation } from "@apollo/client";
-import { CREATE_ASSET_MUTATION } from "@/api/graphql/queries/query";
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { ChevronDown } from 'lucide-react';
+import LinkImportDialog from '@/components/ui/link-import-dialog';
+import { useMutation } from '@apollo/client';
+import { CREATE_ASSET_MUTATION } from '@/api/graphql/queries/query';
+import { useHttpClient } from '@/api/http/useHttpClient';
+import UppyComponent from '@/components/ui/uppy';
+import MyDeviceDialog from '@/components/ui/my-device-dialog';
 
 const UploadNew = ({ refetch }: { refetch: () => void }) => {
   const [createVideo] = useMutation(CREATE_ASSET_MUTATION);
   const [openLinkImportDialog, setOpenLinkImportDialog] = React.useState(false);
+  const [openMyDeviceDialog, setOpenMyDeviceDialog] = React.useState(false);
+
+  const { uploadFile, loading } = useHttpClient();
 
   const onLinkClick = () => {
     setOpenLinkImportDialog(true);
   };
 
-  const onSubmit = async (
+  const onMyDeviceClick = () => {
+    setOpenMyDeviceDialog(true);
+  };
+  const onLinkSubmit = async (
     sourceUrl: string,
     title: string,
-    description: string,
+    description: string
   ) => {
     let res = await createVideo({
       variables: {
         source_url: sourceUrl,
         title: title,
-        description: description,
-      },
+        description: description
+      }
     });
-    console.log("Success:", res);
+    console.log('Success:', res);
     setOpenLinkImportDialog(false);
     refetch();
+  };
+
+  const onFileSubmit = async (file: any) => {
+    console.log('called ', file);
+    try {
+      let res = await uploadFile(file);
+      console.log('Success:', res);
+      setOpenMyDeviceDialog(false);
+      refetch();
+    } catch (err) {
+      console.log('Error:', err);
+    }
+
   };
 
   return (
@@ -46,13 +68,16 @@ const UploadNew = ({ refetch }: { refetch: () => void }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={onLinkClick}>Link</DropdownMenuItem>
+          <DropdownMenuItem onClick={onMyDeviceClick}>My Device</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <LinkImportDialog
         open={openLinkImportDialog}
         setOpen={setOpenLinkImportDialog}
-        onSubmit={onSubmit}
+        onSubmit={onLinkSubmit}
       />
+      <MyDeviceDialog open={openMyDeviceDialog} setOpen={setOpenMyDeviceDialog} onSubmit={onFileSubmit} />
+
     </>
   );
 };

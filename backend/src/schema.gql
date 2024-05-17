@@ -28,7 +28,6 @@ type Asset {
   title: String!
   description: String
   duration: Float!
-  source_url: String!
   height: Float!
   width: Float!
   thumbnail_url: String

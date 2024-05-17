@@ -7,7 +7,7 @@ query($first:Float,$before:String,$after:String){
 `;
 export const GET_ASSET_QUERY = gql`
 query($id:String!){
-  GetAsset(getAssetInputDto:{_id:$id}){_id,title,height,width,duration,description,status_logs{status,details,created_at},size,source_url,tags,created_at,updated_at,thumbnail_url,latest_status,master_playlist_url}
+  GetAsset(getAssetInputDto:{_id:$id}){_id,title,height,width,duration,description,status_logs{status,details,created_at},size,tags,created_at,updated_at,thumbnail_url,latest_status,master_playlist_url}
 }
 `;
 
