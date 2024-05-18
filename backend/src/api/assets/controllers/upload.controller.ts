@@ -1,12 +1,13 @@
-import { All, Controller, Head, Req, Res } from '@nestjs/common';
+import { All, Controller, Head, Post, Req, Res } from '@nestjs/common';
 import { TusService } from '@/src/api/assets/services/tus.service';
 import { Request, Response } from 'express';
 
 @Controller('upload')
 export class UploadController {
-  constructor(private tusService: TusService) {}
+  constructor(private tusService: TusService) {
+  }
 
-  @All()
+  @Post()
   async uploadFile(@Req() req: Request, @Res() res: Response) {
     console.log('called ');
     try {

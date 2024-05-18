@@ -2,6 +2,7 @@ import { Injectable, Res, Req } from '@nestjs/common';
 import { Server } from '@tus/server';
 import { FileStore } from '@tus/file-store';
 import { Request, Response } from 'express';
+import { getServerFileName } from '@/src/common/utils';
 
 export class FileMetadata {
   public relativePath?: string;
@@ -20,7 +21,7 @@ export class TusService {
     this.tusServer = new Server({
       namingFunction: this.fileNameFromRequest,
       path: '/upload',
-      datastore: new FileStore({ directory: './uploads' }),
+      datastore: new FileStore({ directory: './uploads' })
     });
   }
 
@@ -31,12 +32,7 @@ export class TusService {
   private fileNameFromRequest = (req) => {
     try {
       const metadata = this.getFileMetadata(req);
-
-      const prefix: string = Date.now().toString();
-
-      const fileName = metadata.extension ? prefix + '.' + metadata.extension : prefix;
-      console.log('fileName ', fileName);
-      return fileName;
+      return getServerFileName(metadata.filename);
     } catch (e) {
       //this.logger.error(e);
 
