@@ -16,3 +16,8 @@ mutation($title:String,$description:String,$source_url:String!,$tags:[String!]){
   CreateAsset(createAssetInput:{title:$title,source_url:$source_url,description:$description,tags:$tags}){_id,title}
 }
 `;
+export const CREATE_ASSET_FROM_UPLOAD_MUTATION = gql`
+mutation($title:String,$description:String,$file_name:String!,$tags:[String!]){
+  CreateAssetFromUpload(createAssetFromUploadInput:{title:$title,file_name:$file_name,description:$description,tags:$tags}){_id,title}
+}
+  `;

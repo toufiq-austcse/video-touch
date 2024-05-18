@@ -5,7 +5,6 @@ import { AssetRepository } from './repositories/asset.repository';
 import { AssetService } from './services/asset.service';
 import { AssetResolver } from './resolvers/asset.resolver';
 import { AssetMapper } from '@/src/api/assets/mapper/asset.mapper';
-
 import { ModuleRef } from '@nestjs/core';
 import { VIDEO_STATUS } from '@/src/common/constants';
 import { VideoDownloadService } from '@/src/api/assets/services/video-download.service';
@@ -23,6 +22,8 @@ import { ManifestService } from '@/src/api/assets/services/manifest.service';
 import { getMainManifestFileName } from '@/src/common/utils';
 import { UploadController } from '@/src/api/assets/controllers/upload.controller';
 import { TusService } from '@/src/api/assets/services/tus.service';
+import { JwtModule } from '@nestjs/jwt';
+import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 
 @Module({
   imports: [
@@ -32,21 +33,21 @@ import { TusService } from '@/src/api/assets/services/tus.service';
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = VideoSchema;
-          schema.pre('save', async function () {
+          schema.pre('save', async function() {
             console.log('assets pre save hook');
             const asset = this;
             (asset as any).master_file_name = getMainManifestFileName();
             (asset as any).latest_status = VIDEO_STATUS.QUEUED;
             (asset as any).status_logs = StatusMapper.mapForSave(VIDEO_STATUS.QUEUED, 'Video is queued');
           });
-          schema.post('save', async function (doc) {
+          schema.post('save', async function(doc) {
             let assetService = moduleRef.get<AssetService>(AssetService, { strict: false });
             console.log('post save hook');
             await assetService.afterSave(doc);
             return;
           });
 
-          schema.post('findOneAndUpdate', async function (doc) {
+          schema.post('findOneAndUpdate', async function(doc) {
             console.log('update one called in assets ', doc);
 
             let assetService = moduleRef.get<AssetService>(AssetService, { strict: false });
@@ -56,23 +57,31 @@ import { TusService } from '@/src/api/assets/services/tus.service';
           });
 
           return schema;
-        },
+        }
       },
       {
         name: FILE_COLLECTION_NAME,
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = FileSchema;
-          schema.post('findOneAndUpdate', async function (doc) {
+          schema.post('findOneAndUpdate', async function(doc) {
             let fileService = moduleRef.get<FileService>(FileService, { strict: false });
             await fileService.afterUpdate(doc);
             return;
           });
 
           return schema;
-        },
-      },
+        }
+      }
     ]),
+    JwtModule.registerAsync({
+      inject: [AppConfigService],
+      useFactory: async () => ({
+        secret: process.env.JWT_SECRET,
+        signOptions: { expiresIn: '1h' }
+      })
+
+    })
   ],
   controllers: [UploadController],
   providers: [
@@ -90,7 +99,8 @@ import { TusService } from '@/src/api/assets/services/tus.service';
     VideoUploaderJobHandler,
     JobManagerService,
     ManifestService,
-    TusService,
-  ],
+    TusService
+  ]
 })
-export class AssetsModule {}
+export class AssetsModule {
+}

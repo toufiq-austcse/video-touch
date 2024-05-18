@@ -3,7 +3,7 @@ import {
   Asset,
   AssetMinimalResponse,
   CreateAssetResponse,
-  PaginatedAssetResponse,
+  PaginatedAssetResponse
 } from '@/src/api/assets/models/asset.model';
 import { AssetDocument } from '@/src/api/assets/schemas/assets.schema';
 import { plainToClass, plainToInstance } from 'class-transformer';
@@ -12,8 +12,7 @@ import { StatusDocument } from '@/src/api/assets/schemas/status.schema';
 import { StatusLogResponse } from '@/src/api/assets/models/status-logs.model';
 import { getMasterPlaylistUrl } from '@/src/common/utils';
 import { VIDEO_STATUS } from '@/src/common/constants';
-import { CreateAssetInputDto } from '@/src/api/assets/dtos/create-asset-input.dto';
-import { UploadAssetReqDto } from '@/src/api/assets/dtos/upload-asset-req.dto';
+import { CreateAssetFromUploadInputDto, CreateAssetInputDto } from '@/src/api/assets/dtos/create-asset-input.dto';
 
 @Injectable()
 export class AssetMapper {
@@ -24,7 +23,7 @@ export class AssetMapper {
       source_url: videoDocument.source_url,
       status: videoDocument.latest_status,
       tags: videoDocument.tags,
-      title: videoDocument.title,
+      title: videoDocument.title
     };
   }
 
@@ -37,23 +36,22 @@ export class AssetMapper {
       title: title,
       description: createVideoInput.description,
       source_url: createVideoInput.source_url,
-      tags: createVideoInput.tags,
+      tags: createVideoInput.tags
     };
   }
 
   buildAssetDocumentFromUploadReq(
-    uploadAssetReqDto: UploadAssetReqDto,
-    originalName: string
+    uploadAssetReqDto: CreateAssetFromUploadInputDto
   ): Omit<AssetDocument, '_id'> {
     let title = uploadAssetReqDto.title;
     if (!title) {
-      title = this.parsedTitle(originalName);
+      title = this.parsedTitle(uploadAssetReqDto.file_name);
     }
     return {
       title: title,
       description: uploadAssetReqDto.description,
       source_url: null,
-      tags: uploadAssetReqDto.tags,
+      tags: uploadAssetReqDto.tags
     };
   }
 
@@ -74,18 +72,18 @@ export class AssetMapper {
             duration: video.duration,
             status: video.latest_status,
             created_at: video.createdAt,
-            updated_at: video.updatedAt,
+            updated_at: video.updatedAt
           } as AssetMinimalResponse,
           {
             excludeExtraneousValues: true,
-            enableImplicitConversion: true,
+            enableImplicitConversion: true
           }
         )
       );
     }
     return {
       assets: videos,
-      page_info: paginatedVideoResponse.pageInfo,
+      page_info: paginatedVideoResponse.pageInfo
     };
   }
 
@@ -108,7 +106,7 @@ export class AssetMapper {
         tags: asset.tags,
         created_at: asset.createdAt,
         updated_at: asset.updatedAt,
-        _id: asset._id.toString(),
+        _id: asset._id.toString()
       } as Asset,
       { excludeExtraneousValues: true, enableImplicitConversion: true }
     );
@@ -124,11 +122,11 @@ export class AssetMapper {
           {
             ...log,
             created_at: log.createdAt,
-            updated_at: log.updatedAt,
+            updated_at: log.updatedAt
           } as StatusLogResponse,
           {
             excludeExtraneousValues: true,
-            enableImplicitConversion: true,
+            enableImplicitConversion: true
           }
         )
       );

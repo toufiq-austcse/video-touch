@@ -23,3 +23,27 @@ export class CreateAssetInputDto {
   @IsOptional()
   tags: string[];
 }
+
+
+@InputType()
+export class CreateAssetFromUploadInputDto {
+  @Field({ nullable: true })
+  @IsString()
+  @IsOptional()
+  title: string;
+
+  @Field({ nullable: true })
+  @IsString()
+  @IsOptional()
+  description: string;
+
+  @Field()
+  @IsString()
+  @IsNotEmpty()
+  file_name: string;
+
+  @Field(() => [String], { nullable: true })
+  @IsArray()
+  @IsOptional()
+  tags: string[];
+}

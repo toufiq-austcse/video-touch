@@ -4,9 +4,10 @@ import { Request, Response } from 'express';
 
 @Controller('upload')
 export class UploadController {
-  constructor(private tusService: TusService) {}
+  constructor(private tusService: TusService) {
+  }
 
-  @Post()
+  @Post('files')
   async uploadFile(@Req() req: Request, @Res() res: Response) {
     console.log('called ');
     try {
@@ -17,7 +18,7 @@ export class UploadController {
     }
   }
 
-  @All('*')
+  @All('files/*')
   async uploadFileParts(@Req() req: Request, @Res() res: Response) {
     console.log('called ');
     try {
@@ -28,7 +29,7 @@ export class UploadController {
     }
   }
 
-  @Head('*')
+  @Head('files/*')
   async uploadFilePartsA(@Req() req: Request, @Res() res: Response) {
     console.log('called ');
     try {

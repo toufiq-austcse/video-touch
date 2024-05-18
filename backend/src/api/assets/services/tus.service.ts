@@ -20,8 +20,8 @@ export class TusService {
   constructor() {
     this.tusServer = new Server({
       namingFunction: this.fileNameFromRequest,
-      path: '/upload',
-      datastore: new FileStore({ directory: './uploads' }),
+      path: '/upload/files',
+      datastore: new FileStore({ directory: './uploads' })
     });
   }
 

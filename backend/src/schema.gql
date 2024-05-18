@@ -78,6 +78,7 @@ input GetAssetInputDto {
 
 type Mutation {
   CreateAsset(createAssetInput: CreateAssetInputDto!): CreateAssetResponse!
+  CreateAssetFromUpload(createAssetFromUploadInput: CreateAssetFromUploadInputDto!): CreateAssetResponse!
   UpdateAsset(_id: String!, updateAssetInputDto: UpdateAssetInputDto!): Asset!
   DeleteAsset(_id: String!): String!
 }
@@ -86,6 +87,13 @@ input CreateAssetInputDto {
   title: String
   description: String
   source_url: String!
+  tags: [String!]
+}
+
+input CreateAssetFromUploadInputDto {
+  title: String
+  description: String
+  file_name: String!
   tags: [String!]
 }
 

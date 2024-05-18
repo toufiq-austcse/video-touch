@@ -29,6 +29,7 @@
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.11",
     "@nestjs/graphql": "^10.1.3",
+    "@nestjs/jwt": "^10.2.0",
     "@nestjs/mongoose": "^8.0.1",
     "@nestjs/platform-express": "^9.0.11",
     "@nestjs/swagger": "^6.0.5",
