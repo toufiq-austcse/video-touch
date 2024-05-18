@@ -21,7 +21,6 @@ export class FileMetadata {
 export class TusService {
   private tusServer: Server;
 
-
   constructor(private assetService: AssetService) {
     this.tusServer = new Server({
       onUploadCreate: async (req, res, upload) => {
@@ -30,7 +29,7 @@ export class TusService {
         }
 
         let createdAsset = await this.assetService.createAssetFromUploadReq({
-          file_name: upload.metadata['filename']
+          file_name: upload.metadata['filename'],
         });
         upload.id = `${createdAsset._id.toString()}.mp4`;
         upload.metadata['db_id'] = createdAsset._id.toString();
@@ -47,11 +46,15 @@ export class TusService {
         console.log('sourceFilePath ', sourceFilePath, ' destinationFilePath ', destinationFilePath);
         fs.renameSync(sourceFilePath, destinationFilePath);
 
-        await this.assetService.updateAssetStatus(upload.metadata['db_id'], VIDEO_STATUS.UPLOADED, 'Video uploaded successfully');
+        await this.assetService.updateAssetStatus(
+          upload.metadata['db_id'],
+          VIDEO_STATUS.UPLOADED,
+          'Video uploaded successfully'
+        );
         return res;
       },
       path: '/upload/files',
-      datastore: new FileStore({ directory: './uploads' })
+      datastore: new FileStore({ directory: './uploads' }),
     });
   }
 
