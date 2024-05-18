@@ -1,29 +1,33 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import React, { useRef } from 'react';
-import { FileInput, ProgressBar } from '@uppy/react';
-import Tus from '@uppy/tus';
-import { Uppy } from '@uppy/core';
-import '@uppy/core/dist/style.css';
-import '@uppy/dashboard/dist/style.css';
-import '@uppy/drag-drop/dist/style.css';
-import '@uppy/file-input/dist/style.css';
-import '@uppy/progress-bar/dist/style.css';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import React, { useRef } from "react";
+import { FileInput, ProgressBar } from "@uppy/react";
+import Tus from "@uppy/tus";
+import { Uppy } from "@uppy/core";
+import "@uppy/core/dist/style.css";
+import "@uppy/dashboard/dist/style.css";
+import "@uppy/drag-drop/dist/style.css";
+import "@uppy/file-input/dist/style.css";
+import "@uppy/progress-bar/dist/style.css";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const uppy = new Uppy({
-  id: 'file',
-  debug: true
+  id: "file",
+  debug: true,
 }).use(Tus, {
-  endpoint: `${process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL}/upload`
+  endpoint: `${process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL}/upload`,
 });
 
-
 const MyDeviceDialog = ({
-                          open,
-                          setOpen,
-                          onSubmit
-                        }: {
+  open,
+  setOpen,
+  onSubmit,
+}: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   onSubmit: () => void;
@@ -36,15 +40,15 @@ const MyDeviceDialog = ({
     files.forEach((file: any) => {
       try {
         uppy.addFile({
-          source: 'file input',
+          source: "file input",
           name: file.name,
           type: file.type,
-          data: file
+          data: file,
         });
       } catch (err: any) {
         if (err.isRestriction) {
           // handle restrictions
-          console.log('Restriction error:', err);
+          console.log("Restriction error:", err);
         } else {
           // handle other errors
           console.error(err);
@@ -53,35 +57,32 @@ const MyDeviceDialog = ({
     });
   };
 
-
-  uppy.on('file-removed', () => {
+  uppy.on("file-removed", () => {
     (videoInputRef as any).value = null;
   });
 
-  uppy.on('complete', () => {
+  uppy.on("complete", () => {
     (videoInputRef as any).value = null;
   });
 
   const onUploadClick = async () => {
     if (uppy.getFiles().length == 0) {
       return;
-
     }
     let res = await uppy.upload();
-    console.log('Upload response:', res);
+    console.log("Upload response:", res);
     if (res.successful.length) {
       uppy.removeFile(res.successful[0].id);
       uppy.resetProgress();
 
       if (videoInputRef.current) {
-        videoInputRef.current.value = '';
+        videoInputRef.current.value = "";
       }
       onSubmit();
     } else {
-      alert('Upload failed');
+      alert("Upload failed");
     }
   };
-
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -91,7 +92,13 @@ const MyDeviceDialog = ({
         </DialogHeader>
         <ProgressBar uppy={uppy} hideAfterFinish={false} />
         {/*<FileInput uppy={uppy} pretty={true} />*/}
-        <Input ref={videoInputRef} id="video" type="file" accept="video/mp4" onChange={onFileChange} />
+        <Input
+          ref={videoInputRef}
+          id="video"
+          type="file"
+          accept="video/mp4"
+          onChange={onFileChange}
+        />
         <Button onClick={onUploadClick}>Upload</Button>
       </DialogContent>
     </Dialog>
