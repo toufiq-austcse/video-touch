@@ -29,12 +29,12 @@ export class CreateAssetFromUploadInputDto {
   @Field({ nullable: true })
   @IsString()
   @IsOptional()
-  title: string;
+  title?: string;
 
   @Field({ nullable: true })
   @IsString()
   @IsOptional()
-  description: string;
+  description?: string;
 
   @Field()
   @IsString()
@@ -44,5 +44,5 @@ export class CreateAssetFromUploadInputDto {
   @Field(() => [String], { nullable: true })
   @IsArray()
   @IsOptional()
-  tags: string[];
+  tags?: string[];
 }

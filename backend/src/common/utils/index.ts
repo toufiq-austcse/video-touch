@@ -5,7 +5,7 @@ import { readdir, stat } from 'fs/promises';
 
 export function concatObject(obj: Object, separator: string = ', ') {
   return Object.keys(obj)
-    .map(function (key, index) {
+    .map(function(key, index) {
       return (obj as any)[key];
     })
     .join(separator);
@@ -67,5 +67,6 @@ export function getMainManifestFileName() {
 }
 
 export function getServerFileName(originalName: string): string {
-  return `${Date.now()}_${originalName}`;
+  let extension = originalName.split('.').pop();
+  return `${Date.now()}.${extension}`;
 }

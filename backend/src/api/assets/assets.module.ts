@@ -33,22 +33,34 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = VideoSchema;
-          schema.pre('save', async function () {
+          schema.pre('save', async function() {
             console.log('assets pre save hook');
             const asset = this;
             (asset as any).master_file_name = getMainManifestFileName();
-            (asset as any).latest_status = VIDEO_STATUS.QUEUED;
-            (asset as any).status_logs = StatusMapper.mapForSave(VIDEO_STATUS.QUEUED, 'Video is queued');
+            if ((asset as any).source_url) {
+              console.log('source url found', (asset as any).source_url);
+              (asset as any).latest_status = VIDEO_STATUS.QUEUED;
+              (asset as any).status_logs = StatusMapper.mapForSave(VIDEO_STATUS.QUEUED, 'Video is queued');
+            } else {
+              (asset as any).latest_status = VIDEO_STATUS.UPLOAD_PENDING;
+              (asset as any).status_logs = StatusMapper.mapForSave(VIDEO_STATUS.UPLOAD_PENDING, 'Video is uploading');
+            }
+
+
           });
-          schema.post('save', async function (doc) {
+          schema.post('save', async function(doc) {
             let assetService = moduleRef.get<AssetService>(AssetService, { strict: false });
             console.log('post save hook');
             await assetService.afterSave(doc);
             return;
           });
 
-          schema.post('findOneAndUpdate', async function (doc) {
+          schema.post('findOneAndUpdate', async function(doc) {
             console.log('update one called in assets ', doc);
+
+            if (!doc) {
+              return;
+            }
 
             let assetService = moduleRef.get<AssetService>(AssetService, { strict: false });
             await assetService.afterUpdate(doc);
@@ -57,30 +69,30 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
           });
 
           return schema;
-        },
+        }
       },
       {
         name: FILE_COLLECTION_NAME,
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = FileSchema;
-          schema.post('findOneAndUpdate', async function (doc) {
+          schema.post('findOneAndUpdate', async function(doc) {
             let fileService = moduleRef.get<FileService>(FileService, { strict: false });
             await fileService.afterUpdate(doc);
             return;
           });
 
           return schema;
-        },
-      },
+        }
+      }
     ]),
     JwtModule.registerAsync({
       inject: [AppConfigService],
       useFactory: async () => ({
         secret: process.env.JWT_SECRET,
-        signOptions: { expiresIn: '1h' },
-      }),
-    }),
+        signOptions: { expiresIn: '1h' }
+      })
+    })
   ],
   controllers: [UploadController],
   providers: [
@@ -98,7 +110,8 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
     VideoUploaderJobHandler,
     JobManagerService,
     ManifestService,
-    TusService,
-  ],
+    TusService
+  ]
 })
-export class AssetsModule {}
+export class AssetsModule {
+}
