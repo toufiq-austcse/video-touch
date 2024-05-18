@@ -4,8 +4,7 @@ import { Request, Response } from 'express';
 
 @Controller('upload')
 export class UploadController {
-  constructor(private tusService: TusService) {
-  }
+  constructor(private tusService: TusService) {}
 
   @Post('files')
   async uploadFile(@Req() req: Request, @Res() res: Response) {

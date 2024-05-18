@@ -24,7 +24,6 @@ export class CreateAssetInputDto {
   tags: string[];
 }
 
-
 @InputType()
 export class CreateAssetFromUploadInputDto {
   @Field({ nullable: true })

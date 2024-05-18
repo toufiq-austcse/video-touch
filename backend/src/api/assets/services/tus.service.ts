@@ -21,7 +21,7 @@ export class TusService {
     this.tusServer = new Server({
       namingFunction: this.fileNameFromRequest,
       path: '/upload/files',
-      datastore: new FileStore({ directory: './uploads' })
+      datastore: new FileStore({ directory: './uploads' }),
     });
   }
 
