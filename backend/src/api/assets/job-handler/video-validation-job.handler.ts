@@ -20,12 +20,13 @@ export class VideoValidationJobHandler {
     private assetRepository: AssetRepository,
     private rabbitMqService: RabbitMqService,
     private jobManagerService: JobManagerService
-  ) {}
+  ) {
+  }
 
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_VALIDATE_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_VALIDATE_VIDEO_QUEUE,
+    queue: process.env.RABBIT_MQ_VALIDATE_VIDEO_QUEUE
   })
   public async handle(msg: VideoValidationJobModel) {
     console.log('VideoValidationJobHandler', msg);
@@ -36,13 +37,13 @@ export class VideoValidationJobHandler {
 
       await this.assetRepository.findOneAndUpdate(
         {
-          _id: mongoose.Types.ObjectId(msg._id),
+          _id: mongoose.Types.ObjectId(msg._id)
         },
         {
           size: metadata.size,
           height: metadata.height,
           width: metadata.width,
-          duration: metadata.duration,
+          duration: metadata.duration
         }
       );
       await this.assetService.updateAssetStatus(msg._id, VIDEO_STATUS.VALIDATED, 'Video validated');
@@ -68,7 +69,7 @@ export class VideoValidationJobHandler {
 
   publishVideoProcessingJob(msg: VideoValidationJobModel, jobMetadata: JobMetadataModel[]) {
     let jobModel: VideoProcessingJobModel = {
-      _id: msg._id.toString(),
+      _id: msg._id.toString()
     };
 
     jobMetadata.forEach((data) => {

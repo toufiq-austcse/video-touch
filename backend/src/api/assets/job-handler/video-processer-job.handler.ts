@@ -3,7 +3,7 @@ import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import {
   VideoProcessingJobModel,
   VideoUploadJobModel,
-  VideoValidationJobModel,
+  VideoValidationJobModel
 } from '@/src/api/assets/models/job.model';
 import { TranscodingService } from '@/src/api/assets/services/transcoding.service';
 import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
@@ -57,7 +57,7 @@ export class VideoProcessorJobHandler {
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_480P_PROCESS_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_480P_PROCESS_VIDEO_QUEUE,
+    queue: process.env.RABBIT_MQ_480P_PROCESS_VIDEO_QUEUE
   })
   public async handle480(msg: VideoValidationJobModel) {
     console.log('Video480pProcessingJobHandler', msg);
@@ -69,7 +69,7 @@ export class VideoProcessorJobHandler {
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_540P_PROCESS_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_540P_PROCESS_VIDEO_QUEUE,
+    queue: process.env.RABBIT_MQ_540P_PROCESS_VIDEO_QUEUE
   })
   public async handle540(msg: VideoValidationJobModel) {
     console.log('Video540pProcessingJobHandler', msg);
@@ -81,7 +81,7 @@ export class VideoProcessorJobHandler {
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_720P_PROCESS_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_720P_PROCESS_VIDEO_QUEUE,
+    queue: process.env.RABBIT_MQ_720P_PROCESS_VIDEO_QUEUE
   })
   public async handle720(msg: VideoValidationJobModel) {
     console.log('Video720pProcessingJobHandler', msg);
@@ -93,7 +93,7 @@ export class VideoProcessorJobHandler {
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_1080P_PROCESS_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_1080P_PROCESS_VIDEO_QUEUE,
+    queue: process.env.RABBIT_MQ_1080P_PROCESS_VIDEO_QUEUE
   })
   public async handle1080(msg: VideoValidationJobModel) {
     console.log('Video1080pProcessingJobHandler', msg);
