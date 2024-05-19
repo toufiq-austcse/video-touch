@@ -71,7 +71,7 @@ export class AppConfigService {
       AWS_SECRET_ACCESS_KEY: this.configService.getOrThrow('AWS_SECRET_ACCESS_KEY'),
       AWS_S3_BUCKET_NAME: this.configService.getOrThrow('AWS_S3_BUCKET_NAME'),
       VIDEO_BASE_URL: this.configService.getOrThrow('VIDEO_BASE_URL'),
-      TEMP_UPLOAD_FOLDER: this.configService.getOrThrow('TEMP_UPLOAD_FOLDER')
+      TEMP_UPLOAD_FOLDER: this.configService.getOrThrow('TEMP_UPLOAD_FOLDER'),
     };
   }
 }
