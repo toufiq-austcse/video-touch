@@ -12,6 +12,7 @@ import { StatusDocument } from '@/src/api/assets/schemas/status.schema';
 import { StatusLogResponse } from '@/src/api/assets/models/status-logs.model';
 import { getMasterPlaylistUrl } from '@/src/common/utils';
 import { VIDEO_STATUS } from '@/src/common/constants';
+import { CreateAssetFromUploadInputDto, CreateAssetInputDto } from '@/src/api/assets/dtos/create-asset-input.dto';
 
 @Injectable()
 export class AssetMapper {
@@ -24,6 +25,36 @@ export class AssetMapper {
       tags: videoDocument.tags,
       title: videoDocument.title,
     };
+  }
+
+  buildAssetDocumentForSaving(createVideoInput: CreateAssetInputDto): Omit<AssetDocument, '_id'> {
+    let title = createVideoInput.title;
+    if (!title) {
+      title = this.parsedTitle(createVideoInput.source_url);
+    }
+    return {
+      title: title,
+      description: createVideoInput.description,
+      source_url: createVideoInput.source_url,
+      tags: createVideoInput.tags,
+    };
+  }
+
+  buildAssetDocumentFromUploadReq(uploadAssetReqDto: CreateAssetFromUploadInputDto): Omit<AssetDocument, '_id'> {
+    let title = uploadAssetReqDto.title;
+    if (!title) {
+      title = this.parsedTitle(uploadAssetReqDto.file_name);
+    }
+    return {
+      title: title,
+      description: uploadAssetReqDto.description,
+      source_url: null,
+      tags: uploadAssetReqDto.tags,
+    };
+  }
+
+  private parsedTitle(source_url: string) {
+    return source_url.split('/').pop().split('.').shift();
   }
 
   toPaginatedAssetResponse(paginatedVideoResponse: BasePaginatedResponse<AssetDocument>): PaginatedAssetResponse {

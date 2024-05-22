@@ -1,20 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
-import { VideoDownloadJobModel, VideoValidationJobModel } from '@/src/api/assets/models/job.model';
+import { VideoDownloadJobModel } from '@/src/api/assets/models/job.model';
 import { DownloaderHttpService } from '@/src/common/http-clients/downloader/downloader-http.service';
-import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
-import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { getLocalVideoMp4Path } from '@/src/common/utils';
 import { AssetService } from '@/src/api/assets/services/asset.service';
 import { VIDEO_STATUS } from '@/src/common/constants';
 
 @Injectable()
 export class DownloadVideoJobHandler {
-  constructor(
-    private assetService: AssetService,
-    private downloadHttpService: DownloaderHttpService,
-    private rabbitMqService: RabbitMqService
-  ) {}
+  constructor(private assetService: AssetService, private downloadHttpService: DownloaderHttpService) {}
 
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
@@ -30,13 +24,7 @@ export class DownloadVideoJobHandler {
       await this.download(msg, destinationPath);
       await this.assetService.updateAssetStatus(msg._id, VIDEO_STATUS.DOWNLOADED, 'Video downloaded');
 
-      this.rabbitMqService.publish(
-        AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
-        AppConfigService.appConfig.RABBIT_MQ_VALIDATE_VIDEO_ROUTING_KEY,
-        {
-          _id: msg._id,
-        } as VideoValidationJobModel
-      );
+      await this.assetService.pushValidateVideoJob(msg._id.toString());
     } catch (e: any) {
       console.log('error in video download job handler', e);
 

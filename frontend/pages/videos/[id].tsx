@@ -1,4 +1,3 @@
-import PlyrHlsPlayer from "@/components/ui/video-player";
 import { Separator } from "@/components/ui/separator";
 import Step from "@/components/ui/step";
 import Data from "@/components/ui/data";
@@ -7,6 +6,11 @@ import { useQuery } from "@apollo/client";
 import { GET_ASSET_QUERY } from "@/api/graphql/queries/query";
 import { VideoDetails } from "@/api/graphql/types/video-details";
 import { bytesToMegaBytes } from "@/lib/utils";
+
+import dynamic from "next/dynamic";
+const PlyrHlsPlayer = dynamic(() => import("@/components/ui/video-player"), {
+  ssr: false,
+});
 
 export default function VideoDetailsPage() {
   const router = useRouter();

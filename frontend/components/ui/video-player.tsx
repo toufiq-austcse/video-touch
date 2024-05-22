@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react';
-import Plyr from 'plyr';
-import Hls from 'hls.js';
+import React, { useEffect, useRef } from "react";
+import Plyr from "plyr";
+import Hls from "hls.js";
 
 const PlyrHlsPlayer = ({ source }: { source: string }) => {
   const videoRef = useRef(null);
@@ -9,21 +9,19 @@ const PlyrHlsPlayer = ({ source }: { source: string }) => {
   useEffect(() => {
     const defaultOptions = {
       quality: undefined,
-      i18n: undefined
+      i18n: undefined,
     };
 
     if (!Hls.isSupported()) {
       // @ts-ignore
       videoRef.current.src = source;
-      // @ts-ignore
-      const player = new Plyr(videoRef.current, defaultOptions);
     } else {
       const hls = new Hls();
       // @ts-ignore
       hlsRef.current = hls;
       hls.loadSource(source);
 
-      hls.on(Hls.Events.MANIFEST_PARSED, function(event, data) {
+      hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
         const availableQualities = hls.levels.map((l) => l.height);
         availableQualities.unshift(0);
 
@@ -32,19 +30,19 @@ const PlyrHlsPlayer = ({ source }: { source: string }) => {
           default: 0,
           options: availableQualities,
           forced: true,
-          onChange: (e: any) => updateQuality(e)
+          onChange: (e: any) => updateQuality(e),
         };
 
         // @ts-ignore
         defaultOptions.i18n = {
           qualityLabel: {
-            0: 'Auto'
-          }
+            0: "Auto",
+          },
         };
 
-        hls.on(Hls.Events.LEVEL_SWITCHED, function(event, data) {
+        hls.on(Hls.Events.LEVEL_SWITCHED, function (event, data) {
           const span = document.querySelector(
-            '.plyr__menu__container [data-plyr=\'quality\'][value=\'0\'] span'
+            ".plyr__menu__container [data-plyr='quality'][value='0'] span",
           );
           if (hls.autoLevelEnabled) {
             // @ts-ignore

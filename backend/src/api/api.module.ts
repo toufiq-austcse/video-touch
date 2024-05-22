@@ -3,7 +3,7 @@ import { IndexModule } from './index/index.module';
 import { AppConfigModule } from '@/src/common/app-config/app-config.module';
 import { HttpClientsModule } from '@/src/common/http-clients/http-clients.module';
 import { DatabaseModule } from '@/src/common/database/database.module';
-import { VideosModule } from '@/src/api/assets/videos.module';
+import { AssetsModule } from '@/src/api/assets/assets.module';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
 import { join } from 'path';
@@ -26,7 +26,7 @@ import { AwsModule } from '@/src/common/aws/aws.module';
     }),
     HttpClientsModule,
     IndexModule,
-    VideosModule,
+    AssetsModule,
     AwsModule,
   ],
   controllers: [],

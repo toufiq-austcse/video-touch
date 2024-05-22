@@ -25,7 +25,7 @@ export class AssetDocument extends AbstractDocument {
   duration?: number;
 
   @Prop({
-    required: true,
+    required: false,
   })
   source_url?: string;
 

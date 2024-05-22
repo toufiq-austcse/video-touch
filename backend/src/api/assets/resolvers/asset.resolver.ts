@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Asset, CreateAssetResponse, PaginatedAssetResponse } from '../models/asset.model';
-import { CreateAssetInputDto } from '../dtos/create-asset-input.dto';
+import { CreateAssetFromUploadInputDto, CreateAssetInputDto } from '../dtos/create-asset-input.dto';
 import { AssetService } from '../services/asset.service';
 import { AssetMapper } from '@/src/api/assets/mapper/asset.mapper';
 import { ListAssetInputDto } from '@/src/api/assets/dtos/list-asset-input.dto';
@@ -16,6 +16,14 @@ export class AssetResolver {
   @Mutation(() => CreateAssetResponse, { name: 'CreateAsset' })
   async createVideo(@Args('createAssetInput') createAssetInputDto: CreateAssetInputDto): Promise<CreateAssetResponse> {
     let createdVideo = await this.assetService.create(createAssetInputDto);
+    return this.assetMapper.toCreateAssetResponse(createdVideo);
+  }
+
+  @Mutation(() => CreateAssetResponse, { name: 'CreateAssetFromUpload' })
+  async createAssetFromUpload(
+    @Args('createAssetFromUploadInput') createAssetInputDto: CreateAssetFromUploadInputDto
+  ): Promise<CreateAssetResponse> {
+    let createdVideo = await this.assetService.createAssetFromUploadReq(createAssetInputDto);
     return this.assetMapper.toCreateAssetResponse(createdVideo);
   }
 

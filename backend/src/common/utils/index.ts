@@ -65,3 +65,8 @@ export function getMasterPlaylistUrl(assetId: string) {
 export function getMainManifestFileName() {
   return 'main.m3u8';
 }
+
+export function getServerFileName(originalName: string): string {
+  let extension = originalName.split('.').pop();
+  return `${Date.now()}.${extension}`;
+}

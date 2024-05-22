@@ -7,7 +7,7 @@ query($first:Float,$before:String,$after:String){
 `;
 export const GET_ASSET_QUERY = gql`
 query($id:String!){
-  GetAsset(getAssetInputDto:{_id:$id}){_id,title,height,width,duration,description,status_logs{status,details,created_at},size,source_url,tags,created_at,updated_at,thumbnail_url,latest_status,master_playlist_url}
+  GetAsset(getAssetInputDto:{_id:$id}){_id,title,height,width,duration,description,status_logs{status,details,created_at},size,tags,created_at,updated_at,thumbnail_url,latest_status,master_playlist_url}
 }
 `;
 
@@ -16,3 +16,8 @@ mutation($title:String,$description:String,$source_url:String!,$tags:[String!]){
   CreateAsset(createAssetInput:{title:$title,source_url:$source_url,description:$description,tags:$tags}){_id,title}
 }
 `;
+export const CREATE_ASSET_FROM_UPLOAD_MUTATION = gql`
+mutation($title:String,$description:String,$file_name:String!,$tags:[String!]){
+  CreateAssetFromUpload(createAssetFromUploadInput:{title:$title,file_name:$file_name,description:$description,tags:$tags}){_id,title}
+}
+  `;

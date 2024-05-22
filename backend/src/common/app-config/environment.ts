@@ -52,4 +52,6 @@ export interface EnvironmentVariables {
   AWS_SECRET_ACCESS_KEY: string;
   AWS_S3_BUCKET_NAME: string;
   VIDEO_BASE_URL: string;
+
+  TEMP_UPLOAD_FOLDER: string;
 }
