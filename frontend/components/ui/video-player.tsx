@@ -15,8 +15,6 @@ const PlyrHlsPlayer = ({ source }: { source: string }) => {
     if (!Hls.isSupported()) {
       // @ts-ignore
       videoRef.current.src = source;
-      // @ts-ignore
-      const player = new Plyr(videoRef.current, defaultOptions);
     } else {
       const hls = new Hls();
       // @ts-ignore
