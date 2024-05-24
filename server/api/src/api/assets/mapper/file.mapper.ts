@@ -1,4 +1,4 @@
-import { FileDocument } from '@/src/api/assets/schemas/files.schema';
+import { FileDocument } from '../schemas/files.schema';
 import { StatusMapper } from '@/src/api/assets/mapper/status.mapper';
 import { getFileName } from '@/src/common/utils';
 import mongoose from 'mongoose';

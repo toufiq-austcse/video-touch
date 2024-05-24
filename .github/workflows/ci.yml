@@ -21,10 +21,10 @@ jobs:
         id: get_tag
         run: echo "::set-output name=short_ref::${GITHUB_REF#refs/heads/}-$(git rev-parse --short HEAD)"
 
-      - name: backend build and push to registry
+      - name: server build and push to registry
         uses: docker/build-push-action@v3
         with:
-          context: ./backend
-          file: ./backend/Dockerfile
+          context: ./server
+          file: ./server/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/video-touch-backend:${{steps.get_tag.outputs.short_ref}}
+          tags: ${{ secrets.DOCKER_USERNAME }}/video-touch-server:${{steps.get_tag.outputs.short_ref}}

@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { terminal } from '@/src/common/utils/terminal';
+import { terminal } from '../../../common/utils/terminal';
 
 @Controller()
 export class IndexController {
