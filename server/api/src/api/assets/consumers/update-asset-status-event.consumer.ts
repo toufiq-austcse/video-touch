@@ -10,7 +10,7 @@ export class UpdateAssetStatusEventConsumer {
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_UPDATE_ASSET_STATUS_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_DOWNLOAD_VIDEO_QUEUE,
+    queue: process.env.RABBIT_MQ_UPDATE_ASSET_STATUS_QUEUE,
   })
   public async handle(msg: UpdateAssetStatusEventModel) {
     try {

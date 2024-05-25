@@ -33,6 +33,7 @@ export class AppConfigService {
         'RABBIT_MQ_UPDATE_ASSET_STATUS_ROUTING_KEY'
       ),
       RABBIT_MQ_UPDATE_ASSET_STATUS_QUEUE: this.configService.getOrThrow('RABBIT_MQ_UPDATE_ASSET_STATUS_QUEUE'),
+      RABBIT_MQ_DOWNLOAD_VIDEO_ROUTING_KEY: this.configService.getOrThrow('RABBIT_MQ_DOWNLOAD_VIDEO_ROUTING_KEY'),
       MAX_VIDEO_SIZE_IN_BYTES: +this.configService.get('MAX_VIDEO_SIZE_IN_BYTES', 5242880),
       RABBIT_MQ_VALIDATE_VIDEO_ROUTING_KEY: this.configService.getOrThrow('RABBIT_MQ_VALIDATE_VIDEO_ROUTING_KEY'),
       RABBIT_MQ_VALIDATE_VIDEO_QUEUE: this.configService.getOrThrow('RABBIT_MQ_VALIDATE_VIDEO_QUEUE'),
@@ -74,6 +75,8 @@ export class AppConfigService {
       AWS_S3_BUCKET_NAME: this.configService.getOrThrow('AWS_S3_BUCKET_NAME'),
       VIDEO_BASE_URL: this.configService.getOrThrow('VIDEO_BASE_URL'),
       TEMP_UPLOAD_FOLDER: this.configService.getOrThrow('TEMP_UPLOAD_FOLDER'),
+      RABBIT_MQ_UPDATE_ASSET_ROUTING_KEY: this.configService.getOrThrow('RABBIT_MQ_UPDATE_ASSET_ROUTING_KEY'),
+      RABBIT_MQ_UPDATE_ASSET_QUEUE: this.configService.getOrThrow('RABBIT_MQ_UPDATE_ASSET_QUEUE'),
     };
   }
 }

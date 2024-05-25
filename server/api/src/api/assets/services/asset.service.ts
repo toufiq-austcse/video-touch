@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { CreateAssetFromUploadInputDto, CreateAssetInputDto } from '../dtos/create-asset-input.dto';
 import { AssetDocument } from '../schemas/assets.schema';
-import { terminal } from '@/src/common/utils/terminal';
 import { AssetRepository } from '@/src/api/assets/repositories/asset.repository';
 import { ListAssetInputDto } from '@/src/api/assets/dtos/list-asset-input.dto';
 import { GetAssetInputDto } from '@/src/api/assets/dtos/get-asset-input.dto';
 import { UpdateAssetInputDto } from '@/src/api/assets/dtos/update-asset-input.dto';
 import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
-import { VideoDownloadJobModel, VideoValidationJobModel } from '@/src/api/assets/models/job.model';
+import {
+  JobMetadataModel,
+  VideoDownloadJobModel,
+  VideoProcessingJobModel,
+  VideoValidationJobModel,
+} from '@/src/api/assets/models/job.model';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import mongoose from 'mongoose';
 import fs from 'fs';
@@ -15,6 +19,8 @@ import { getLocalVideoRootPath } from '@/src/common/utils';
 import { FileRepository } from '@/src/api/assets/repositories/file.repository';
 import { FILE_STATUS, VIDEO_STATUS } from '@/src/common/constants';
 import { AssetMapper } from '@/src/api/assets/mapper/asset.mapper';
+import { JobManagerService } from '@/src/api/assets/services/job-manager.service';
+import { FileMapper } from '@/src/api/assets/mapper/file.mapper';
 
 @Injectable()
 export class AssetService {
@@ -22,7 +28,8 @@ export class AssetService {
     private repository: AssetRepository,
     private rabbitMqService: RabbitMqService,
     private fileRepository: FileRepository,
-    private assetMapper: AssetMapper
+    private assetMapper: AssetMapper,
+    private jobManagerService: JobManagerService
   ) {}
 
   async create(createVideoInput: CreateAssetInputDto) {
@@ -33,28 +40,6 @@ export class AssetService {
   async createAssetFromUploadReq(uploadAssetReqDto: CreateAssetFromUploadInputDto) {
     let assetDocument = this.assetMapper.buildAssetDocumentFromUploadReq(uploadAssetReqDto);
     return this.repository.create(assetDocument);
-  }
-
-  async getMetadata(url: string): Promise<{
-    file_name: string;
-    size: number;
-    height: number;
-    width: number;
-    duration: number;
-  }> {
-    let extractMetaCommand = `ffprobe -v quiet -show_streams -show_format -print_format json ${url}`;
-    let showStreamCommandRes = await terminal(extractMetaCommand);
-    let parsedData = JSON.parse(showStreamCommandRes);
-    let videoInfo = parsedData.streams[0];
-    let format = parsedData.format;
-
-    return {
-      file_name: format.filename,
-      size: +format.size,
-      height: videoInfo.height,
-      width: videoInfo.width,
-      duration: +videoInfo.duration,
-    };
   }
 
   async listVideos(listVideoInputDto: ListAssetInputDto) {
@@ -215,6 +200,12 @@ export class AssetService {
           console.log('error pushing validate assets job', err);
         });
     }
+    if (updatedAsset.latest_status === VIDEO_STATUS.VALIDATED) {
+      let jobData = this.jobManagerService.getRenditionWiseJobDataByHeight(updatedAsset.height);
+      await this.insertFilesData(updatedAsset._id.toString(), jobData);
+      await this.updateAssetStatus(updatedAsset._id.toString(), VIDEO_STATUS.PROCESSING, 'Video processing');
+      this.publishVideoProcessingJob(updatedAsset._id.toString(), jobData);
+    }
   }
 
   async afterSave(doc: AssetDocument) {
@@ -227,5 +218,38 @@ export class AssetService {
           console.log('error pushing download assets job', err);
         });
     }
+  }
+
+  publishVideoProcessingJob(assetId: string, jobMetadata: JobMetadataModel[]) {
+    let jobModel: VideoProcessingJobModel = {
+      _id: assetId,
+    };
+
+    jobMetadata.forEach((data) => {
+      this.rabbitMqService.publish(
+        AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
+        data.processRoutingKey,
+        jobModel
+      );
+      console.log('published video processing job', data.processRoutingKey);
+    });
+  }
+
+  private async insertFilesData(assetId: string, jobData: JobMetadataModel[]) {
+    for (let data of jobData) {
+      await this.createFileAfterValidation(assetId, data);
+    }
+  }
+
+  async createFileAfterValidation(assetId: string, jobData: JobMetadataModel) {
+    let doc = FileMapper.mapForSave(
+      assetId,
+      'playlist',
+      jobData.height,
+      jobData.width,
+      FILE_STATUS.QUEUED,
+      'File queued for processing'
+    );
+    return this.fileRepository.create(doc);
   }
 }

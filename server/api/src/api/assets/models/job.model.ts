@@ -31,3 +31,8 @@ export interface UpdateAssetStatusEventModel {
   status: string;
   details: string;
 }
+
+export interface UpdateAssetEventModel {
+  asset_id: string;
+  data: any;
+}
