@@ -8,7 +8,6 @@ import { AssetMapper } from '@/src/api/assets/mapper/asset.mapper';
 import { ModuleRef } from '@nestjs/core';
 import { VIDEO_STATUS } from '@/src/common/constants';
 import { VideoDownloadService } from '@/src/api/assets/services/video-download.service';
-import { DownloadVideoJobHandler } from '@/src/api/assets/job-handler/download-video-job.handler';
 import { VideoValidationJobHandler } from '@/src/api/assets/job-handler/video-validation-job.handler';
 import { VideoProcessorJobHandler } from '@/src/api/assets/job-handler/video-processer-job.handler';
 import { TranscodingService } from '@/src/api/assets/services/transcoding.service';
@@ -24,6 +23,7 @@ import { UploadController } from '@/src/api/assets/controllers/upload.controller
 import { TusService } from '@/src/api/assets/services/tus.service';
 import { JwtModule } from '@nestjs/jwt';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
+import { UpdateAssetStatusEventConsumer } from '@/src/api/assets/consumers/update-asset-status-event.consumer';
 
 @Module({
   imports: [
@@ -103,10 +103,10 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
     VideoDownloadService,
     FileService,
     TranscodingService,
-    DownloadVideoJobHandler,
     VideoValidationJobHandler,
     VideoProcessorJobHandler,
     VideoUploaderJobHandler,
+    UpdateAssetStatusEventConsumer,
     JobManagerService,
     ManifestService,
     TusService,

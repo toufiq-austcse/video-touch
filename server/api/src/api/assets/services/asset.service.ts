@@ -114,6 +114,7 @@ export class AssetService {
   }
 
   async pushDownloadVideoJob(videoDocument: AssetDocument) {
+    await this.updateAssetStatus(videoDocument._id.toString(), VIDEO_STATUS.DOWNLOADING, 'Downloading assets');
     let downloadVideoJob = this.buildDownloadVideoJob(videoDocument);
     return this.rabbitMqService.publish(
       AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
@@ -201,7 +202,10 @@ export class AssetService {
     if (updatedAsset.latest_status === VIDEO_STATUS.FAILED) {
       this.deleteLocalAssetFile(updatedAsset._id.toString());
     }
-    if (updatedAsset.latest_status === VIDEO_STATUS.UPLOADED) {
+    if (
+      updatedAsset.latest_status === VIDEO_STATUS.DOWNLOADED ||
+      updatedAsset.latest_status === VIDEO_STATUS.UPLOADED
+    ) {
       console.log('pushing validate assets job 1 ...');
       this.pushValidateVideoJob(updatedAsset._id.toString())
         .then(() => {

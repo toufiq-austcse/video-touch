@@ -25,3 +25,9 @@ export interface JobMetadataModel {
   uploadRoutingKey: string;
   uploadQueue: string;
 }
+
+export interface UpdateAssetStatusEventModel {
+  asset_id: string;
+  status: string;
+  details: string;
+}
