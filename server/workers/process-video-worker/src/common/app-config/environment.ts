@@ -1,0 +1,9 @@
+export interface EnvironmentVariables {
+  PORT: number;
+  MAX_VIDEO_SIZE_IN_BYTES: number;
+  RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE: string;
+  RABBIT_MQ_DOWNLOAD_VIDEO_ROUTING_KEY: string;
+  RABBIT_MQ_DOWNLOAD_VIDEO_QUEUE: string;
+  RABBIT_MQ_UPDATE_ASSET_STATUS_ROUTING_KEY: string;
+  RABBIT_MQ_URL: string;
+}
