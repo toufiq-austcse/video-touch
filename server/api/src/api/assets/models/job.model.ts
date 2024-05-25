@@ -9,6 +9,8 @@ export interface VideoValidationJobModel {
 
 export interface VideoProcessingJobModel {
   _id: string;
+  height: number;
+  width: number;
 }
 
 export interface VideoUploadJobModel {
@@ -35,4 +37,11 @@ export interface UpdateAssetStatusEventModel {
 export interface UpdateAssetEventModel {
   asset_id: string;
   data: any;
+}
+
+export interface UpdateFileStatusEventModel {
+  asset_id: string;
+  height: number;
+  status: string;
+  details: string;
 }

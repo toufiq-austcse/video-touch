@@ -9,7 +9,10 @@ export interface VideoValidationJobModel {
 
 export interface VideoProcessingJobModel {
   _id: string;
+  height: number;
+  width: number;
 }
+
 
 export interface VideoUploadJobModel {
   _id: string;

@@ -8,15 +8,14 @@ import { AssetMapper } from '@/src/api/assets/mapper/asset.mapper';
 import { ModuleRef } from '@nestjs/core';
 import { VIDEO_STATUS } from '@/src/common/constants';
 import { VideoDownloadService } from '@/src/api/assets/services/video-download.service';
-import { VideoProcessorJobHandler } from '@/src/api/assets/job-handler/video-processer-job.handler';
-import { TranscodingService } from '@/src/api/assets/services/transcoding.service';
+import { TranscodingService } from '../../../../workers/process-video-worker/src/worker/transcoding.service';
 import { VideoUploaderJobHandler } from '@/src/api/assets/job-handler/video-uploader-job.handler';
 import { JobManagerService } from '@/src/api/assets/services/job-manager.service';
 import { FILE_COLLECTION_NAME, FileSchema } from '@/src/api/assets/schemas/files.schema';
 import { StatusMapper } from '@/src/api/assets/mapper/status.mapper';
 import { FileRepository } from '@/src/api/assets/repositories/file.repository';
 import { FileService } from '@/src/api/assets/services/file.service';
-import { ManifestService } from '@/src/api/assets/services/manifest.service';
+import { ManifestService } from '../../../../workers/process-video-worker/src/worker/manifest.service';
 import { getMainManifestFileName } from '@/src/common/utils';
 import { UploadController } from '@/src/api/assets/controllers/upload.controller';
 import { TusService } from '@/src/api/assets/services/tus.service';
@@ -24,6 +23,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { UpdateAssetStatusEventConsumer } from '@/src/api/assets/consumers/update-asset-status-event.consumer';
 import { UpdateAssetEventConsumer } from '@/src/api/assets/consumers/update-asset-event.consumer';
+import { UpdateFileStatusEventConsumer } from '@/src/api/assets/consumers/update-file-status-event.consumer';
 
 @Module({
   imports: [
@@ -103,10 +103,10 @@ import { UpdateAssetEventConsumer } from '@/src/api/assets/consumers/update-asse
     VideoDownloadService,
     FileService,
     TranscodingService,
-    VideoProcessorJobHandler,
     VideoUploaderJobHandler,
     UpdateAssetStatusEventConsumer,
     UpdateAssetEventConsumer,
+    UpdateFileStatusEventConsumer,
     JobManagerService,
     ManifestService,
     TusService,

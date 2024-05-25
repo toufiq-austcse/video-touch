@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { getMainManifestPath } from '@/src/common/utils';
+
 import fs from 'fs';
 import { VIDEO_RESOLUTION } from '@/src/common/constants';
+import { getMainManifestPath } from '@/src/common/utils';
 
 @Injectable()
 export class ManifestService {
