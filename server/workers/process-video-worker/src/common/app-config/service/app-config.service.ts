@@ -16,7 +16,7 @@ export class AppConfigService {
       RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE: this.configService.getOrThrow('RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE'),
       RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY: this.configService.getOrThrow('RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY'),
       RABBIT_MQ_URL: this.configService.getOrThrow('RABBIT_MQ_URL'),
-      RABBIT_MQ_UPLOAD_FILE_ROUTING_KEY: this.configService.getOrThrow('RABBIT_MQ_UPLOAD_FILE_ROUTING_KEY')
+      RABBIT_MQ_UPLOAD_VIDEO_ROUTING_KEY: this.configService.getOrThrow('RABBIT_MQ_UPLOAD_VIDEO_ROUTING_KEY')
     };
   }
 }

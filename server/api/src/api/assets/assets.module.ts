@@ -31,7 +31,7 @@ import { UpdateFileStatusEventConsumer } from '@/src/api/assets/consumers/update
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = VideoSchema;
-          schema.pre('save', async function () {
+          schema.pre('save', async function() {
             console.log('assets pre save hook');
             const asset = this;
             (asset as any).master_file_name = getMainManifestFileName();
@@ -44,14 +44,14 @@ import { UpdateFileStatusEventConsumer } from '@/src/api/assets/consumers/update
               (asset as any).status_logs = StatusMapper.mapForSave(VIDEO_STATUS.UPLOAD_PENDING, 'Video is uploading');
             }
           });
-          schema.post('save', async function (doc) {
+          schema.post('save', async function(doc) {
             let assetService = moduleRef.get<AssetService>(AssetService, { strict: false });
             console.log('post save hook');
             await assetService.afterSave(doc);
             return;
           });
 
-          schema.post('findOneAndUpdate', async function (doc) {
+          schema.post('findOneAndUpdate', async function(doc) {
             console.log('this ', this['_update']);
             if (!doc) {
               return;
@@ -66,30 +66,37 @@ import { UpdateFileStatusEventConsumer } from '@/src/api/assets/consumers/update
           });
 
           return schema;
-        },
+        }
       },
       {
         name: FILE_COLLECTION_NAME,
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = FileSchema;
-          schema.post('findOneAndUpdate', async function (doc) {
+          schema.post('findOneAndUpdate', async function(doc) {
+            if (!doc) {
+              return;
+            }
             let fileService = moduleRef.get<FileService>(FileService, { strict: false });
-            await fileService.afterUpdate(doc);
+
+            if (this['_update']['$set']['latest_status']) {
+              await fileService.afterUpdateFileLatestStatus(doc);
+            }
+
             return;
           });
 
           return schema;
-        },
-      },
+        }
+      }
     ]),
     JwtModule.registerAsync({
       inject: [AppConfigService],
       useFactory: async () => ({
         secret: process.env.JWT_SECRET,
-        signOptions: { expiresIn: '1h' },
-      }),
-    }),
+        signOptions: { expiresIn: '1h' }
+      })
+    })
   ],
   controllers: [UploadController],
   providers: [
@@ -105,7 +112,8 @@ import { UpdateFileStatusEventConsumer } from '@/src/api/assets/consumers/update
     UpdateAssetEventConsumer,
     UpdateFileStatusEventConsumer,
     JobManagerService,
-    TusService,
-  ],
+    TusService
+  ]
 })
-export class AssetsModule {}
+export class AssetsModule {
+}

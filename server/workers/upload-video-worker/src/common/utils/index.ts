@@ -1,10 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { readdir, stat } from 'fs/promises';
+import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 
 export function concatObject(obj: Object, separator: string = ', ') {
   return Object.keys(obj)
-    .map(function (key, index) {
+    .map(function(key, index) {
       return (obj as any)[key];
     })
     .join(separator);
@@ -19,7 +20,7 @@ export function getLocalVideoMp4Path(videoId: string) {
 }
 
 export function getLocalVideoRootPath(videoId: string) {
-  return `temp_videos/${videoId}`;
+  return `${process.cwd()}/../../temp_videos/${videoId}`;
 }
 
 export function getLocalResolutionPath(videoId: string, height: number) {
@@ -61,4 +62,8 @@ export function getMainManifestFileName() {
 export function getServerFileName(originalName: string): string {
   let extension = originalName.split('.').pop();
   return `${Date.now()}.${extension}`;
+}
+
+export function getS3VideoPath(videoId: string, height: number) {
+  return `s3://${AppConfigService.appConfig.AWS_S3_BUCKET_NAME}/videos/${videoId}/${height}`;
 }

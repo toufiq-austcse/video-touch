@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { AppConfigModule } from '@/src/common/app-config/app-config.module';
-import { HttpClientsModule } from '@/src/common/http-clients/http-clients.module';
-import { DownloadVideoJobHandler } from '@/src/worker/download-video.worker';
 import { RabbitMQModule } from '@/src/common/rabbit-mq/rabbit-mq.module';
+import { AwsModule } from '@/src/common/aws/aws.module';
+import { VideoUploaderJobHandler } from '@/src/worker/upload-video.worker';
 
 
 @Module({
-  imports: [AppConfigModule, RabbitMQModule, HttpClientsModule],
+  imports: [AppConfigModule, RabbitMQModule, AwsModule],
   controllers: [],
-  providers: [DownloadVideoJobHandler]
+  providers: [VideoUploaderJobHandler]
 })
 export class WorkerModule {
 }

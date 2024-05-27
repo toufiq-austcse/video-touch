@@ -44,4 +44,5 @@ export interface UpdateFileStatusEventModel {
   height: number;
   status: string;
   details: string;
+  dir_size: number;
 }

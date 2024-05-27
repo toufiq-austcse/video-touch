@@ -21,12 +21,12 @@ export class ProcessVideoWorker {
       this.rabbitMqService.publish(
         AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
         AppConfigService.appConfig.RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY,
-        { _id: msg._id.toString(), status: FILE_STATUS.PROCESSING, message: 'File processing' }
+        { asset_id: msg._id.toString(), status: FILE_STATUS.PROCESSING, message: 'File processing' }
       );
       let res = await this.transcodingService.transcodeVideoByResolution(msg._id.toString(), height, width);
       console.log(`video ${height}p transcode:`, res);
       this.manifestService.appendManifest(msg._id.toString(), height);
-       this.publishVideoUploadJob(msg._id.toString(), height, width);
+      this.publishVideoUploadJob(msg._id.toString(), height, width);
 
     } catch (e: any) {
       console.log(`error while processing ${height}p`, e);
@@ -60,7 +60,7 @@ export class ProcessVideoWorker {
 
     return this.rabbitMqService.publish(
       AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
-      AppConfigService.appConfig.RABBIT_MQ_UPLOAD_FILE_ROUTING_KEY,
+      AppConfigService.appConfig.RABBIT_MQ_UPLOAD_VIDEO_ROUTING_KEY,
       jobModel
     );
   }

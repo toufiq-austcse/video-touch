@@ -11,12 +11,16 @@ export class AppConfigService {
 
     AppConfigService.appConfig = {
       PORT: +this.configService.getOrThrow('PORT'),
-      RABBIT_MQ_DOWNLOAD_VIDEO_QUEUE: this.configService.getOrThrow('RABBIT_MQ_DOWNLOAD_VIDEO_QUEUE'),
-      RABBIT_MQ_DOWNLOAD_VIDEO_ROUTING_KEY: this.configService.getOrThrow('RABBIT_MQ_DOWNLOAD_VIDEO_ROUTING_KEY'),
       RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE: this.configService.getOrThrow('RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE'),
-      MAX_VIDEO_SIZE_IN_BYTES: +this.configService.get('MAX_VIDEO_SIZE_IN_BYTES', 5242880),
       RABBIT_MQ_URL: this.configService.getOrThrow('RABBIT_MQ_URL'),
-      RABBIT_MQ_UPDATE_ASSET_STATUS_ROUTING_KEY: this.configService.getOrThrow('RABBIT_MQ_UPDATE_ASSET_STATUS_ROUTING_KEY')
+      RABBIT_MQ_UPLOAD_VIDEO_ROUTING_KEY: this.configService.getOrThrow('RABBIT_MQ_UPLOAD_VIDEO_ROUTING_KEY'),
+      RABBIT_MQ_UPLOAD_VIDEO_QUEUE: this.configService.getOrThrow('RABBIT_MQ_UPLOAD_VIDEO_QUEUE'),
+      AWS_S3_BUCKET_NAME: this.configService.getOrThrow('AWS_S3_BUCKET_NAME'),
+      AWS_REGION: this.configService.getOrThrow('AWS_REGION'),
+      AWS_SECRET_ACCESS_KEY: this.configService.getOrThrow('AWS_SECRET_ACCESS_KEY'),
+      AWS_ACCESS_KEY_ID: this.configService.getOrThrow('AWS_ACCESS_KEY_ID'),
+      RABBIT_MQ_UPDATE_FILE_STATUS_QUEUE: this.configService.getOrThrow('RABBIT_MQ_UPDATE_FILE_STATUS_QUEUE'),
+      RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY: this.configService.getOrThrow('RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY')
     };
   }
 }
