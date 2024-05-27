@@ -8,14 +8,12 @@ import { AssetMapper } from '@/src/api/assets/mapper/asset.mapper';
 import { ModuleRef } from '@nestjs/core';
 import { VIDEO_STATUS } from '@/src/common/constants';
 import { VideoDownloadService } from '@/src/api/assets/services/video-download.service';
-import { TranscodingService } from '../../../../workers/process-video-worker/src/worker/transcoding.service';
 import { VideoUploaderJobHandler } from '@/src/api/assets/job-handler/video-uploader-job.handler';
 import { JobManagerService } from '@/src/api/assets/services/job-manager.service';
 import { FILE_COLLECTION_NAME, FileSchema } from '@/src/api/assets/schemas/files.schema';
 import { StatusMapper } from '@/src/api/assets/mapper/status.mapper';
 import { FileRepository } from '@/src/api/assets/repositories/file.repository';
 import { FileService } from '@/src/api/assets/services/file.service';
-import { ManifestService } from '../../../../workers/process-video-worker/src/worker/manifest.service';
 import { getMainManifestFileName } from '@/src/common/utils';
 import { UploadController } from '@/src/api/assets/controllers/upload.controller';
 import { TusService } from '@/src/api/assets/services/tus.service';
@@ -102,13 +100,11 @@ import { UpdateFileStatusEventConsumer } from '@/src/api/assets/consumers/update
     AssetMapper,
     VideoDownloadService,
     FileService,
-    TranscodingService,
     VideoUploaderJobHandler,
     UpdateAssetStatusEventConsumer,
     UpdateAssetEventConsumer,
     UpdateFileStatusEventConsumer,
     JobManagerService,
-    ManifestService,
     TusService,
   ],
 })

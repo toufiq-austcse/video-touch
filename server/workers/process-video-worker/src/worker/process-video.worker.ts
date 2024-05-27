@@ -5,7 +5,7 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
 import { FILE_STATUS, VIDEO_STATUS } from '@/src/common/constants';
 import { TranscodingService } from '@/src/worker/transcoding.service';
 import { ManifestService } from '@/src/worker/manifest.service';
-import { VideoProcessingJobModel } from '@/src/worker/models/job.model';
+import { VideoProcessingJobModel, VideoUploadJobModel } from '@/src/worker/models/job.model';
 
 @Injectable()
 export class ProcessVideoWorker {
@@ -26,7 +26,7 @@ export class ProcessVideoWorker {
       let res = await this.transcodingService.transcodeVideoByResolution(msg._id.toString(), height, width);
       console.log(`video ${height}p transcode:`, res);
       this.manifestService.appendManifest(msg._id.toString(), height);
-      // this.publishVideoUploadJob(msg._id.toString(), height, width);
+       this.publishVideoUploadJob(msg._id.toString(), height, width);
 
     } catch (e: any) {
       console.log(`error while processing ${height}p`, e);
@@ -51,22 +51,17 @@ export class ProcessVideoWorker {
   }
 
 
-  // publishVideoUploadJob(_id: string, height: number, width: number) {
-  //   let jobModel: VideoUploadJobModel = {
-  //     _id: _id,
-  //     height: height,
-  //     width: width
-  //   };
-  //
-  //   let jobDataByHeight = this.jobManagerService.getJobDataByHeight(height);
-  //   if (!jobDataByHeight) {
-  //     console.log('No job data found for height:', height);
-  //     return;
-  //   }
-  //   return this.rabbitMqService.publish(
-  //     AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
-  //     jobDataByHeight.uploadRoutingKey,
-  //     jobModel
-  //   );
-  // }
+  publishVideoUploadJob(_id: string, height: number, width: number) {
+    let jobModel: VideoUploadJobModel = {
+      _id: _id,
+      height: height,
+      width: width
+    };
+
+    return this.rabbitMqService.publish(
+      AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
+      AppConfigService.appConfig.RABBIT_MQ_UPLOAD_FILE_ROUTING_KEY,
+      jobModel
+    );
+  }
 }
