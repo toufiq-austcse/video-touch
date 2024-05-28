@@ -8,7 +8,6 @@ import { AssetMapper } from '@/src/api/assets/mapper/asset.mapper';
 import { ModuleRef } from '@nestjs/core';
 import { VIDEO_STATUS } from '@/src/common/constants';
 import { VideoDownloadService } from '@/src/api/assets/services/video-download.service';
-import { VideoUploaderJobHandler } from '@/src/api/assets/job-handler/video-uploader-job.handler';
 import { JobManagerService } from '@/src/api/assets/services/job-manager.service';
 import { FILE_COLLECTION_NAME, FileSchema } from '@/src/api/assets/schemas/files.schema';
 import { StatusMapper } from '@/src/api/assets/mapper/status.mapper';
@@ -107,7 +106,6 @@ import { UpdateFileStatusEventConsumer } from '@/src/api/assets/consumers/update
     AssetMapper,
     VideoDownloadService,
     FileService,
-    VideoUploaderJobHandler,
     UpdateAssetStatusEventConsumer,
     UpdateAssetEventConsumer,
     UpdateFileStatusEventConsumer,
