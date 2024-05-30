@@ -6,6 +6,7 @@ import { VideoDownloadJobModel } from '@/src/worker/models/job.model';
 import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { VIDEO_STATUS } from '@/src/common/constants';
+import { UpdateAssetStatusEventModel } from '@/src/worker/models/event.model';
 
 @Injectable()
 export class DownloadVideoJobHandler {
@@ -21,22 +22,15 @@ export class DownloadVideoJobHandler {
     try {
       let destinationPath = getLocalVideoMp4Path(msg._id.toString());
       await this.download(msg, destinationPath);
+      let updateAssetEvent = this.buildAssetUpdateEventModel(msg._id, VIDEO_STATUS.DOWNLOADED, 'Video downloaded');
       this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
-        AppConfigService.appConfig.RABBIT_MQ_UPDATE_ASSET_STATUS_ROUTING_KEY, {
-          asset_id: msg._id,
-          status: VIDEO_STATUS.DOWNLOADED,
-          details: 'Video downloaded'
-        });
+        AppConfigService.appConfig.RABBIT_MQ_UPDATE_ASSET_STATUS_ROUTING_KEY, updateAssetEvent);
 
     } catch (e: any) {
       console.log('error in video download job handler', e);
-
+      let updateAssetEvent = this.buildAssetUpdateEventModel(msg._id, VIDEO_STATUS.FAILED, e.message);
       this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
-        AppConfigService.appConfig.RABBIT_MQ_UPDATE_ASSET_STATUS_ROUTING_KEY, {
-          asset_id: msg._id,
-          status: VIDEO_STATUS.FAILED,
-          details: e.message
-        });
+        AppConfigService.appConfig.RABBIT_MQ_UPDATE_ASSET_STATUS_ROUTING_KEY, updateAssetEvent);
 
     }
   }
@@ -48,5 +42,14 @@ export class DownloadVideoJobHandler {
     } catch (e: any) {
       throw new Error(e);
     }
+  }
+
+  buildAssetUpdateEventModel(assetId: string, status: string, details: string): UpdateAssetStatusEventModel {
+    return {
+      asset_id: assetId,
+      status: status,
+      details: details
+    };
+
   }
 }
