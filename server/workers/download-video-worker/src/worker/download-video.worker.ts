@@ -22,15 +22,12 @@ export class DownloadVideoJobHandler {
     try {
       let destinationPath = getLocalVideoMp4Path(msg._id.toString());
       await this.download(msg, destinationPath);
-      let updateAssetEvent = this.buildAssetUpdateEventModel(msg._id, VIDEO_STATUS.DOWNLOADED, 'Video downloaded');
-      this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
-        AppConfigService.appConfig.RABBIT_MQ_UPDATE_ASSET_STATUS_ROUTING_KEY, updateAssetEvent);
+
+      this.publishUpdateAssetEvent(msg._id, VIDEO_STATUS.DOWNLOADED, 'Video downloaded');
 
     } catch (e: any) {
       console.log('error in video download job handler', e);
-      let updateAssetEvent = this.buildAssetUpdateEventModel(msg._id, VIDEO_STATUS.FAILED, e.message);
-      this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
-        AppConfigService.appConfig.RABBIT_MQ_UPDATE_ASSET_STATUS_ROUTING_KEY, updateAssetEvent);
+      this.publishUpdateAssetEvent(msg._id, VIDEO_STATUS.FAILED, e.message);
 
     }
   }
@@ -50,6 +47,17 @@ export class DownloadVideoJobHandler {
       status: status,
       details: details
     };
+  }
+
+  publishUpdateAssetEvent(assetId: string, status: string, details: string) {
+    try {
+      let updateAssetEvent = this.buildAssetUpdateEventModel(assetId, status, details);
+      this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
+        AppConfigService.appConfig.RABBIT_MQ_UPDATE_ASSET_STATUS_ROUTING_KEY, updateAssetEvent);
+    } catch (e) {
+      console.log('error while publishing update asset event', e);
+
+    }
 
   }
 }
