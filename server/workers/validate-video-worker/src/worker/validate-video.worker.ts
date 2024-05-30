@@ -6,7 +6,7 @@ import { VIDEO_STATUS } from '@/src/common/constants';
 import { VideoValidationJobModel } from '@/src/worker/models/job.model';
 import { terminal } from '@/src/common/utils/terminal';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
-import { UpdateAssetEventModel, UpdateAssetStatusEventModel } from '@/src/worker/models/event.mode';
+import { UpdateAssetEventModel, UpdateAssetStatusEventModel } from '@/src/worker/models/event.model';
 
 @Injectable()
 export class ValidateVideoWorker {

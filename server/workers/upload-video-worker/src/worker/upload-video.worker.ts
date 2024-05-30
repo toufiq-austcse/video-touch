@@ -2,10 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { getDirSize, getLocalResolutionPath, getS3VideoPath } from '@/src/common/utils';
 import { terminal } from '@/src/common/utils/terminal';
-
 import { FILE_STATUS } from '@/src/common/constants';
 import { S3ClientService } from '@/src/common/aws/s3/s3-client.service';
-import { VideoUploadJobModel } from '@/src/worker/models/job.model';
+import { UpdateFileStatusEventModel, VideoUploadJobModel } from '@/src/worker/models/job.model';
 import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 
@@ -36,23 +35,12 @@ export class VideoUploaderJobHandler {
       let dirSize = await getDirSize(localFilePath);
       console.log('dir size:', dirSize);
 
-      this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE, AppConfigService.appConfig.RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY, {
-        asset_id: msg._id.toString(),
-        height: msg.height,
-        status: FILE_STATUS.READY,
-        details: 'File uploaded',
-        dir_size: dirSize
-      });
+      this.publishUpdateFileStatusEvent(msg._id.toString(), 'File uploaded', dirSize, FILE_STATUS.READY, msg.height);
 
     } catch (err: any) {
       console.log('error in uploading ', msg.height);
-      this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE, AppConfigService.appConfig.RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY, {
-        asset_id: msg._id.toString(),
-        height: msg.height,
-        status: FILE_STATUS.FAILED,
-        details: 'File uploading failed',
-        dir_size: 0
-      });
+
+      this.publishUpdateFileStatusEvent(msg._id.toString(), 'File uploading failed', 0, FILE_STATUS.FAILED, msg.height);
     }
   }
 
@@ -64,5 +52,26 @@ export class VideoUploaderJobHandler {
   public async handleUpload(msg: VideoUploadJobModel) {
     console.log(`uploading ${msg.height}p video`, msg._id.toString());
     await this.upload(msg);
+  }
+
+  publishUpdateFileStatusEvent(assetId: string, details: string, dirSize: number, status: string, height: number) {
+    try {
+      let updateFileStatusEvent = this.buildUpdateFileStatusEventModel(assetId, details, dirSize, status, height);
+      this.rabbitMqService.publish(
+        AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
+        AppConfigService.appConfig.RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY,
+        updateFileStatusEvent
+      );
+    } catch (e) {
+      console.log('error while publishing update file status event', e);
+
+    }
+
+  }
+
+  buildUpdateFileStatusEventModel(assetId: string, details: string, dirSize: number, status: string, height: number): UpdateFileStatusEventModel {
+    return {
+      asset_id: assetId, details: details, dir_size: dirSize, height: height, status: status
+    };
   }
 }
