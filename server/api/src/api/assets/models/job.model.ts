@@ -27,4 +27,3 @@ export interface JobMetadataModel {
   uploadRoutingKey: string;
   uploadQueue: string;
 }
-
