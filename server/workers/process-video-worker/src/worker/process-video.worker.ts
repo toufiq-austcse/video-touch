@@ -39,8 +39,8 @@ export class ProcessVideoWorker {
     routingKey: process.env.RABBIT_MQ_PROCESS_VIDEO_ROUTING_KEY,
     queue: process.env.RABBIT_MQ_PROCESS_VIDEO_QUEUE
   })
-  public async handle360(msg: VideoProcessingJobModel) {
-    console.log('Video360pProcessingJobHandler', msg);
+  public async handle(msg: VideoProcessingJobModel) {
+    console.log('VideoProcessingJobHandler', msg);
 
     let { height, width } = msg;
     await this.processVideo(msg, height, width);
@@ -62,12 +62,18 @@ export class ProcessVideoWorker {
   }
 
   publishUpdateFileStatusEvent(assetId: string, details: string, dirSize: number, status: string, height: number) {
-    let updateFileStatusEvent = this.buildUpdateFileStatusEventModel(assetId, details, dirSize, status, height);
-    this.rabbitMqService.publish(
-      AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
-      AppConfigService.appConfig.RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY,
-      updateFileStatusEvent
-    );
+    try {
+      let updateFileStatusEvent = this.buildUpdateFileStatusEventModel(assetId, details, dirSize, status, height);
+      this.rabbitMqService.publish(
+        AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
+        AppConfigService.appConfig.RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY,
+        updateFileStatusEvent
+      );
+    } catch (e) {
+      console.log('error while publishing update file status event', e);
+
+    }
+
   }
 
   buildUpdateFileStatusEventModel(assetId: string, details: string, dirSize: number, status: string, height: number): UpdateFileStatusEventModel {
