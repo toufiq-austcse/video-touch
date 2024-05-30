@@ -69,7 +69,7 @@ export class ValidateVideoWorker {
 
   buildUpdateAssetStatusEventModel(assetId: string, status: string, details: string): UpdateAssetStatusEventModel {
     return {
-      asset_id: assetId, details: status, status: details
+      asset_id: assetId, details: details, status: status
     };
   }
 
