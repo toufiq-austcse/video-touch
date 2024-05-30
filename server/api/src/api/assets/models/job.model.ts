@@ -37,10 +37,10 @@ export interface UpdateAssetStatusEventModel {
 export interface UpdateAssetEventModel {
   asset_id: string;
   data: {
-    size: number,
-    height: number,
-    width: number,
-    duration: number
+    size: number;
+    height: number;
+    width: number;
+    duration: number;
   };
 }
 
