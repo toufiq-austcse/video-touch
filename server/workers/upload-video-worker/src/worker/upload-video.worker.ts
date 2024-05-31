@@ -38,7 +38,7 @@ export class VideoUploaderJobHandler {
       this.publishUpdateFileStatusEvent(msg._id.toString(), 'File uploaded', dirSize, FILE_STATUS.READY, msg.height);
 
     } catch (err: any) {
-      console.log('error in uploading ', msg.height);
+      console.log('error in uploading ', msg.height, err);
 
       this.publishUpdateFileStatusEvent(msg._id.toString(), 'File uploading failed', 0, FILE_STATUS.FAILED, msg.height);
     }

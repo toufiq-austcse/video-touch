@@ -22,6 +22,7 @@
   "dependencies": {
     "@golevelup/nestjs-rabbitmq": "^5.2.0",
     "@nestjs/axios": "^3.0.2",
+    "axios": "1.7.2",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.2",
     "@nestjs/core": "^10.0.0",

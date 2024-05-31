@@ -10,7 +10,7 @@ export class AppConfigService {
   constructor(private configService: ConfigService<EnvironmentVariables>) {
 
     AppConfigService.appConfig = {
-      PORT: +this.configService.getOrThrow('PORT'),
+      VALIDATE_VIDEO_WORKER_PORT: +this.configService.getOrThrow('VALIDATE_VIDEO_WORKER_PORT'),
       RABBIT_MQ_VALIDATE_VIDEO_ROUTING_KEY: this.configService.getOrThrow('RABBIT_MQ_VALIDATE_VIDEO_ROUTING_KEY'),
       RABBIT_MQ_VALIDATE_VIDEO_QUEUE: this.configService.getOrThrow('RABBIT_MQ_VALIDATE_VIDEO_QUEUE'),
       RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE: this.configService.getOrThrow('RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE'),

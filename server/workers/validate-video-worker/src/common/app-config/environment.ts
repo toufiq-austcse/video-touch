@@ -1,5 +1,5 @@
 export interface EnvironmentVariables {
-  PORT: number;
+  VALIDATE_VIDEO_WORKER_PORT: number;
   MAX_VIDEO_SIZE_IN_BYTES: number;
   RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE: string;
   RABBIT_MQ_VALIDATE_VIDEO_ROUTING_KEY: string;

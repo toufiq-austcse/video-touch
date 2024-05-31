@@ -1,5 +1,5 @@
 
-FROM node:16 as base
+FROM node:18 as base
 
 WORKDIR /app
 COPY package.json \
@@ -25,7 +25,7 @@ RUN yarn
 RUN yarn build
 
 # use one of the smallest images possible
-FROM node:16-alpine
+FROM node:18-alpine
 # get package.json from base
 COPY --from=base /app/package.json ./
 # get the dist back

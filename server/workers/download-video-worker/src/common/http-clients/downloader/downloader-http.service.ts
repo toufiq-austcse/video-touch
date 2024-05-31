@@ -3,7 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import * as fs from 'fs';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
-
+import * as readline from 'readline';
 
 
 @Injectable()
@@ -47,7 +47,7 @@ export class DownloaderHttpService {
       downloadedSize += chunk.length;
       const percent = (downloadedSize / totalSize) * 100;
       //  process.stdout.clearLine();
-      process.stdout.cursorTo(0);
+      readline.cursorTo(process.stdout, 0);
       process.stdout.write(`Downloading... ${percent.toFixed(2)}%`);
     });
 
