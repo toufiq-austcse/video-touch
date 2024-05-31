@@ -4,7 +4,7 @@ import { FileStore } from '@tus/file-store';
 import { Request, Response } from 'express';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { AssetService } from '@/src/api/assets/services/asset.service';
-import { getLocalVideoRootPath } from '@/src/common/utils';
+import { getLocalVideoRootPath, getTempLocalUploadDirectory } from '@/src/common/utils';
 import fs from 'fs';
 import { VIDEO_STATUS } from '@/src/common/constants';
 
@@ -20,7 +20,7 @@ export class TusService {
         }
 
         let createdAsset = await this.assetService.createAssetFromUploadReq({
-          file_name: upload.metadata['filename'],
+          file_name: upload.metadata['filename']
         });
         upload.id = `${createdAsset._id.toString()}.mp4`;
         upload.metadata['db_id'] = createdAsset._id.toString();
@@ -38,7 +38,7 @@ export class TusService {
         return res;
       },
       path: '/upload/files',
-      datastore: new FileStore({ directory: `./${AppConfigService.appConfig.TEMP_UPLOAD_FOLDER}` }),
+      datastore: new FileStore({ directory: getTempLocalUploadDirectory() })
     });
   }
 
@@ -51,8 +51,9 @@ export class TusService {
     if (!fs.existsSync(rootPath)) {
       fs.mkdirSync(rootPath, { recursive: true });
     }
-    let sourceFilePath = `${AppConfigService.appConfig.TEMP_UPLOAD_FOLDER}/${uploadId}`;
+    let sourceFilePath = `${getTempLocalUploadDirectory()}/${uploadId}`;
     let destinationFilePath = `${rootPath}/${assetId.toString()}.mp4`;
+    console.log('renaming file', sourceFilePath, destinationFilePath);
     fs.renameSync(sourceFilePath, destinationFilePath);
   }
 }
