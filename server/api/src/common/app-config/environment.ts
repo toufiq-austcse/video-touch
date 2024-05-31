@@ -35,7 +35,6 @@ export interface EnvironmentVariables {
   RABBIT_MQ_480P_PROCESS_VIDEO_ROUTING_KEY: string;
   RABBIT_MQ_360P_PROCESS_VIDEO_ROUTING_KEY: string;
 
-
   AWS_ACCESS_KEY_ID: string;
   AWS_REGION: string;
   AWS_SECRET_ACCESS_KEY: string;
