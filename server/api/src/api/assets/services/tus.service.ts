@@ -20,7 +20,7 @@ export class TusService {
         }
 
         let createdAsset = await this.assetService.createAssetFromUploadReq({
-          file_name: upload.metadata['filename']
+          file_name: upload.metadata['filename'],
         });
         upload.id = `${createdAsset._id.toString()}.mp4`;
         upload.metadata['db_id'] = createdAsset._id.toString();
@@ -38,7 +38,7 @@ export class TusService {
         return res;
       },
       path: '/upload/files',
-      datastore: new FileStore({ directory: getTempLocalUploadDirectory() })
+      datastore: new FileStore({ directory: getTempLocalUploadDirectory() }),
     });
   }
 
