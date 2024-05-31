@@ -10,4 +10,5 @@ export interface EnvironmentVariables {
   AWS_ACCESS_KEY_ID: string;
   RABBIT_MQ_UPDATE_FILE_STATUS_QUEUE: string;
   RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY: string;
+  TEMP_VIDEO_DIRECTORY: string;
 }

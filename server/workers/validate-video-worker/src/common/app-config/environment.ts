@@ -7,4 +7,5 @@ export interface EnvironmentVariables {
   RABBIT_MQ_UPDATE_ASSET_ROUTING_KEY: string;
   RABBIT_MQ_UPDATE_ASSET_STATUS_ROUTING_KEY: string;
   RABBIT_MQ_URL: string;
+  TEMP_VIDEO_DIRECTORY: string;
 }

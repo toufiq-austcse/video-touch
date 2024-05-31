@@ -23,7 +23,7 @@ COPY ./src/ ./src/
 RUN yarn
 # RUN yarn lint
 RUN yarn build
-
+RUN apk add ffmpeg
 # use one of the smallest images possible
 FROM node:16-alpine
 # get package.json from base

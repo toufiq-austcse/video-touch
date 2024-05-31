@@ -1,0 +1,69 @@
+version: "3"
+services:
+  video-touch-api:
+    image: video-touch-api
+    container_name: video-touch-api
+    build: api
+    restart: unless-stopped
+    env_file: api/.env
+    environment:
+      - PORT=3000
+    ports:
+      - $PORT:$PORT
+    volumes:
+      - ~/.aws:/root/.aws
+      - /temp_videos:$TEMP_VIDEO_DIRECTORY
+      - /uploads:$TEMP_UPLOAD_DIRECTORY
+
+#  download-video-worker:
+#    image: download-video-worker
+#    container_name: download-video-worker
+#    build: workers/download-video-worker
+#    restart: unless-stopped
+#    env_file: workers/download-video-worker/.env
+#    environment:
+#      - PORT=$PORT
+#    ports:
+#      - $PORT:$PORT
+#    volumes:
+#      - ~/.aws:/root/.aws
+#      - /temp_videos:$TEMP_VIDEO_DIRECTORY
+#  process-video-worker:
+#    image: process-video-worker
+#    container_name: process-video-worker
+#    build: workers/process-video-worker
+#    restart: unless-stopped
+#    env_file: workers/process-video-worker/.env
+#    environment:
+#      - PORT=$PORT
+#    ports:
+#      - $PORT:$PORT
+#    volumes:
+#      - ~/.aws:/root/.aws
+#      - /temp_videos:$TEMP_VIDEO_DIRECTORY
+#  validate-video-worker:
+#    image: validate-video-worker
+#    container_name: validate-video-worker
+#    build: workers/validate-video-worker
+#    restart: unless-stopped
+#    env_file: workers/validate-video-worker/.env
+#    environment:
+#      - PORT=$PORT
+#    ports:
+#      - $PORT:$PORT
+#    volumes:
+#      - ~/.aws:/root/.aws
+#      - /temp_videos:$TEMP_VIDEO_DIRECTORY
+#  upload-video-worker:
+#    image: upload-video-worker
+#    container_name: upload-video-worker
+#    build: workers/upload-video-worker
+#    restart: unless-stopped
+#    env_file: workers/upload-video-worker/.env
+#    environment:
+#      - PORT=$PORT
+#    ports:
+#      - $PORT:$PORT
+#    volumes:
+#      - ~/.aws:/root/.aws
+#      - /temp_videos:$TEMP_VIDEO_DIRECTORY

@@ -5,7 +5,7 @@ import { readdir, stat } from 'fs/promises';
 
 export function concatObject(obj: Object, separator: string = ', ') {
   return Object.keys(obj)
-    .map(function (key, index) {
+    .map(function(key, index) {
       return (obj as any)[key];
     })
     .join(separator);
@@ -20,7 +20,7 @@ export function getLocalVideoMp4Path(videoId: string) {
 }
 
 export function getLocalVideoRootPath(videoId: string) {
-  return `${process.cwd()}/../temp_videos/${videoId}`;
+  return `${AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY}/${videoId}`;
 }
 
 export function getLocalResolutionPath(videoId: string, height: number) {
@@ -72,5 +72,5 @@ export function getServerFileName(originalName: string): string {
 }
 
 export function getTempLocalUploadDirectory() {
-  return `${process.cwd()}/../../${AppConfigService.appConfig.TEMP_UPLOAD_FOLDER}`;
+  return `${AppConfigService.appConfig.TEMP_UPLOAD_DIRECTORY}`;
 }

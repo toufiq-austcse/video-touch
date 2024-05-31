@@ -20,7 +20,7 @@ export function getLocalVideoMp4Path(videoId: string) {
 }
 
 export function getLocalVideoRootPath(videoId: string) {
-  return `${process.cwd()}/../../temp_videos/${videoId}`;
+  return `${AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY}/${videoId}`;
 }
 
 export function getLocalResolutionPath(videoId: string, height: number) {

@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { readdir, stat } from 'fs/promises';
+import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 
 export function concatObject(obj: Object, separator: string = ', ') {
   return Object.keys(obj)
@@ -19,7 +20,7 @@ export function getLocalVideoMp4Path(videoId: string) {
 }
 
 export function getLocalVideoRootPath(videoId: string) {
-  return `${process.cwd()}/../../temp_videos/${videoId}`;
+  return `${AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY}/${videoId}`;
 }
 
 export function getLocalResolutionPath(videoId: string, height: number) {

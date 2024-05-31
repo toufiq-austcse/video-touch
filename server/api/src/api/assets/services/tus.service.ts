@@ -20,7 +20,7 @@ export class TusService {
         }
 
         let createdAsset = await this.assetService.createAssetFromUploadReq({
-          file_name: upload.metadata['filename'],
+          file_name: upload.metadata['filename']
         });
         upload.id = `${createdAsset._id.toString()}.mp4`;
         upload.metadata['db_id'] = createdAsset._id.toString();
@@ -38,7 +38,7 @@ export class TusService {
         return res;
       },
       path: '/upload/files',
-      datastore: new FileStore({ directory: getTempLocalUploadDirectory() }),
+      datastore: new FileStore({ directory: getTempLocalUploadDirectory() })
     });
   }
 
@@ -55,5 +55,6 @@ export class TusService {
     let destinationFilePath = `${rootPath}/${assetId.toString()}.mp4`;
     console.log('renaming file', sourceFilePath, destinationFilePath);
     fs.renameSync(sourceFilePath, destinationFilePath);
+    fs.unlinkSync(`${sourceFilePath}.json`);
   }
 }
