@@ -24,7 +24,25 @@ RUN yarn
 # RUN yarn lint
 RUN yarn build
 # use one of the smallest images possible
-FROM node:18-alpine
+FROM --platform=linux/amd64 node:18
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    curl \
+    unzip \
+    groff \
+    less \
+    && rm -rf /var/lib/apt/lists/*
+# aws cli
+RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    rm -rf awscliv2.zip aws \
+RUN aws --version
+
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_SECRET_ACCESS_KEY
+ARG AWS_DEFAULT_REGION
+
 # get package.json from base
 COPY --from=base /app/package.json ./
 # get the dist back

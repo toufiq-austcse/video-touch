@@ -51,11 +51,15 @@ services:
   upload-video-worker:
     image: upload-video-worker
     container_name: upload-video-worker
-    build: workers/upload-video-worker
+    build:
+      context: workers/upload-video-worker
+      args:
+         AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
+         AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
+         AWS_DEFAULT_REGION: $AWS_REGION
     restart: unless-stopped
     env_file: .env
     environment:
       - UPLOAD_VIDEO_WORKER_PORT=$UPLOAD_VIDEO_WORKER_PORT
     volumes:
-      - ~/.aws:/root/.aws
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY

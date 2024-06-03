@@ -6,6 +6,7 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
 import { AssetService } from '@/src/api/assets/services/asset.service';
 import { getLocalVideoRootPath, getTempLocalUploadDirectory } from '@/src/common/utils';
 import fs from 'fs';
+import mv from 'mv';
 import { VIDEO_STATUS } from '@/src/common/constants';
 
 @Injectable()
@@ -20,7 +21,7 @@ export class TusService {
         }
 
         let createdAsset = await this.assetService.createAssetFromUploadReq({
-          file_name: upload.metadata['filename'],
+          file_name: upload.metadata['filename']
         });
         upload.id = `${createdAsset._id.toString()}.mp4`;
         upload.metadata['db_id'] = createdAsset._id.toString();
@@ -38,7 +39,7 @@ export class TusService {
         return res;
       },
       path: '/upload/files',
-      datastore: new FileStore({ directory: getTempLocalUploadDirectory() }),
+      datastore: new FileStore({ directory: getTempLocalUploadDirectory() })
     });
   }
 
@@ -54,7 +55,20 @@ export class TusService {
     let sourceFilePath = `${getTempLocalUploadDirectory()}/${uploadId}`;
     let destinationFilePath = `${rootPath}/${assetId.toString()}.mp4`;
     console.log('renaming file', sourceFilePath, destinationFilePath);
-    fs.renameSync(sourceFilePath, destinationFilePath);
+    await this.promiseMv(sourceFilePath, destinationFilePath);
     fs.unlinkSync(`${sourceFilePath}.json`);
+  }
+
+  async promiseMv(sourceFilePath: string, destinationFilePath: string) {
+    return new Promise((resolve, reject) => {
+      mv(sourceFilePath, destinationFilePath, { mkdirp: true }, (err) => {
+        if (!err) {
+          resolve(`file moved to ${destinationFilePath}`);
+        } else {
+          console.error('error in moving file', err);
+          reject(err);
+        }
+      });
+    });
   }
 }
