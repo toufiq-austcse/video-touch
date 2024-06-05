@@ -8,3 +8,7 @@
 # next.js
 **/.next
 **/out
+
+**/.env
+**/temp_videos
+**/uploads

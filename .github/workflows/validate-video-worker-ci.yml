@@ -1,0 +1,32 @@
+name: Build and publish Validate Video Worker docker image
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - server/worker/validate-video-worker/**
+jobs:
+  setup-build-publish:
+    name: Setup, Build, and Publish Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Login to docker hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Get tag
+        id: get_tag
+        run: echo "::set-output name=short_ref::${GITHUB_REF#refs/heads/}-$(git rev-parse --short HEAD)"
+
+      - name: server build and push to registry
+        uses: docker/build-push-action@v3
+        with:
+          context: ./server/worker/validate-video-worker
+          file: ./server/workers/validate-video-worker/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/validate-video-worker:${{steps.get_tag.outputs.short_ref}}

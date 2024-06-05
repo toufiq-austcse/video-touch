@@ -1,3 +1,4 @@
-cd backend && npm run format
+cd server/api && npm run format
+cd ..
 cd ..
 cd frontend && npm run format
