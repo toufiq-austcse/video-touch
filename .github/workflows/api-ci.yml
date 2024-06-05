@@ -33,4 +33,4 @@ jobs:
 
       - name: Update image version in docker compose
         run: |
-          sed -i "" "s/image: video-touch-api:master.*/image: video-touch-api:${{ steps.get_tag.outputs.short_ref }}" docker-compose.yml
+          sed -i "" "s/image: video-touch-api:master.*/image: video-touch-api:${{ steps.get_tag.outputs.short_ref }}" ./docker-compose.yml
