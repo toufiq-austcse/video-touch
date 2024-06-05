@@ -26,7 +26,6 @@ async function bootstrap() {
     })
   );
   await app.listen(PORT);
-
   Logger.log(await app.getUrl(), 'App URL');
 }
 

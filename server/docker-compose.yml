@@ -1,7 +1,7 @@
 version: "3"
 services:
   video-touch-api:
-    image: video-touch-api
+    image: video-touch-api:master-f10eb87
     container_name: video-touch-api
     build: api
     restart: unless-stopped
