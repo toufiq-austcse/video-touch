@@ -1,8 +1,10 @@
-name: Build and publish docker image
+name: Build and publish Upload Video Worker docker image
 on:
   push:
     branches:
       - master
+    paths:
+      - server/worker/upload-video-worker/**
 jobs:
   setup-build-publish:
     name: Setup, Build, and Publish Docker Image
@@ -24,7 +26,7 @@ jobs:
       - name: server build and push to registry
         uses: docker/build-push-action@v3
         with:
-          context: ./server
-          file: ./server/Dockerfile
+          context: ./server/worker/upload-video-worker
+          file: ./server/workers/upload-video-worker/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/video-touch-server:${{steps.get_tag.outputs.short_ref}}
+          tags: ${{ secrets.DOCKER_USERNAME }}/upload-video-worker:${{steps.get_tag.outputs.short_ref}}
