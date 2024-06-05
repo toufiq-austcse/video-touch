@@ -56,7 +56,6 @@ export class DownloadVideoJobHandler {
         AppConfigService.appConfig.RABBIT_MQ_UPDATE_ASSET_STATUS_ROUTING_KEY, updateAssetEvent);
     } catch (e) {
       console.log('error while publishing update asset event', e);
-
     }
 
   }
