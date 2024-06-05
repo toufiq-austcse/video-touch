@@ -23,5 +23,5 @@ jobs:
 
       - name: Update image version in docker compose
         working-directory: ./server
-        run: sed -i '4 s/imagename:v1.0/imagename:${{steps.get_tag.outputs.short_ref}}/' docker-compose.yml
+        run: sed -i '4 s/video-touch-api:v1.0/imagename:${{steps.get_tag.outputs.short_ref}}/' docker-compose.yml
 
