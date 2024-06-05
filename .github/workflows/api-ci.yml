@@ -11,11 +11,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Update image version in docker compose
-        working-directory: ./server
-        run: |
-          sed -i '' 's/image: video-touch-api:master.*/image: video-touch-api:${{ steps.get_tag.outputs.short_ref }}' docker-compose.yml
-
       - name: Login to docker hub
         uses: docker/login-action@v1
         with:
@@ -25,6 +20,11 @@ jobs:
       - name: Get tag
         id: get_tag
         run: echo "::set-output name=short_ref::${GITHUB_REF#refs/heads/}-$(git rev-parse --short HEAD)"
+
+      - name: Update image version in docker compose
+        working-directory: ./server
+        run: |
+          sed -i 'docker-compose.yml' 's/image: video-touch-api:master.*/image: video-touch-api:${{ steps.get_tag.outputs.short_ref }}'
 
       - name: server build and push to registry
         uses: docker/build-push-action@v3
