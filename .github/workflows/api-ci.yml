@@ -22,6 +22,7 @@ jobs:
         run: echo "::set-output name=short_ref::${GITHUB_REF#refs/heads/}-$(git rev-parse --short HEAD)"
 
       - name: Update image version in docker compose
+        working-directory: ./server
         run: |
           ls
-          sed -i "" "s/test/test" docker-compose.yml
+          sed -i "" "s/test/test/" docker-compose.yml
