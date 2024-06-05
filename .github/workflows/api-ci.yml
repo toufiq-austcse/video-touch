@@ -25,4 +25,4 @@ jobs:
         working-directory: ./server
         run: |
           ls
-          sed -i "" "s/test/test/" docker-compose.yml
+            run: sed -i 's/imagename:v1.0/imagename:$(git rev-parse --short HEAD)/' docker-compose.yml
