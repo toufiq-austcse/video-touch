@@ -24,6 +24,7 @@ jobs:
       - name: Update image version in docker compose
         working-directory: ./server
         run: |
+          ls
           sed -i "" "s/test/test" docker-compose.yml
       - name: server build and push to registry
         uses: docker/build-push-action@v3
