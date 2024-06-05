@@ -71,7 +71,6 @@ export class ProcessVideoWorker {
       );
     } catch (e) {
       console.log('error while publishing update file status event', e);
-
     }
 
   }

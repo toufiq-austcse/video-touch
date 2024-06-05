@@ -67,7 +67,6 @@ export class VideoUploaderJobHandler {
       );
     } catch (e) {
       console.log('error while publishing update file status event', e);
-
     }
 
   }
