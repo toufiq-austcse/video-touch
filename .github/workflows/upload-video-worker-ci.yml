@@ -4,7 +4,7 @@ on:
     branches:
       - master
     paths:
-      - server/worker/upload-video-worker/**
+      - server/workers/upload-video-worker/**
 jobs:
   setup-build-publish:
     name: Setup, Build, and Publish Docker Image
@@ -26,7 +26,7 @@ jobs:
       - name: server build and push to registry
         uses: docker/build-push-action@v3
         with:
-          context: ./server/worker/upload-video-worker
+          context: ./server/workers/upload-video-worker
           file: ./server/workers/upload-video-worker/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/upload-video-worker:${{steps.get_tag.outputs.short_ref}}
