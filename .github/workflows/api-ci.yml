@@ -23,5 +23,5 @@ jobs:
 
       - name: Update image version in docker compose
         working-directory: ./server
-        run: sed -i '' 's/test/test/' docker-compose.yml
+        run: sed -i '' '4 s/test/test/' docker-compose.yml
 
