@@ -98,6 +98,7 @@ export class ValidateVideoWorker {
     try {
       let event = this.buildUpdateAssetEventModel(assetId, size, height, width, duration);
       this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE, AppConfigService.appConfig.RABBIT_MQ_UPDATE_ASSET_ROUTING_KEY, event);
+
     } catch (e) {
       console.log('error in publishing update asset event', e);
     }

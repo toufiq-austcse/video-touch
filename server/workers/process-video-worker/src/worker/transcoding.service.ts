@@ -19,7 +19,6 @@ export class TranscodingService {
     try {
       let inputFilePath = getLocalVideoMp4Path(videoId);
       let outputFolderPath = getLocalResolutionPath(videoId, height);
-
       result = await this.transcodeVideo(inputFilePath, outputFolderPath, height, width);
     } catch (e: any) {
       throw new Error(e);

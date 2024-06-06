@@ -54,6 +54,7 @@ export class DownloadVideoJobHandler {
       let updateAssetEvent = this.buildAssetUpdateEventModel(assetId, status, details);
       this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
         AppConfigService.appConfig.RABBIT_MQ_UPDATE_ASSET_STATUS_ROUTING_KEY, updateAssetEvent);
+
     } catch (e) {
       console.log('error while publishing update asset event', e);
     }

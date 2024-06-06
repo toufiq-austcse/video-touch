@@ -65,6 +65,7 @@ export class VideoUploaderJobHandler {
         AppConfigService.appConfig.RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY,
         updateFileStatusEvent
       );
+
     } catch (e) {
       console.log('error while publishing update file status event', e);
     }
