@@ -1,7 +1,7 @@
 version: "3"
 services:
   video-touch-api:
-    image: video-touch-api
+    image: 578965/video-touch-api
     container_name: video-touch-api
     build: api
     restart: unless-stopped
@@ -11,12 +11,11 @@ services:
     ports:
       - $API_PORT:$API_PORT
     volumes:
-      - ~/.aws:/root/.aws
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
       - ./uploads:$TEMP_UPLOAD_DIRECTORY
 
   download-video-worker:
-    image: download-video-worker
+    image: 578965/download-video-worker
     container_name: download-video-worker
     build: workers/download-video-worker
     restart: unless-stopped
@@ -24,10 +23,9 @@ services:
     environment:
       - DOWNLOAD_VIDEO_WORKER_PORT=$DOWNLOAD_VIDEO_WORKER_PORT
     volumes:
-      - ~/.aws:/root/.aws
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
   validate-video-worker:
-    image: validate-video-worker
+    image: 578965/validate-video-worker
     container_name: validate-video-worker
     build: workers/validate-video-worker
     restart: unless-stopped
@@ -35,10 +33,9 @@ services:
     environment:
       - VALIDATE_VIDEO_WORKER_PORT=$VALIDATE_VIDEO_WORKER_PORT
     volumes:
-      - ~/.aws:/root/.aws
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
   process-video-worker-360p:
-    image: process-video-worker
+    image: 578965/process-video-worker
     container_name: process-video-worker-360p
     build: workers/process-video-worker
     restart: unless-stopped
@@ -49,7 +46,6 @@ services:
       - RABBIT_MQ_PROCESS_VIDEO_QUEUE=$RABBIT_MQ_360p_PROCESS_VIDEO_QUEUE
       - RABBIT_MQ_UPLOAD_VIDEO_ROUTING_KEY=$RABBIT_MQ_360p_UPLOAD_VIDEO_ROUTING_KEY
     volumes:
-      - ~/.aws:/root/.aws
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
     deploy:
       resources:
@@ -59,7 +55,7 @@ services:
           cpus: "0.3"
 
   process-video-worker-480p:
-    image: process-video-worker
+    image: 578965/process-video-worker
     container_name: process-video-worker-480p
     build: workers/process-video-worker
     restart: unless-stopped
@@ -70,7 +66,6 @@ services:
       - RABBIT_MQ_PROCESS_VIDEO_QUEUE=$RABBIT_MQ_480p_PROCESS_VIDEO_QUEUE
       - RABBIT_MQ_UPLOAD_VIDEO_ROUTING_KEY=$RABBIT_MQ_480p_UPLOAD_VIDEO_ROUTING_KEY
     volumes:
-      - ~/.aws:/root/.aws
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
     deploy:
       resources:
@@ -80,7 +75,7 @@ services:
           cpus: "0.3"
 
   process-video-worker-540p:
-    image: process-video-worker
+    image: 578965/process-video-worker
     container_name: process-video-worker-540p
     build: workers/process-video-worker
     restart: unless-stopped
@@ -91,7 +86,6 @@ services:
       - RABBIT_MQ_PROCESS_VIDEO_QUEUE=$RABBIT_MQ_540p_PROCESS_VIDEO_QUEUE
       - RABBIT_MQ_UPLOAD_VIDEO_ROUTING_KEY=$RABBIT_MQ_540p_UPLOAD_VIDEO_ROUTING_KEY
     volumes:
-      - ~/.aws:/root/.aws
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
     deploy:
       resources:
@@ -101,7 +95,7 @@ services:
           cpus: "0.5"
 
   process-video-worker-720p:
-    image: process-video-worker
+    image: 578965/process-video-worker
     container_name: process-video-worker-720p
     build: workers/process-video-worker
     restart: unless-stopped
@@ -112,7 +106,6 @@ services:
       - RABBIT_MQ_PROCESS_VIDEO_QUEUE=$RABBIT_MQ_720p_PROCESS_VIDEO_QUEUE
       - RABBIT_MQ_UPLOAD_VIDEO_ROUTING_KEY=$RABBIT_MQ_720p_UPLOAD_VIDEO_ROUTING_KEY
     volumes:
-      - ~/.aws:/root/.aws
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
     deploy:
       resources:
@@ -123,7 +116,7 @@ services:
 
 
   upload-video-worker-360p:
-    image: upload-video-worker
+    image: 578965/upload-video-worker
     container_name: upload-video-worker-360p
     build:
       context: workers/upload-video-worker
@@ -147,7 +140,7 @@ services:
           cpus: "0.1"
 
   upload-video-worker-480p:
-    image: upload-video-worker
+    image: 578965/upload-video-worker
     container_name: upload-video-worker-480p
     build:
       context: workers/upload-video-worker
@@ -170,7 +163,7 @@ services:
         reservations:
           cpus: "0.1"
   upload-video-worker-540p:
-    image: upload-video-worker
+    image: 578965/upload-video-worker
     container_name: upload-video-worker-540p
     build:
       context: workers/upload-video-worker
@@ -193,7 +186,7 @@ services:
         reservations:
           cpus: "0.3"
   upload-video-worker-720p:
-    image: upload-video-worker
+    image: 578965/upload-video-worker
     container_name: upload-video-worker-720p
     build:
       context: workers/upload-video-worker
