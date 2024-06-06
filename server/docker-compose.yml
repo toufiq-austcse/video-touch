@@ -1,4 +1,4 @@
-version: "2.2"
+version: "3.7"
 services:
   video-touch-api:
     image: 578965/video-touch-api
@@ -13,7 +13,10 @@ services:
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
       - ./uploads:$TEMP_UPLOAD_DIRECTORY
-    cpus: "0.1"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
 
   download-video-worker:
     image: 578965/download-video-worker
@@ -25,7 +28,10 @@ services:
       - DOWNLOAD_VIDEO_WORKER_PORT=$DOWNLOAD_VIDEO_WORKER_PORT
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpus: "0.1"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.01"
   validate-video-worker:
     image: 578965/validate-video-worker
     container_name: validate-video-worker
@@ -36,7 +42,10 @@ services:
       - VALIDATE_VIDEO_WORKER_PORT=$VALIDATE_VIDEO_WORKER_PORT
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpus: "0.1"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.01"
   process-video-worker-360p:
     image: 578965/process-video-worker
     container_name: process-video-worker-360p
@@ -50,7 +59,10 @@ services:
       - RABBIT_MQ_UPLOAD_VIDEO_ROUTING_KEY=$RABBIT_MQ_360p_UPLOAD_VIDEO_ROUTING_KEY
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpus: "0.1"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.01"
 
   process-video-worker-480p:
     image: 578965/process-video-worker
@@ -65,7 +77,10 @@ services:
       - RABBIT_MQ_UPLOAD_VIDEO_ROUTING_KEY=$RABBIT_MQ_480p_UPLOAD_VIDEO_ROUTING_KEY
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpus: "0.1"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.01"
 
   process-video-worker-540p:
     image: 578965/process-video-worker
@@ -80,7 +95,10 @@ services:
       - RABBIT_MQ_UPLOAD_VIDEO_ROUTING_KEY=$RABBIT_MQ_540p_UPLOAD_VIDEO_ROUTING_KEY
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpus: "0.1"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.01"
 
   process-video-worker-720p:
     image: 578965/process-video-worker
@@ -95,7 +113,10 @@ services:
       - RABBIT_MQ_UPLOAD_VIDEO_ROUTING_KEY=$RABBIT_MQ_720p_UPLOAD_VIDEO_ROUTING_KEY
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpus: "0.1"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.01"
 
 
   upload-video-worker-360p:
@@ -115,7 +136,10 @@ services:
       - RABBIT_MQ_UPLOAD_VIDEO_QUEUE=$RABBIT_MQ_360p_UPLOAD_VIDEO_QUEUE
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpus: "0.1"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.01"
 
   upload-video-worker-480p:
     image: 578965/upload-video-worker
@@ -134,7 +158,10 @@ services:
       - RABBIT_MQ_UPLOAD_VIDEO_QUEUE=$RABBIT_MQ_480p_UPLOAD_VIDEO_QUEUE
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpus: "0.1"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.01"
   upload-video-worker-540p:
     image: 578965/upload-video-worker
     container_name: upload-video-worker-540p
@@ -152,7 +179,10 @@ services:
       - RABBIT_MQ_UPLOAD_VIDEO_QUEUE=$RABBIT_MQ_540p_UPLOAD_VIDEO_QUEUE
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpus: "0.1"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.01"
   upload-video-worker-720p:
     image: 578965/upload-video-worker
     container_name: upload-video-worker-720p
@@ -170,4 +200,7 @@ services:
       - RABBIT_MQ_UPLOAD_VIDEO_QUEUE=$RABBIT_MQ_720p_UPLOAD_VIDEO_QUEUE
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpus: "0.1"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.01"
