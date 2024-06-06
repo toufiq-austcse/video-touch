@@ -17,11 +17,11 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Get tag
-        id: get_tag
-        run: echo "::set-output name=short_ref::${GITHUB_REF#refs/heads/}-$(git rev-parse --short HEAD)"
-
-      - name: Update image version in docker compose
-        working-directory: ./server
-        run: sed -i '4 s/video-touch-api:*/video-touch-api:${{steps.get_tag.outputs.short_ref}}/' docker-compose.yml
+      - name: server build and push to registry
+        uses: docker/build-push-action@v3
+        with:
+          context: ./server/workers/video-touch-api
+          file: ./server/api/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/video-touch-api:latest
 
