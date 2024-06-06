@@ -20,7 +20,7 @@ jobs:
       - name: server build and push to registry
         uses: docker/build-push-action@v3
         with:
-          context: ./server/workers/video-touch-api
+          context: ./server/api
           file: ./server/api/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/video-touch-api:latest
