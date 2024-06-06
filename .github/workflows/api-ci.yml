@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - master
+    paths:
+      - server/api/**
 jobs:
   setup-build-publish:
     name: Setup, Build, and Publish Docker Image
