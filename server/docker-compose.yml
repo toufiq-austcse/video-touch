@@ -51,9 +51,6 @@ services:
       resources:
         limits:
           cpus: "0.5"
-        reservations:
-          cpus: "0.3"
-
   process-video-worker-480p:
     image: 578965/process-video-worker
     container_name: process-video-worker-480p
@@ -71,8 +68,6 @@ services:
       resources:
         limits:
           cpus: "0.5"
-        reservations:
-          cpus: "0.3"
 
   process-video-worker-540p:
     image: 578965/process-video-worker
@@ -91,9 +86,6 @@ services:
       resources:
         limits:
           cpus: "1"
-        reservations:
-          cpus: "0.5"
-
   process-video-worker-720p:
     image: 578965/process-video-worker
     container_name: process-video-worker-720p
@@ -111,10 +103,6 @@ services:
       resources:
         limits:
           cpus: "1"
-        reservations:
-          cpus: "0.5"
-
-
   upload-video-worker-360p:
     image: 578965/upload-video-worker
     container_name: upload-video-worker-360p
@@ -136,9 +124,6 @@ services:
       resources:
         limits:
           cpus: "0.2"
-        reservations:
-          cpus: "0.1"
-
   upload-video-worker-480p:
     image: 578965/upload-video-worker
     container_name: upload-video-worker-480p
@@ -160,8 +145,6 @@ services:
       resources:
         limits:
           cpus: "0.2"
-        reservations:
-          cpus: "0.1"
   upload-video-worker-540p:
     image: 578965/upload-video-worker
     container_name: upload-video-worker-540p
@@ -183,8 +166,6 @@ services:
       resources:
         limits:
           cpus: "0.5"
-        reservations:
-          cpus: "0.3"
   upload-video-worker-720p:
     image: 578965/upload-video-worker
     container_name: upload-video-worker-720p
@@ -206,5 +187,3 @@ services:
       resources:
         limits:
           cpus: "1"
-        reservations:
-          cpus: "0.5"
