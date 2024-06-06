@@ -33,9 +33,9 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.001"
+          cpus: "0.01"
         reservations:
-          cpus: "0.001"
+          cpus: "0.01"
   validate-video-worker:
     image: 578965/validate-video-worker
     container_name: validate-video-worker
@@ -49,9 +49,9 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.001"
+          cpus: "0.01"
         reservations:
-          cpus: "0.001"
+          cpus: "0.01"
   process-video-worker-360p:
     image: 578965/process-video-worker
     container_name: process-video-worker-360p
@@ -68,9 +68,9 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.001"
+          cpus: "0.01"
         reservations:
-          cpus: "0.001"
+          cpus: "0.01"
 
   process-video-worker-480p:
     image: 578965/process-video-worker
@@ -88,9 +88,9 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.001"
+          cpus: "0.01"
         reservations:
-          cpus: "0.001"
+          cpus: "0.01"
 
   process-video-worker-540p:
     image: 578965/process-video-worker
@@ -108,9 +108,9 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.001"
+          cpus: "0.01"
         reservations:
-          cpus: "0.001"
+          cpus: "0.01"
 
   process-video-worker-720p:
     image: 578965/process-video-worker
@@ -128,9 +128,9 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.001"
+          cpus: "0.01"
         reservations:
-          cpus: "0.001"
+          cpus: "0.01"
 
 
   upload-video-worker-360p:
@@ -153,9 +153,9 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.001"
+          cpus: "0.01"
         reservations:
-          cpus: "0.001"
+          cpus: "0.01"
 
   upload-video-worker-480p:
     image: 578965/upload-video-worker
@@ -177,9 +177,9 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.001"
+          cpus: "0.01"
         reservations:
-          cpus: "0.001"
+          cpus: "0.01"
   upload-video-worker-540p:
     image: 578965/upload-video-worker
     container_name: upload-video-worker-540p
@@ -200,9 +200,9 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.001"
+          cpus: "0.01"
         reservations:
-          cpus: "0.001"
+          cpus: "0.01"
   upload-video-worker-720p:
     image: 578965/upload-video-worker
     container_name: upload-video-worker-720p
@@ -223,6 +223,6 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.001"
+          cpus: "0.01"
         reservations:
-          cpus: "0.001"
+          cpus: "0.01"
