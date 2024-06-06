@@ -13,6 +13,12 @@ services:
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
       - ./uploads:$TEMP_UPLOAD_DIRECTORY
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+        reservations:
+          cpus: "0.2"
 
   download-video-worker:
     image: 578965/download-video-worker
@@ -34,6 +40,12 @@ services:
       - VALIDATE_VIDEO_WORKER_PORT=$VALIDATE_VIDEO_WORKER_PORT
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
+    deploy:
+      resources:
+        limits:
+          cpus: "0.2"
+        reservations:
+          cpus: "0.2"
   process-video-worker-360p:
     image: 578965/process-video-worker
     container_name: process-video-worker-360p
@@ -50,7 +62,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: "0.2"
+        reservations:
+          cpus: "0.2"
+
   process-video-worker-480p:
     image: 578965/process-video-worker
     container_name: process-video-worker-480p
@@ -67,7 +82,9 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: "0.2"
+        reservations:
+          cpus: "0.2"
 
   process-video-worker-540p:
     image: 578965/process-video-worker
@@ -85,7 +102,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1"
+          cpus: "0.2"
+        reservations:
+          cpus: "0.2"
+
   process-video-worker-720p:
     image: 578965/process-video-worker
     container_name: process-video-worker-720p
@@ -102,7 +122,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1"
+          cpus: "0.4"
+        reservations:
+          cpus: "0.2"
+
+
   upload-video-worker-360p:
     image: 578965/upload-video-worker
     container_name: upload-video-worker-360p
@@ -124,6 +148,9 @@ services:
       resources:
         limits:
           cpus: "0.2"
+        reservations:
+          cpus: "0.1"
+
   upload-video-worker-480p:
     image: 578965/upload-video-worker
     container_name: upload-video-worker-480p
@@ -145,6 +172,8 @@ services:
       resources:
         limits:
           cpus: "0.2"
+        reservations:
+          cpus: "0.1"
   upload-video-worker-540p:
     image: 578965/upload-video-worker
     container_name: upload-video-worker-540p
@@ -165,7 +194,9 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.5"
+          cpus: "0.2"
+        reservations:
+          cpus: "0.2"
   upload-video-worker-720p:
     image: 578965/upload-video-worker
     container_name: upload-video-worker-720p
@@ -186,4 +217,6 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1"
+          cpus: "0.2"
+        reservations:
+          cpus: "0.2"
