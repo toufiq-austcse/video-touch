@@ -37,7 +37,7 @@ services:
         max_attempts: 3
       resources:
         limits:
-          cpus: "0.01"
+          cpus: "0.1"
   validate-video-worker:
     image: 578965/validate-video-worker
     container_name: validate-video-worker
@@ -54,7 +54,7 @@ services:
         max_attempts: 3
       resources:
         limits:
-          cpus: "0.01"
+          cpus: "0.1"
   process-video-worker-360p:
     image: 578965/process-video-worker
     container_name: process-video-worker-360p
@@ -74,9 +74,9 @@ services:
         max_attempts: 3
       resources:
         limits:
-          cpus: "0.050"
+          cpus: "0.05"
         reservations:
-          cpus: "0.050"
+          cpus: "0.05"
   process-video-worker-480p:
     image: 578965/process-video-worker
     container_name: process-video-worker-480p
@@ -96,9 +96,9 @@ services:
         max_attempts: 3
       resources:
         limits:
-          cpus: "0.050"
+          cpus: "0.05"
         reservations:
-          cpus: "0.050"
+          cpus: "0.05"
 
 
   process-video-worker-540p:
@@ -120,9 +120,9 @@ services:
         max_attempts: 3
       resources:
         limits:
-          cpus: "0.050"
+          cpus: "0.07"
         reservations:
-          cpus: "0.050"
+          cpus: "0.07"
 
   process-video-worker-720p:
     image: 578965/process-video-worker
@@ -143,9 +143,9 @@ services:
         max_attempts: 3
       resources:
         limits:
-          cpus: "0.050"
+          cpus: "0.1"
         reservations:
-          cpus: "0.050"
+          cpus: "0.1"
 
 
   upload-video-worker-360p:
@@ -171,7 +171,7 @@ services:
         max_attempts: 3
       resources:
         limits:
-          cpus: "0.1"
+          cpus: "0.05"
 
   upload-video-worker-480p:
     image: 578965/upload-video-worker
@@ -196,7 +196,7 @@ services:
         max_attempts: 3
       resources:
         limits:
-          cpus: "0.1"
+          cpus: "0.05"
   upload-video-worker-540p:
     image: 578965/upload-video-worker
     container_name: upload-video-worker-540p
@@ -220,7 +220,7 @@ services:
         max_attempts: 3
       resources:
         limits:
-          cpus: "0.1"
+          cpus: "0.05"
   upload-video-worker-720p:
     image: 578965/upload-video-worker
     container_name: upload-video-worker-720p
@@ -244,4 +244,4 @@ services:
         max_attempts: 3
       resources:
         limits:
-          cpus: "0.1"
+          cpus: "0.05"
