@@ -75,8 +75,6 @@ services:
       resources:
         limits:
           cpus: "0.05"
-        reservations:
-          cpus: "0.05"
   process-video-worker-480p:
     image: 578965/process-video-worker
     container_name: process-video-worker-480p
@@ -97,9 +95,6 @@ services:
       resources:
         limits:
           cpus: "0.05"
-        reservations:
-          cpus: "0.05"
-
 
   process-video-worker-540p:
     image: 578965/process-video-worker
@@ -121,8 +116,6 @@ services:
       resources:
         limits:
           cpus: "0.07"
-        reservations:
-          cpus: "0.07"
 
   process-video-worker-720p:
     image: 578965/process-video-worker
@@ -143,8 +136,6 @@ services:
         max_attempts: 3
       resources:
         limits:
-          cpus: "0.1"
-        reservations:
           cpus: "0.1"
 
 
