@@ -24,7 +24,6 @@ services:
       - DOWNLOAD_VIDEO_WORKER_PORT=$DOWNLOAD_VIDEO_WORKER_PORT
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-      -
   validate-video-worker:
     image: 578965/validate-video-worker
     container_name: validate-video-worker
@@ -35,7 +34,6 @@ services:
       - VALIDATE_VIDEO_WORKER_PORT=$VALIDATE_VIDEO_WORKER_PORT
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-      -
   process-video-worker-360p:
     image: 578965/process-video-worker
     container_name: process-video-worker-360p
@@ -159,7 +157,6 @@ services:
       - RABBIT_MQ_UPLOAD_VIDEO_QUEUE=$RABBIT_MQ_540p_UPLOAD_VIDEO_QUEUE
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-      -
   upload-video-worker-720p:
     image: 578965/upload-video-worker
     container_name: upload-video-worker-720p
