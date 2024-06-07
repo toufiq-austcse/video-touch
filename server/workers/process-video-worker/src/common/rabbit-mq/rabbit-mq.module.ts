@@ -13,7 +13,7 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
         return {
           uri: AppConfigService.appConfig.RABBIT_MQ_URL,
           connectionInitOptions: { wait: false },
-          prefetchCount: 1
+          prefetchCount: AppConfigService.appConfig.RABBIT_MQ_PROCESS_VIDEO_PREFETCH_COUNT
         };
       }
     })

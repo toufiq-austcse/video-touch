@@ -22,7 +22,8 @@ export class AppConfigService {
       RABBIT_MQ_UPDATE_FILE_STATUS_QUEUE: this.configService.getOrThrow('RABBIT_MQ_UPDATE_FILE_STATUS_QUEUE'),
       RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY: this.configService.getOrThrow('RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY'),
       TEMP_VIDEO_DIRECTORY: this.configService.getOrThrow('TEMP_VIDEO_DIRECTORY'),
-      AWS_PROFILE_NAME: this.configService.get('AWS_PROFILE_NAME')
+      AWS_PROFILE_NAME: this.configService.get('AWS_PROFILE_NAME'),
+      RABBIT_MQ_UPLOAD_VIDEO_PREFETCH_COUNT: +this.configService.get('RABBIT_MQ_UPLOAD_VIDEO_PREFETCH_COUNT', 1)
     };
   }
 }

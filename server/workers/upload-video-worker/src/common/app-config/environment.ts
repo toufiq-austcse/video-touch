@@ -12,4 +12,5 @@ export interface EnvironmentVariables {
   RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY: string;
   TEMP_VIDEO_DIRECTORY: string;
   AWS_PROFILE_NAME: string;
+  RABBIT_MQ_UPLOAD_VIDEO_PREFETCH_COUNT: number;
 }

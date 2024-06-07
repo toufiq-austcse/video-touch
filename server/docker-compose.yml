@@ -4,7 +4,7 @@ services:
     image: 578965/video-touch-api
     container_name: video-touch-api
     build: api
-    restart: unless-stopped
+    restart: always
     env_file: .env
     environment:
       - PORT=$API_PORT
@@ -13,56 +13,34 @@ services:
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
       - ./uploads:$TEMP_UPLOAD_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-      resources:
-        limits:
-          cpus: "0.1"
 
   download-video-worker:
     image: 578965/download-video-worker
     container_name: download-video-worker
     build: workers/download-video-worker
-    restart: unless-stopped
+    restart: always
     env_file: .env
     environment:
       - DOWNLOAD_VIDEO_WORKER_PORT=$DOWNLOAD_VIDEO_WORKER_PORT
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-      resources:
-        limits:
-          cpus: "0.01"
+      -
   validate-video-worker:
     image: 578965/validate-video-worker
     container_name: validate-video-worker
     build: workers/validate-video-worker
-    restart: unless-stopped
+    restart: always
     env_file: .env
     environment:
       - VALIDATE_VIDEO_WORKER_PORT=$VALIDATE_VIDEO_WORKER_PORT
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-      resources:
-        limits:
-          cpus: "0.01"
+      -
   process-video-worker-360p:
     image: 578965/process-video-worker
     container_name: process-video-worker-360p
     build: workers/process-video-worker
-    restart: unless-stopped
+    restart: always
     env_file: .env
     environment:
       - PROCESS_VIDEO_WORKER_PORT=$PROCESS_VIDEO_WORKER_PORT
@@ -71,14 +49,7 @@ services:
       - RABBIT_MQ_UPLOAD_VIDEO_ROUTING_KEY=$RABBIT_MQ_360p_UPLOAD_VIDEO_ROUTING_KEY
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-      resources:
-        limits:
-          cpus: "0.1"
+
 
   #  process-video-worker-480p:
   #    image: 578965/process-video-worker
@@ -144,7 +115,7 @@ services:
         AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
         AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
         AWS_DEFAULT_REGION: $AWS_REGION
-    restart: unless-stopped
+    restart: always
     env_file: .env
     environment:
       - UPLOAD_VIDEO_WORKER_PORT=$UPLOAD_VIDEO_WORKER_PORT
@@ -152,14 +123,6 @@ services:
       - RABBIT_MQ_UPLOAD_VIDEO_QUEUE=$RABBIT_MQ_360p_UPLOAD_VIDEO_QUEUE
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-      resources:
-        limits:
-          cpus: "0.01"
 
   upload-video-worker-480p:
     image: 578965/upload-video-worker
@@ -170,7 +133,7 @@ services:
         AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
         AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
         AWS_DEFAULT_REGION: $AWS_REGION
-    restart: unless-stopped
+    restart: always
     env_file: .env
     environment:
       - UPLOAD_VIDEO_WORKER_PORT=$UPLOAD_VIDEO_WORKER_PORT
@@ -178,14 +141,7 @@ services:
       - RABBIT_MQ_UPLOAD_VIDEO_QUEUE=$RABBIT_MQ_480p_UPLOAD_VIDEO_QUEUE
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-      resources:
-        limits:
-          cpus: "0.01"
+
   upload-video-worker-540p:
     image: 578965/upload-video-worker
     container_name: upload-video-worker-540p
@@ -195,7 +151,7 @@ services:
         AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
         AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
         AWS_DEFAULT_REGION: $AWS_REGION
-    restart: unless-stopped
+    restart: always
     env_file: .env
     environment:
       - UPLOAD_VIDEO_WORKER_PORT=$UPLOAD_VIDEO_WORKER_PORT
@@ -203,14 +159,7 @@ services:
       - RABBIT_MQ_UPLOAD_VIDEO_QUEUE=$RABBIT_MQ_540p_UPLOAD_VIDEO_QUEUE
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-      resources:
-        limits:
-          cpus: "0.01"
+      -
   upload-video-worker-720p:
     image: 578965/upload-video-worker
     container_name: upload-video-worker-720p
@@ -220,7 +169,7 @@ services:
         AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID
         AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
         AWS_DEFAULT_REGION: $AWS_REGION
-    restart: unless-stopped
+    restart: always
     env_file: .env
     environment:
       - UPLOAD_VIDEO_WORKER_PORT=$UPLOAD_VIDEO_WORKER_PORT
@@ -228,11 +177,3 @@ services:
       - RABBIT_MQ_UPLOAD_VIDEO_QUEUE=$RABBIT_MQ_720p_UPLOAD_VIDEO_QUEUE
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-      resources:
-        limits:
-          cpus: "0.01"
