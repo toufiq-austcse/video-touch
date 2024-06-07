@@ -55,26 +55,26 @@ services:
       resources:
         limits:
           cpus: "0.01"
-  process-video-worker-360p:
-    image: 578965/process-video-worker
-    container_name: process-video-worker-360p
-    build: workers/process-video-worker
-    env_file: .env
-    environment:
-      - PROCESS_VIDEO_WORKER_PORT=$PROCESS_VIDEO_WORKER_PORT
-      - RABBIT_MQ_PROCESS_VIDEO_ROUTING_KEY=$RABBIT_MQ_360P_PROCESS_VIDEO_ROUTING_KEY
-      - RABBIT_MQ_PROCESS_VIDEO_QUEUE=$RABBIT_MQ_360p_PROCESS_VIDEO_QUEUE
-      - RABBIT_MQ_UPLOAD_VIDEO_ROUTING_KEY=$RABBIT_MQ_360p_UPLOAD_VIDEO_ROUTING_KEY
-    volumes:
-      - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-      resources:
-        limits:
-          cpus: "0.1"
+#  process-video-worker-360p:
+#    image: 578965/process-video-worker
+#    container_name: process-video-worker-360p
+#    build: workers/process-video-worker
+#    env_file: .env
+#    environment:
+#      - PROCESS_VIDEO_WORKER_PORT=$PROCESS_VIDEO_WORKER_PORT
+#      - RABBIT_MQ_PROCESS_VIDEO_ROUTING_KEY=$RABBIT_MQ_360P_PROCESS_VIDEO_ROUTING_KEY
+#      - RABBIT_MQ_PROCESS_VIDEO_QUEUE=$RABBIT_MQ_360p_PROCESS_VIDEO_QUEUE
+#      - RABBIT_MQ_UPLOAD_VIDEO_ROUTING_KEY=$RABBIT_MQ_360p_UPLOAD_VIDEO_ROUTING_KEY
+#    volumes:
+#      - ./temp_videos:$TEMP_VIDEO_DIRECTORY
+#    deploy:
+#      restart_policy:
+#        condition: on-failure
+#        delay: 5s
+#        max_attempts: 3
+#      resources:
+#        limits:
+#          cpus: "0.1"
   process-video-worker-480p:
     image: 578965/process-video-worker
     container_name: process-video-worker-480p
