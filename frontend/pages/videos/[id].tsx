@@ -8,6 +8,10 @@ import { VideoDetails } from '@/api/graphql/types/video-details';
 import { bytesToMegaBytes, secondsToHHMMSS } from '@/lib/utils';
 
 import dynamic from 'next/dynamic';
+import { Input } from '@/components/ui/input';
+import { Check, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useState } from 'react';
 
 const PlyrHlsPlayer = dynamic(() => import('@/components/ui/video-player'), {
   ssr: false
@@ -16,6 +20,8 @@ const PlyrHlsPlayer = dynamic(() => import('@/components/ui/video-player'), {
 export default function VideoDetailsPage() {
   const router = useRouter();
   const { id } = router.query;
+  const [enableEditTitle, setEnableEditTitle] = useState(false);
+  const [title, setTitle] = useState('' as string);
 
   const { data, loading, error } = useQuery(GET_ASSET_QUERY, {
     variables: {
@@ -28,12 +34,30 @@ export default function VideoDetailsPage() {
   let videoDetails: VideoDetails = data.GetAsset;
   const masterPlaylistUrl = videoDetails.master_playlist_url;
 
+  const onUpdateClick = () => {
+    console.log('Update ', title);
+    setEnableEditTitle(false);
+  };
+  const onCancelClick = () => {
+    setTitle(videoDetails.title);
+    setEnableEditTitle(false);
+  };
+
   return (
     <div className={'flex space-x-4'}>
       <div className={'flex flex-col space-y-4 p-8 border-2 rounded w-6/12'}>
-        <div>
-          <p className="text-2xl">{videoDetails.title}</p>
-        </div>
+
+        {enableEditTitle ? (<div className="flex gap-2">
+          <Input value={title} onChange={(e) => setTitle(e.target.value)}></Input>
+          <Button variant="outline" size="icon" className="bg-blue-500 text-white">
+            <Check className="h-4 w-4" onClick={onUpdateClick} />
+          </Button>
+          <Button variant="outline" size="icon" className="bg-red-500 text-white">
+            <X className="h-4 w-4" onClick={onCancelClick} />
+          </Button>
+        </div>) : <div>
+          <p className="text-2xl" onClick={() => setEnableEditTitle(true)}>{videoDetails.title}</p>
+        </div>}
 
         <Separator />
         <div className={'border-2 min-h-[300px]'}>
