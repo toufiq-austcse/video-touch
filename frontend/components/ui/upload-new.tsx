@@ -17,9 +17,7 @@ import MyDeviceDialog from "@/components/ui/my-device-dialog";
 
 const UploadNew = ({ refetch }: { refetch: () => void }) => {
   const [createVideo] = useMutation(CREATE_ASSET_MUTATION);
-  const [createAssetFromUpload] = useMutation(
-    CREATE_ASSET_FROM_UPLOAD_MUTATION,
-  );
+
   const [openLinkImportDialog, setOpenLinkImportDialog] = React.useState(false);
   const [openMyDeviceDialog, setOpenMyDeviceDialog] = React.useState(false);
 

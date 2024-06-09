@@ -3,14 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "npm run codegen",
+    "prebuild": "npm run codegen",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(jsx|tsx|json)\"",
-    "lint": "next lint"
+    "lint": "next lint",
+    "codegen": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
     "@apollo/client": "^3.9.9",
+    "@graphql-typed-document-node/core": "^3.2.0",
     "@heroicons/react": "^2.1.1",
     "@hookform/resolvers": "^3.3.4",
     "@radix-ui/react-checkbox": "^1.0.4",
@@ -45,6 +49,9 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "5.0.2",
+    "@graphql-codegen/client-preset": "4.2.6",
+    "@parcel/watcher": "^2.4.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -54,6 +61,7 @@
     "postcss": "^8",
     "prettier": "^3.0.3",
     "tailwindcss": "^3",
-    "typescript": "^5"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.2"
   }
 }

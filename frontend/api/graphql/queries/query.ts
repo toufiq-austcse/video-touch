@@ -21,3 +21,13 @@ mutation($title:String,$description:String,$file_name:String!,$tags:[String!]){
   CreateAssetFromUpload(createAssetFromUploadInput:{title:$title,file_name:$file_name,description:$description,tags:$tags}){_id,title}
 }
   `;
+export const UPDATE_ASSET_MUTATION = gql`
+mutation($id: String!, $input: UpdateAssetInputDto!) {
+  updateAsset(id: $id, input: $input) {
+    _id
+    title
+    description
+    tags
+  }
+}
+`;
