@@ -22,9 +22,8 @@ mutation($title:String,$description:String,$file_name:String!,$tags:[String!]){
 }
   `;
 export const UPDATE_ASSET_MUTATION = gql`
-mutation($id: String!, $input: UpdateAssetInputDto!) {
-  updateAsset(id: $id, input: $input) {
-    _id
+mutation($id: String!, $title:String!) {
+  UpdateAsset(_id: $id, updateAssetInputDto: {title:$title}) {
     title
     description
     tags

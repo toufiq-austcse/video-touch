@@ -3,7 +3,11 @@ import Step from '@/components/ui/step';
 import Data from '@/components/ui/data';
 import { useRouter } from 'next/router';
 import { useMutation, useQuery } from '@apollo/client';
-import { CREATE_ASSET_MUTATION, GET_ASSET_QUERY, UPDATE_ASSET_MUTATION } from '@/api/graphql/queries/query';
+import {
+  CREATE_ASSET_MUTATION,
+  GET_ASSET_QUERY,
+  UPDATE_ASSET_MUTATION
+} from '@/api/graphql/queries/query';
 import { VideoDetails } from '@/api/graphql/types/video-details';
 import { bytesToMegaBytes, secondsToHHMMSS } from '@/lib/utils';
 
@@ -12,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import { MutationUpdateAssetArgs } from '@/api/graphql/graphql';
+import { Asset, MutationUpdateAssetArgs } from '@/api/graphql/graphql';
 
 const PlyrHlsPlayer = dynamic(() => import('@/components/ui/video-player'), {
   ssr: false
@@ -20,14 +24,21 @@ const PlyrHlsPlayer = dynamic(() => import('@/components/ui/video-player'), {
 
 export default function VideoDetailsPage() {
   const router = useRouter();
-  const [updateAsset] = useMutation<MutationUpdateAssetArgs>(UPDATE_ASSET_MUTATION);
+  const [updateAsset] = useMutation<Asset>(
+    UPDATE_ASSET_MUTATION
+  );
   const { id } = router.query;
   const [enableEditTitle, setEnableEditTitle] = useState(false);
   const [title, setTitle] = useState('' as string);
+  const [tempTitle, setTempTitle] = useState('' as string);
 
   const { data, loading, error } = useQuery(GET_ASSET_QUERY, {
     variables: {
       id: id
+    },
+    onCompleted: (data) => {
+      setTitle(data.GetAsset.title);
+      setTempTitle(data.GetAsset.title);
     }
   });
   if (loading) return <div>Loading...</div>;
@@ -36,52 +47,65 @@ export default function VideoDetailsPage() {
   let videoDetails: VideoDetails = data.GetAsset;
   const masterPlaylistUrl = videoDetails.master_playlist_url;
 
+  const onTitleClick = async () => {
+    setTempTitle(title);
+    setTitle(title);
+    setEnableEditTitle(true);
+  };
+
   const onUpdateClick = async () => {
-    console.log('Update ', title);
     let res = await updateAsset({
       variables: {
         id,
-        updateAsset: {
-          title
-        }
+        title: tempTitle
       }
     });
-    console.log(res);
+    setTitle(tempTitle);
+
     setEnableEditTitle(false);
   };
   const onCancelClick = () => {
-    setTitle(videoDetails.title);
     setEnableEditTitle(false);
   };
 
+  const onKeyDownInTitle = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    console.log('key down in title');
+    if (e.key === 'Enter') {
+      onUpdateClick();
+    }
+
+  };
   return (
     <div className={'flex space-x-4'}>
       <div className={'flex flex-col space-y-4 p-8 border-2 rounded w-6/12'}>
         {enableEditTitle ? (
           <div className="flex gap-2">
             <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              value={tempTitle}
+              onChange={(e) => setTempTitle(e.target.value)}
+              onKeyDown={(e) => onKeyDownInTitle(e)}
             ></Input>
             <Button
               variant="outline"
               size="icon"
               className="bg-blue-500 text-white"
+              onClick={onUpdateClick}
             >
-              <Check className="h-4 w-4" onClick={onUpdateClick} />
+              <Check className="h-4 w-4" />
             </Button>
             <Button
               variant="outline"
               size="icon"
               className="bg-red-500 text-white"
+              onClick={onCancelClick}
             >
-              <X className="h-4 w-4" onClick={onCancelClick} />
+              <X className="h-4 w-4" />
             </Button>
           </div>
         ) : (
           <div>
-            <p className="text-2xl" onClick={() => setEnableEditTitle(true)}>
-              {videoDetails.title}
+            <p className="text-2xl hover:cursor-pointer" onClick={onTitleClick}>
+              {title}
             </p>
           </div>
         )}
