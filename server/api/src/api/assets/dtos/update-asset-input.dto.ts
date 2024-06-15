@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsOptional, IsString } from 'class-validator';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 
 @InputType()
 export class UpdateAssetInputDto {
@@ -14,7 +14,7 @@ export class UpdateAssetInputDto {
   description: string;
 
   @Field(() => [String], { nullable: true })
-  @IsString()
+  @IsArray()
   @IsOptional()
   tags: string[];
 }

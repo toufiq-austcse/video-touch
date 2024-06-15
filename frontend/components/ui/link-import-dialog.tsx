@@ -20,8 +20,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { CREATE_ASSET_MUTATION } from "@/api/graphql/queries/query";
-import { useMutation } from "@apollo/client";
 
 const formSchema = z.object({
   link: z.string().url({

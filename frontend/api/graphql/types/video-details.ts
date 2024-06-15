@@ -4,7 +4,7 @@ export interface VideoDetails {
   height: number;
   width: number;
   duration: number;
-  description: null;
+  description: string;
   status_logs: StatusLog[];
   size: number;
   source_url: string;
@@ -18,6 +18,6 @@ export interface VideoDetails {
 
 export interface StatusLog {
   status: string;
-  details: null;
+  details: string;
   created_at: Date;
 }
