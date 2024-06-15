@@ -1,24 +1,24 @@
-import { Separator } from '@/components/ui/separator';
-import Step from '@/components/ui/step';
-import Data from '@/components/ui/data';
-import { useRouter } from 'next/router';
-import { useQuery } from '@apollo/client';
-import { GET_ASSET_QUERY } from '@/api/graphql/queries/query';
-import { VideoDetails } from '@/api/graphql/types/video-details';
-import { bytesToMegaBytes, secondsToHHMMSS } from '@/lib/utils';
+import { Separator } from "@/components/ui/separator";
+import Step from "@/components/ui/step";
+import Data from "@/components/ui/data";
+import { useRouter } from "next/router";
+import { useQuery } from "@apollo/client";
+import { GET_ASSET_QUERY } from "@/api/graphql/queries/query";
+import { VideoDetails } from "@/api/graphql/types/video-details";
+import { bytesToMegaBytes, secondsToHHMMSS } from "@/lib/utils";
 
-import dynamic from 'next/dynamic';
-import VideoTitleComponent from '@/components/ui/video-title-component';
+import dynamic from "next/dynamic";
+import VideoTitleComponent from "@/components/ui/video-title-component";
 
-const PlyrHlsPlayer = dynamic(() => import('@/components/ui/video-player'), {
-  ssr: false
+const PlyrHlsPlayer = dynamic(() => import("@/components/ui/video-player"), {
+  ssr: false,
 });
 
 const VideoDetailsComponent = dynamic(
-  () => import('@/components/ui/video-details-component'),
+  () => import("@/components/ui/video-details-component"),
   {
-    ssr: false
-  }
+    ssr: false,
+  },
 );
 export default function VideoDetailsPage() {
   const router = useRouter();
@@ -26,8 +26,8 @@ export default function VideoDetailsPage() {
 
   const { data, loading, error } = useQuery(GET_ASSET_QUERY, {
     variables: {
-      id: id
-    }
+      id: id,
+    },
   });
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error...</div>;
@@ -36,18 +36,18 @@ export default function VideoDetailsPage() {
   const masterPlaylistUrl = videoDetails.master_playlist_url;
 
   return (
-    <div className={'flex space-x-4 '}>
-      <div className={'flex flex-col space-y-4 p-8 border-2 rounded w-6/12'}>
+    <div className={"flex space-x-4 "}>
+      <div className={"flex flex-col space-y-4 p-8 border-2 rounded w-6/12"}>
         <VideoTitleComponent videoDetails={videoDetails} />
 
         <Separator />
-        <div className={'border-2 min-h-[300px]'}>
+        <div className={"border-2 min-h-[300px]"}>
           {masterPlaylistUrl ? (
             <PlyrHlsPlayer source={masterPlaylistUrl} />
           ) : (
             <div
               className={
-                'flex justify-center items-center h-[500px] bg-black text-white'
+                "flex justify-center items-center h-[500px] bg-black text-white"
               }
             >
               Video is not ready yet
@@ -56,28 +56,28 @@ export default function VideoDetailsPage() {
         </div>
         <VideoDetailsComponent videoDetails={videoDetails} />
       </div>
-      <div className={'border-2 rounded space-y-4 p-8 w-6/12 h-3/6'}>
+      <div className={"border-2 rounded space-y-4 p-8 w-6/12 h-3/6"}>
         <div>
-          <Data label={'Current Status'} value={videoDetails.latest_status} />
+          <Data label={"Current Status"} value={videoDetails.latest_status} />
           <Data
-            label={'Created At'}
+            label={"Created At"}
             value={new Date(videoDetails.created_at).toDateString()}
           />
           <Data
-            label={'Resolution'}
+            label={"Resolution"}
             value={`${videoDetails.height} x ${videoDetails.width}`}
           />
           <Data
-            label={'Duration'}
+            label={"Duration"}
             value={secondsToHHMMSS(videoDetails.duration)}
           />
           <Data
-            label={'Size'}
+            label={"Size"}
             value={`${bytesToMegaBytes(videoDetails.size)} MB`}
           />
         </div>
-        <div className={'flex flex-col overflow-auto'}>
-          <div className={'flex flex-start'}>
+        <div className={"flex flex-col overflow-auto"}>
+          <div className={"flex flex-start"}>
             {[...videoDetails.status_logs].map((status, index) => {
               if (index === videoDetails.status_logs.length - 1) {
                 return (
