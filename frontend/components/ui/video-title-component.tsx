@@ -7,14 +7,16 @@ import { useMutation } from '@apollo/client';
 import { Asset } from '@/api/graphql/graphql';
 import { UPDATE_ASSET_MUTATION } from '@/api/graphql/queries/query';
 
-
-const VideoTitleComponent = ({ videoDetails }: { videoDetails: VideoDetails }) => {
+const VideoTitleComponent = ({
+                               videoDetails
+                             }: {
+  videoDetails: VideoDetails;
+}) => {
   const [enableEditTitle, setEnableEditTitle] = useState(false);
   const [title, setTitle] = useState(videoDetails.title);
   const [tempTitle, setTempTitle] = useState(videoDetails.title);
 
   const [updateAsset] = useMutation<Asset>(UPDATE_ASSET_MUTATION);
-
 
   const onTitleClick = async () => {
     setTempTitle(title);
@@ -45,7 +47,7 @@ const VideoTitleComponent = ({ videoDetails }: { videoDetails: VideoDetails }) =
   };
 
   return enableEditTitle ? (
-    <div className="flex gap-2">
+    <div className="flex gap-4">
       <Input
         value={tempTitle}
         onChange={(e) => setTempTitle(e.target.value)}

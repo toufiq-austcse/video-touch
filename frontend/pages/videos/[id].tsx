@@ -8,17 +8,21 @@ import { VideoDetails } from '@/api/graphql/types/video-details';
 import { bytesToMegaBytes, secondsToHHMMSS } from '@/lib/utils';
 
 import dynamic from 'next/dynamic';
-import VideoDetailsComponent from '@/components/ui/video-details-component';
 import VideoTitleComponent from '@/components/ui/video-title-component';
 
 const PlyrHlsPlayer = dynamic(() => import('@/components/ui/video-player'), {
   ssr: false
 });
 
+const VideoDetailsComponent = dynamic(
+  () => import('@/components/ui/video-details-component'),
+  {
+    ssr: false
+  }
+);
 export default function VideoDetailsPage() {
   const router = useRouter();
   const { id } = router.query;
-
 
   const { data, loading, error } = useQuery(GET_ASSET_QUERY, {
     variables: {
@@ -31,9 +35,8 @@ export default function VideoDetailsPage() {
   let videoDetails: VideoDetails = data.GetAsset;
   const masterPlaylistUrl = videoDetails.master_playlist_url;
 
-
   return (
-    <div className={'flex space-x-4'}>
+    <div className={'flex space-x-4 '}>
       <div className={'flex flex-col space-y-4 p-8 border-2 rounded w-6/12'}>
         <VideoTitleComponent videoDetails={videoDetails} />
 
@@ -51,7 +54,9 @@ export default function VideoDetailsPage() {
             </div>
           )}
         </div>
-        <VideoDetailsComponent videoDetails={videoDetails} />
+        <div>
+          <VideoDetailsComponent videoDetails={videoDetails} />
+        </div>
       </div>
       <div className={'border-2 rounded space-y-4 p-8 w-6/12 h-3/6'}>
         <div>
