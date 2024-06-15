@@ -3,8 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "npm run codegen",
-    "prebuild": "npm run codegen",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
