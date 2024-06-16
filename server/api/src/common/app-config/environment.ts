@@ -43,4 +43,6 @@ export interface EnvironmentVariables {
 
   TEMP_UPLOAD_DIRECTORY: string;
   TEMP_VIDEO_DIRECTORY: string;
+
+  CDN_BASE_URL: string;
 }

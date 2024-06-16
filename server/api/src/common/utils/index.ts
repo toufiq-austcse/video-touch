@@ -59,7 +59,7 @@ export function getMainManifestPath(assetId: string) {
 }
 
 export function getMasterPlaylistUrl(assetId: string) {
-  return `${AppConfigService.appConfig.VIDEO_BASE_URL}/${assetId}/${getMainManifestFileName()}`;
+  return `${AppConfigService.appConfig.CDN_BASE_URL}/${assetId}/${getMainManifestFileName()}`;
 }
 
 export function getMainManifestFileName() {
