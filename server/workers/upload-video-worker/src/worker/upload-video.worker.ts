@@ -19,7 +19,7 @@ export class VideoUploaderJobHandler {
   async syncDirToS3(localDir: string, s3Dir: string) {
     console.log('syncing dir to s3', localDir, s3Dir);
 
-    let command = `aws s3 sync ${localDir}  ${s3Dir} --acl public-read`;
+    let command = `aws s3 sync ${localDir}  ${s3Dir}`;
     if (AppConfigService.appConfig.AWS_PROFILE_NAME) {
       command += ` --profile ${AppConfigService.appConfig.AWS_PROFILE_NAME}`;
     }
