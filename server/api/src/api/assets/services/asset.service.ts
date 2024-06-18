@@ -10,14 +10,14 @@ import {
   JobMetadataModel,
   VideoDownloadJobModel,
   VideoProcessingJobModel,
-  VideoValidationJobModel,
+  VideoValidationJobModel
 } from '@/src/api/assets/models/job.model';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import mongoose from 'mongoose';
 import fs from 'fs';
-import { getLocalVideoRootPath } from '@/src/common/utils';
+import { getLocalVideoRootPath, getMainManifestFileName } from '@/src/common/utils';
 import { FileRepository } from '@/src/api/assets/repositories/file.repository';
-import { FILE_STATUS, VIDEO_STATUS } from '@/src/common/constants';
+import { FILE_STATUS, FILE_TYPE, VIDEO_STATUS } from '@/src/common/constants';
 import { AssetMapper } from '@/src/api/assets/mapper/asset.mapper';
 import { JobManagerService } from '@/src/api/assets/services/job-manager.service';
 import { FileMapper } from '@/src/api/assets/mapper/file.mapper';
@@ -30,7 +30,8 @@ export class AssetService {
     private fileRepository: FileRepository,
     private assetMapper: AssetMapper,
     private jobManagerService: JobManagerService
-  ) {}
+  ) {
+  }
 
   async create(createVideoInput: CreateAssetInputDto) {
     let assetDocument = this.assetMapper.buildAssetDocumentForSaving(createVideoInput);
@@ -52,7 +53,7 @@ export class AssetService {
 
   async getAsset(getVideoInputDto: GetAssetInputDto) {
     return this.repository.findOne({
-      _id: getVideoInputDto._id,
+      _id: getVideoInputDto._id
     });
   }
 
@@ -62,7 +63,7 @@ export class AssetService {
       {
         title: updateVideoInput.title ? updateVideoInput.title : oldVideo.title,
         description: updateVideoInput.description ? updateVideoInput.description : updateVideoInput.description,
-        tags: updateVideoInput.tags ? updateVideoInput.tags : oldVideo.tags,
+        tags: updateVideoInput.tags ? updateVideoInput.tags : oldVideo.tags
       }
     );
     return this.repository.findOne({ _id: oldVideo._id });
@@ -72,7 +73,7 @@ export class AssetService {
     await this.repository.findOneAndUpdate(
       { _id: currentVideo._id },
       {
-        is_deleted: true,
+        is_deleted: true
       }
     );
     return this.repository.findOne({ _id: currentVideo._id });
@@ -83,17 +84,17 @@ export class AssetService {
       {
         _id: mongoose.Types.ObjectId(videoId),
         latest_status: {
-          $ne: status,
-        },
+          $ne: status
+        }
       },
       {
         latest_status: status,
         $push: {
           status_logs: {
             status: status,
-            details: details,
-          },
-        },
+            details: details
+          }
+        }
       }
     );
   }
@@ -120,13 +121,13 @@ export class AssetService {
   private buildDownloadVideoJob(videoDocument: AssetDocument): VideoDownloadJobModel {
     return {
       _id: videoDocument._id.toString(),
-      source_url: videoDocument.source_url,
+      source_url: videoDocument.source_url
     };
   }
 
   private buildValidateVideoJob(assetId: string): VideoValidationJobModel {
     return {
-      _id: assetId,
+      _id: assetId
     };
   }
 
@@ -142,7 +143,7 @@ export class AssetService {
   async checkForDeleteLocalAssetFile(assetId: string) {
     console.log('checking for ', assetId);
     let files = await this.fileRepository.find({
-      asset_id: mongoose.Types.ObjectId(assetId),
+      asset_id: mongoose.Types.ObjectId(assetId)
     });
     let filesWithReadyStatus = files.filter((file) => file.latest_status === FILE_STATUS.READY);
 
@@ -157,8 +158,8 @@ export class AssetService {
       let notFailedFilesCount = await this.fileRepository.count({
         asset_id: mongoose.Types.ObjectId(assetId),
         latest_status: {
-          $ne: FILE_STATUS.FAILED,
-        },
+          $ne: FILE_STATUS.FAILED
+        }
       });
 
       if (notFailedFilesCount > 0) {
@@ -166,7 +167,7 @@ export class AssetService {
       }
 
       let files = await this.fileRepository.find({
-        asset_id: mongoose.Types.ObjectId(assetId),
+        asset_id: mongoose.Types.ObjectId(assetId)
       });
 
       let failedFiles = files.filter((file) => file.latest_status === FILE_STATUS.FAILED);
@@ -181,7 +182,7 @@ export class AssetService {
 
   async afterUpdateLatestStatus(oldDoc: AssetDocument) {
     let updatedAsset = await this.repository.findOne({
-      _id: mongoose.Types.ObjectId(oldDoc._id.toString()),
+      _id: mongoose.Types.ObjectId(oldDoc._id.toString())
     });
 
     if (updatedAsset.latest_status === VIDEO_STATUS.FAILED) {
@@ -225,7 +226,7 @@ export class AssetService {
       let jobModel: VideoProcessingJobModel = {
         _id: assetId,
         height: data.height,
-        width: data.width,
+        width: data.width
       };
 
       this.rabbitMqService.publish(
@@ -246,7 +247,7 @@ export class AssetService {
   async createFileAfterValidation(assetId: string, jobData: JobMetadataModel) {
     let doc = FileMapper.mapForSave(
       assetId,
-      'playlist',
+      FILE_TYPE.PLAYLIST,
       jobData.height,
       jobData.width,
       FILE_STATUS.QUEUED,
@@ -257,7 +258,7 @@ export class AssetService {
 
   async checkForAssetReadyStatus(assetId: string) {
     let video = await this.repository.findOne({
-      _id: mongoose.Types.ObjectId(assetId),
+      _id: mongoose.Types.ObjectId(assetId)
     });
 
     if (!video) {
@@ -268,4 +269,29 @@ export class AssetService {
       await this.updateAssetStatus(assetId, VIDEO_STATUS.READY, 'Video ready');
     }
   }
+
+  async updateMasterFileVersion(assetId: string) {
+    let readyFileCount = await this.fileRepository.count({
+      asset_id: mongoose.Types.ObjectId(assetId),
+      type: FILE_TYPE.PLAYLIST
+    });
+
+    if (readyFileCount === 0) {
+      return null;
+    }
+
+    let master_file_name = `${getMainManifestFileName()}?v=${readyFileCount}`;
+    return this.repository.findOneAndUpdate(
+      {
+        _id: mongoose.Types.ObjectId(assetId)
+      },
+      {
+        master_file_name: master_file_name
+      }
+    );
+
+
+  }
+
+
 }

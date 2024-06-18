@@ -5,7 +5,7 @@ import { readdir, stat } from 'fs/promises';
 
 export function concatObject(obj: Object, separator: string = ', ') {
   return Object.keys(obj)
-    .map(function (key, index) {
+    .map(function(key, index) {
       return (obj as any)[key];
     })
     .join(separator);
@@ -58,8 +58,8 @@ export function getMainManifestPath(assetId: string) {
   return `${getLocalVideoRootPath(assetId)}/${getMainManifestFileName()}`;
 }
 
-export function getMasterPlaylistUrl(assetId: string) {
-  return `${AppConfigService.appConfig.CDN_BASE_URL}/${assetId}/${getMainManifestFileName()}`;
+export function getMasterPlaylistUrl(assetId: string, masterFileName: string) {
+  return `${AppConfigService.appConfig.CDN_BASE_URL}/${assetId}/${masterFileName}`;
 }
 
 export function getMainManifestFileName() {

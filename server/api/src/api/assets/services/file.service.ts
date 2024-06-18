@@ -7,7 +7,8 @@ import { AssetService } from '@/src/api/assets/services/asset.service';
 
 @Injectable()
 export class FileService {
-  constructor(private repository: FileRepository, private assetService: AssetService) {}
+  constructor(private repository: FileRepository, private assetService: AssetService) {
+  }
 
   async updateFileStatus(assetId: string, height: number, status: string, details: string, size?: number) {
     let updatedData: mongoose.UpdateQuery<FileDocument> = {
@@ -15,21 +16,21 @@ export class FileService {
       $push: {
         status_logs: {
           status: status,
-          details: details,
-        },
-      },
+          details: details
+        }
+      }
     };
     if (size) {
       updatedData = {
         ...updatedData,
-        size: size,
+        size: size
       };
     }
 
     return this.repository.findOneAndUpdate(
       {
         asset_id: mongoose.Types.ObjectId(assetId),
-        height: height,
+        height: height
       },
       updatedData
     );
@@ -38,7 +39,7 @@ export class FileService {
   async afterUpdateFileLatestStatus(oldDoc: FileDocument) {
     console.log('oldDoc ', oldDoc);
     let updatedFile = await this.repository.findOne({
-      _id: mongoose.Types.ObjectId(oldDoc._id.toString()),
+      _id: mongoose.Types.ObjectId(oldDoc._id.toString())
     });
     let assetId = updatedFile.asset_id;
 
@@ -60,6 +61,12 @@ export class FileService {
         .catch((err) => {
           console.log('error while checking asset ready status', err);
         });
+      this.assetService.updateMasterFileVersion(assetId.toString()).then(data => {
+        console.log('updated master file version ', data);
+      }).catch(err => {
+        console.log('error while updating master file version', err);
+      });
+
     }
     if (updatedFile.latest_status === FILE_STATUS.FAILED) {
       await this.assetService.checkForAssetFailedStatus(assetId.toString());

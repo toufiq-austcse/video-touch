@@ -23,3 +23,8 @@ export const VIDEO_RESOLUTION = {
   '720p': { height: 720, width: 1280 },
   '1080p': { height: 1080, width: 1920 },
 };
+
+export const FILE_TYPE={
+  PLAYLIST:'playlist',
+  THUMBNAIL:'thumbnail',
+}
