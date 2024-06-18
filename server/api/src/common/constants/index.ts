@@ -24,7 +24,7 @@ export const VIDEO_RESOLUTION = {
   '1080p': { height: 1080, width: 1920 },
 };
 
-export const FILE_TYPE={
-  PLAYLIST:'playlist',
-  THUMBNAIL:'thumbnail',
-}
+export const FILE_TYPE = {
+  PLAYLIST: 'playlist',
+  THUMBNAIL: 'thumbnail',
+};
