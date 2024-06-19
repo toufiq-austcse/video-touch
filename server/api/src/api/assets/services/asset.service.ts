@@ -14,6 +14,8 @@ import { AssetMapper } from '@/src/api/assets/mapper/asset.mapper';
 import { JobManagerService } from '@/src/api/assets/services/job-manager.service';
 import { FileMapper } from '@/src/api/assets/mapper/file.mapper';
 import { Constants, Utils, Models } from '@toufiq-austcse/video-touch-common';
+import { HeightWidthMap } from '@/src/api/assets/models/file.model';
+import { FileDocument } from '@/src/api/assets/schemas/files.schema';
 
 @Injectable()
 export class AssetService {
@@ -116,14 +118,14 @@ export class AssetService {
 
   private buildDownloadVideoJob(videoDocument: AssetDocument): Models.VideoDownloadJobModel {
     return {
-      _id: videoDocument._id.toString(),
+      asset_id: videoDocument._id.toString(),
       source_url: videoDocument.source_url,
     };
   }
 
   private buildValidateVideoJob(assetId: string): Models.VideoValidationJobModel {
     return {
-      _id: assetId,
+      asset_id: assetId,
     };
   }
 
@@ -198,10 +200,11 @@ export class AssetService {
         });
     }
     if (updatedAsset.latest_status === Constants.VIDEO_STATUS.VALIDATED) {
-      let jobData = this.jobManagerService.getRenditionWiseJobDataByHeight(updatedAsset.height);
-      await this.insertFilesData(updatedAsset._id.toString(), jobData);
+      let heightWidthMapByHeight = this.jobManagerService.getAllHeightWidthMapByHeight(updatedAsset.height);
+      let files = await this.insertFilesData(updatedAsset._id.toString(), heightWidthMapByHeight);
+      let jobModels = this.jobManagerService.getJobData(updatedAsset._id.toString(), files);
       await this.updateAssetStatus(updatedAsset._id.toString(), Constants.VIDEO_STATUS.PROCESSING, 'Video processing');
-      this.publishVideoProcessingJob(updatedAsset._id.toString(), jobData);
+      this.publishVideoProcessingJob(updatedAsset._id.toString(), jobModels);
     }
   }
 
@@ -220,7 +223,8 @@ export class AssetService {
   publishVideoProcessingJob(assetId: string, jobMetadata: Models.JobMetadataModel[]) {
     jobMetadata.forEach((data) => {
       let jobModel: Models.VideoProcessingJobModel = {
-        _id: assetId,
+        asset_id: assetId,
+        file_id: data.file_id.toString(),
         height: data.height,
         width: data.width,
       };
@@ -234,18 +238,21 @@ export class AssetService {
     });
   }
 
-  private async insertFilesData(assetId: string, jobData: Models.JobMetadataModel[]) {
-    for (let data of jobData) {
-      await this.createFileAfterValidation(assetId, data);
+  private async insertFilesData(assetId: string, heightWidthMaps: HeightWidthMap[]) {
+    let files: FileDocument[] = [];
+    for (let data of heightWidthMaps) {
+      let newFiles = await this.createFileAfterValidation(assetId, data.height, data.width);
+      files.push(newFiles);
     }
+    return files;
   }
 
-  async createFileAfterValidation(assetId: string, jobData: Models.JobMetadataModel) {
+  async createFileAfterValidation(assetId: string, height: number, width: number) {
     let doc = FileMapper.mapForSave(
       assetId,
       Constants.FILE_TYPE.PLAYLIST,
-      jobData.height,
-      jobData.width,
+      height,
+      width,
       Constants.FILE_STATUS.QUEUED,
       'File queued for processing'
     );

@@ -18,17 +18,17 @@ export class ProcessVideoWorker {
 
   async processVideo(msg: Models.VideoProcessingJobModel, height: number, width: number) {
     try {
-      this.publishUpdateFileStatusEvent(msg._id.toString(), 'Video transcoding started', 0, Constants.FILE_STATUS.PROCESSING, height);
-      let res = await this.transcodingService.transcodeVideoByResolution(msg._id.toString(), height, width);
+      this.publishUpdateFileStatusEvent(msg.file_id.toString(), 'Video transcoding started', 0, Constants.FILE_STATUS.PROCESSING);
+      let res = await this.transcodingService.transcodeVideoByResolution(msg.asset_id.toString(), height, width);
       console.log(`video ${height}p transcode:`, res);
-      this.manifestService.appendManifest(msg._id.toString(), height);
+      this.manifestService.appendManifest(msg.asset_id.toString(), height);
 
-      this.publishVideoUploadJob(msg._id.toString(), height, width);
+      this.publishVideoUploadJob(msg.file_id.toString(), msg.asset_id, height, width);
 
     } catch (e: any) {
       console.log(`error while processing ${height}p`, e);
 
-      this.publishUpdateFileStatusEvent(msg._id.toString(), e.message, 0, Constants.FILE_STATUS.FAILED, height);
+      this.publishUpdateFileStatusEvent(msg.file_id.toString(), e.message, 0, Constants.FILE_STATUS.FAILED);
 
     }
   }
@@ -46,9 +46,10 @@ export class ProcessVideoWorker {
   }
 
 
-  publishVideoUploadJob(_id: string, height: number, width: number) {
+  publishVideoUploadJob(fileId: string, assetId: string, height: number, width: number) {
     let jobModel: Models.VideoUploadJobModel = {
-      _id: _id,
+      asset_id: assetId,
+      file_id: fileId,
       height: height,
       width: width
     };
@@ -60,9 +61,9 @@ export class ProcessVideoWorker {
     );
   }
 
-  publishUpdateFileStatusEvent(assetId: string, details: string, dirSize: number, status: string, height: number) {
+  publishUpdateFileStatusEvent(fileId: string, details: string, dirSize: number, status: string) {
     try {
-      let updateFileStatusEvent = this.buildUpdateFileStatusEventModel(assetId, details, dirSize, status, height);
+      let updateFileStatusEvent = this.buildUpdateFileStatusEventModel(fileId, details, dirSize, status);
       this.rabbitMqService.publish(
         AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
         AppConfigService.appConfig.RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY,
@@ -74,9 +75,9 @@ export class ProcessVideoWorker {
 
   }
 
-  buildUpdateFileStatusEventModel(assetId: string, details: string, dirSize: number, status: string, height: number): Models.UpdateFileStatusEventModel {
+  buildUpdateFileStatusEventModel(fileId: string, details: string, dirSize: number, status: string): Models.UpdateFileStatusEventModel {
     return {
-      asset_id: assetId, details: details, dir_size: dirSize, height: height, status: status
+      file_id: fileId, details: details, dir_size: dirSize, status: status
     };
   }
 }

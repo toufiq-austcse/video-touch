@@ -15,13 +15,7 @@ export class UpdateFileStatusEventConsumer {
   public async handle(msg: Models.UpdateFileStatusEventModel) {
     try {
       console.log('UpdateFileStatusEventConsumer', msg);
-      await this.fileService.updateFileStatus(
-        msg.asset_id.toString(),
-        msg.height,
-        msg.status,
-        msg.details,
-        msg.dir_size
-      );
+      await this.fileService.updateFileStatus(msg.file_id.toString(), msg.status, msg.details, msg.dir_size);
     } catch (e: any) {
       console.log('error in UpdateFileStatusEventConsumer', e);
     }

@@ -9,7 +9,7 @@ import { AssetService } from '@/src/api/assets/services/asset.service';
 export class FileService {
   constructor(private repository: FileRepository, private assetService: AssetService) {}
 
-  async updateFileStatus(assetId: string, height: number, status: string, details: string, size?: number) {
+  async updateFileStatus(fileId: string, status: string, details: string, size?: number) {
     let updatedData: mongoose.UpdateQuery<FileDocument> = {
       latest_status: status,
       $push: {
@@ -28,8 +28,7 @@ export class FileService {
 
     return this.repository.findOneAndUpdate(
       {
-        asset_id: mongoose.Types.ObjectId(assetId),
-        height: height,
+        _id: mongoose.Types.ObjectId(fileId),
       },
       updatedData
     );

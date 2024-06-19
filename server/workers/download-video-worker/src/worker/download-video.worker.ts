@@ -17,14 +17,14 @@ export class DownloadVideoJobHandler {
   })
   public async handle(msg: Models.VideoDownloadJobModel) {
     try {
-      let destinationPath = Utils.getLocalVideoMp4Path(msg._id.toString(), AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
+      let destinationPath = Utils.getLocalVideoMp4Path(msg.asset_id.toString(), AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
       await this.download(msg, destinationPath);
 
-      this.publishUpdateAssetEvent(msg._id, Constants.VIDEO_STATUS.DOWNLOADED, 'Video downloaded');
+      this.publishUpdateAssetEvent(msg.asset_id, Constants.VIDEO_STATUS.DOWNLOADED, 'Video downloaded');
 
     } catch (e: any) {
       console.log('error in video download job handler', e);
-      this.publishUpdateAssetEvent(msg._id, Constants.VIDEO_STATUS.FAILED, e.message);
+      this.publishUpdateAssetEvent(msg.asset_id, Constants.VIDEO_STATUS.FAILED, e.message);
 
     }
   }

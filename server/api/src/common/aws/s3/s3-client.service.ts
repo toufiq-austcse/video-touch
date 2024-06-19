@@ -53,7 +53,7 @@ export class S3ClientService implements OnModuleInit {
   buildUploadObjModel(data: Models.VideoUploadJobModel, localFilePath: string): UploadObjModel {
     return {
       bucket: AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
-      key: `video-touch/${data._id}`,
+      key: `video-touch/${data.asset_id}`,
       filePath: localFilePath,
       acl: 'public-read',
       contentType: 'video/mp4',
