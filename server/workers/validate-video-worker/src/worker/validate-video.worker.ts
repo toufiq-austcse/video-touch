@@ -18,12 +18,12 @@ export class ValidateVideoWorker {
   public async handle(msg: Models.VideoValidationJobModel) {
     console.log('VideoValidationJobHandler', msg);
     try {
-      let videoPath = Utils.getLocalVideoMp4Path(msg._id.toString(), AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
+      let videoPath = Utils.getLocalVideoMp4Path(msg.asset_id.toString(), AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
       let metadata = await this.getMetadata(videoPath);
       console.log('metadata', metadata);
 
       this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE, AppConfigService.appConfig.RABBIT_MQ_UPDATE_ASSET_ROUTING_KEY, {
-        asset_id: msg._id,
+        asset_id: msg.asset_id,
         data: {
           size: metadata.size,
           height: metadata.height,
@@ -32,13 +32,13 @@ export class ValidateVideoWorker {
         }
       });
 
-      this.publishUpdateAssetEvent(msg._id, metadata.size, metadata.height, metadata.width, metadata.duration);
+      this.publishUpdateAssetEvent(msg.asset_id, metadata.size, metadata.height, metadata.width, metadata.duration);
 
-      this.publishUpdateAssetStatusEvent(msg._id, Constants.VIDEO_STATUS.VALIDATED, 'Video validated');
+      this.publishUpdateAssetStatusEvent(msg.asset_id, Constants.VIDEO_STATUS.VALIDATED, 'Video validated');
 
     } catch (e: any) {
       console.log('error in video validation job handler', e);
-      this.publishUpdateAssetStatusEvent(msg._id, Constants.VIDEO_STATUS.FAILED, e.message);
+      this.publishUpdateAssetStatusEvent(msg.asset_id, Constants.VIDEO_STATUS.FAILED, e.message);
     }
   }
 
