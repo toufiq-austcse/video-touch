@@ -3,7 +3,7 @@ import {
   Asset,
   AssetMinimalResponse,
   CreateAssetResponse,
-  PaginatedAssetResponse
+  PaginatedAssetResponse,
 } from '@/src/api/assets/models/asset.model';
 import { AssetDocument } from '@/src/api/assets/schemas/assets.schema';
 import { plainToClass, plainToInstance } from 'class-transformer';
@@ -14,7 +14,6 @@ import { CreateAssetFromUploadInputDto, CreateAssetInputDto } from '@/src/api/as
 import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 
-
 @Injectable()
 export class AssetMapper {
   toCreateAssetResponse(videoDocument: AssetDocument): CreateAssetResponse {
@@ -24,7 +23,7 @@ export class AssetMapper {
       source_url: videoDocument.source_url,
       status: videoDocument.latest_status,
       tags: videoDocument.tags,
-      title: videoDocument.title
+      title: videoDocument.title,
     };
   }
 
@@ -37,7 +36,7 @@ export class AssetMapper {
       title: title,
       description: createVideoInput.description,
       source_url: createVideoInput.source_url,
-      tags: createVideoInput.tags
+      tags: createVideoInput.tags,
     };
   }
 
@@ -50,7 +49,7 @@ export class AssetMapper {
       title: title,
       description: uploadAssetReqDto.description,
       source_url: null,
-      tags: uploadAssetReqDto.tags
+      tags: uploadAssetReqDto.tags,
     };
   }
 
@@ -71,18 +70,18 @@ export class AssetMapper {
             duration: video.duration,
             status: video.latest_status,
             created_at: video.createdAt,
-            updated_at: video.updatedAt
+            updated_at: video.updatedAt,
           } as AssetMinimalResponse,
           {
             excludeExtraneousValues: true,
-            enableImplicitConversion: true
+            enableImplicitConversion: true,
           }
         )
       );
     }
     return {
       assets: videos,
-      page_info: paginatedVideoResponse.pageInfo
+      page_info: paginatedVideoResponse.pageInfo,
     };
   }
 
@@ -100,14 +99,18 @@ export class AssetMapper {
         size: asset.size,
         master_playlist_url:
           asset.latest_status === Constants.VIDEO_STATUS.READY
-            ? Utils.getMasterPlaylistUrl(asset._id.toString(), asset.master_file_name, AppConfigService.appConfig.CDN_BASE_URL)
+            ? Utils.getMasterPlaylistUrl(
+                asset._id.toString(),
+                asset.master_file_name,
+                AppConfigService.appConfig.CDN_BASE_URL
+              )
             : null,
         latest_status: asset.latest_status,
         status_logs: statusLogs,
         tags: asset.tags,
         created_at: asset.createdAt,
         updated_at: asset.updatedAt,
-        _id: asset._id.toString()
+        _id: asset._id.toString(),
       } as Asset,
       { excludeExtraneousValues: true, enableImplicitConversion: true }
     );
@@ -123,11 +126,11 @@ export class AssetMapper {
           {
             ...log,
             created_at: log.createdAt,
-            updated_at: log.updatedAt
+            updated_at: log.updatedAt,
           } as StatusLogResponse,
           {
             excludeExtraneousValues: true,
-            enableImplicitConversion: true
+            enableImplicitConversion: true,
           }
         )
       );

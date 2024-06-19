@@ -2,8 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 
 @Controller()
 export class IndexController {
-  constructor() {
-  }
+  constructor() {}
 
   @Get()
   async index() {
@@ -56,8 +55,7 @@ export class IndexController {
     //   });
 
     return {
-      app: 'Nest Boilerplate is running...'
+      app: 'Nest Boilerplate is running...',
     };
   }
-
 }

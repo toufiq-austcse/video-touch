@@ -21,7 +21,6 @@ import { UpdateAssetEventConsumer } from '@/src/api/assets/consumers/update-asse
 import { UpdateFileStatusEventConsumer } from '@/src/api/assets/consumers/update-file-status-event.consumer';
 import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
 
-
 @Module({
   imports: [
     MongooseModule.forFeatureAsync([
@@ -30,7 +29,7 @@ import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = VideoSchema;
-          schema.pre('save', async function() {
+          schema.pre('save', async function () {
             console.log('assets pre save hook');
             const asset = this;
             (asset as any).master_file_name = Utils.getMainManifestFileName();
@@ -40,17 +39,20 @@ import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
               (asset as any).status_logs = StatusMapper.mapForSave(Constants.VIDEO_STATUS.QUEUED, 'Video is queued');
             } else {
               (asset as any).latest_status = Constants.VIDEO_STATUS.UPLOAD_PENDING;
-              (asset as any).status_logs = StatusMapper.mapForSave(Constants.VIDEO_STATUS.UPLOAD_PENDING, 'Video is uploading');
+              (asset as any).status_logs = StatusMapper.mapForSave(
+                Constants.VIDEO_STATUS.UPLOAD_PENDING,
+                'Video is uploading'
+              );
             }
           });
-          schema.post('save', async function(doc) {
+          schema.post('save', async function (doc) {
             let assetService = moduleRef.get<AssetService>(AssetService, { strict: false });
             console.log('post save hook');
             await assetService.afterSave(doc);
             return;
           });
 
-          schema.post('findOneAndUpdate', async function(doc) {
+          schema.post('findOneAndUpdate', async function (doc) {
             console.log('this ', this['_update']);
             if (!doc) {
               return;
@@ -65,14 +67,14 @@ import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
           });
 
           return schema;
-        }
+        },
       },
       {
         name: FILE_COLLECTION_NAME,
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = FileSchema;
-          schema.post('findOneAndUpdate', async function(doc) {
+          schema.post('findOneAndUpdate', async function (doc) {
             if (!doc) {
               return;
             }
@@ -86,16 +88,16 @@ import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
           });
 
           return schema;
-        }
-      }
+        },
+      },
     ]),
     JwtModule.registerAsync({
       inject: [AppConfigService],
       useFactory: async () => ({
         secret: process.env.JWT_SECRET,
-        signOptions: { expiresIn: '1h' }
-      })
-    })
+        signOptions: { expiresIn: '1h' },
+      }),
+    }),
   ],
   controllers: [UploadController],
   providers: [
@@ -110,8 +112,7 @@ import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
     UpdateAssetEventConsumer,
     UpdateFileStatusEventConsumer,
     JobManagerService,
-    TusService
-  ]
+    TusService,
+  ],
 })
-export class AssetsModule {
-}
+export class AssetsModule {}

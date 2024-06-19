@@ -15,7 +15,6 @@ import { JobManagerService } from '@/src/api/assets/services/job-manager.service
 import { FileMapper } from '@/src/api/assets/mapper/file.mapper';
 import { Constants, Utils, Models } from '@toufiq-austcse/video-touch-common';
 
-
 @Injectable()
 export class AssetService {
   constructor(
@@ -24,8 +23,7 @@ export class AssetService {
     private fileRepository: FileRepository,
     private assetMapper: AssetMapper,
     private jobManagerService: JobManagerService
-  ) {
-  }
+  ) {}
 
   async create(createVideoInput: CreateAssetInputDto) {
     let assetDocument = this.assetMapper.buildAssetDocumentForSaving(createVideoInput);
@@ -47,7 +45,7 @@ export class AssetService {
 
   async getAsset(getVideoInputDto: GetAssetInputDto) {
     return this.repository.findOne({
-      _id: getVideoInputDto._id
+      _id: getVideoInputDto._id,
     });
   }
 
@@ -57,7 +55,7 @@ export class AssetService {
       {
         title: updateVideoInput.title ? updateVideoInput.title : oldVideo.title,
         description: updateVideoInput.description ? updateVideoInput.description : updateVideoInput.description,
-        tags: updateVideoInput.tags ? updateVideoInput.tags : oldVideo.tags
+        tags: updateVideoInput.tags ? updateVideoInput.tags : oldVideo.tags,
       }
     );
     return this.repository.findOne({ _id: oldVideo._id });
@@ -67,7 +65,7 @@ export class AssetService {
     await this.repository.findOneAndUpdate(
       { _id: currentVideo._id },
       {
-        is_deleted: true
+        is_deleted: true,
       }
     );
     return this.repository.findOne({ _id: currentVideo._id });
@@ -78,23 +76,27 @@ export class AssetService {
       {
         _id: mongoose.Types.ObjectId(videoId),
         latest_status: {
-          $ne: status
-        }
+          $ne: status,
+        },
       },
       {
         latest_status: status,
         $push: {
           status_logs: {
             status: status,
-            details: details
-          }
-        }
+            details: details,
+          },
+        },
       }
     );
   }
 
   async pushDownloadVideoJob(videoDocument: AssetDocument) {
-    await this.updateAssetStatus(videoDocument._id.toString(), Constants.VIDEO_STATUS.DOWNLOADING, 'Downloading assets');
+    await this.updateAssetStatus(
+      videoDocument._id.toString(),
+      Constants.VIDEO_STATUS.DOWNLOADING,
+      'Downloading assets'
+    );
     let downloadVideoJob = this.buildDownloadVideoJob(videoDocument);
     return this.rabbitMqService.publish(
       AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
@@ -115,13 +117,13 @@ export class AssetService {
   private buildDownloadVideoJob(videoDocument: AssetDocument): Models.VideoDownloadJobModel {
     return {
       _id: videoDocument._id.toString(),
-      source_url: videoDocument.source_url
+      source_url: videoDocument.source_url,
     };
   }
 
   private buildValidateVideoJob(assetId: string): Models.VideoValidationJobModel {
     return {
-      _id: assetId
+      _id: assetId,
     };
   }
 
@@ -137,7 +139,7 @@ export class AssetService {
   async checkForDeleteLocalAssetFile(assetId: string) {
     console.log('checking for ', assetId);
     let files = await this.fileRepository.find({
-      asset_id: mongoose.Types.ObjectId(assetId)
+      asset_id: mongoose.Types.ObjectId(assetId),
     });
     let filesWithReadyStatus = files.filter((file) => file.latest_status === Constants.FILE_STATUS.READY);
 
@@ -152,8 +154,8 @@ export class AssetService {
       let notFailedFilesCount = await this.fileRepository.count({
         asset_id: mongoose.Types.ObjectId(assetId),
         latest_status: {
-          $ne: Constants.FILE_STATUS.FAILED
-        }
+          $ne: Constants.FILE_STATUS.FAILED,
+        },
       });
 
       if (notFailedFilesCount > 0) {
@@ -161,7 +163,7 @@ export class AssetService {
       }
 
       let files = await this.fileRepository.find({
-        asset_id: mongoose.Types.ObjectId(assetId)
+        asset_id: mongoose.Types.ObjectId(assetId),
       });
 
       let failedFiles = files.filter((file) => file.latest_status === Constants.FILE_STATUS.FAILED);
@@ -176,7 +178,7 @@ export class AssetService {
 
   async afterUpdateLatestStatus(oldDoc: AssetDocument) {
     let updatedAsset = await this.repository.findOne({
-      _id: mongoose.Types.ObjectId(oldDoc._id.toString())
+      _id: mongoose.Types.ObjectId(oldDoc._id.toString()),
     });
 
     if (updatedAsset.latest_status === Constants.VIDEO_STATUS.FAILED) {
@@ -220,7 +222,7 @@ export class AssetService {
       let jobModel: Models.VideoProcessingJobModel = {
         _id: assetId,
         height: data.height,
-        width: data.width
+        width: data.width,
       };
 
       this.rabbitMqService.publish(
@@ -252,7 +254,7 @@ export class AssetService {
 
   async checkForAssetReadyStatus(assetId: string) {
     let video = await this.repository.findOne({
-      _id: mongoose.Types.ObjectId(assetId)
+      _id: mongoose.Types.ObjectId(assetId),
     });
 
     if (!video) {
@@ -268,7 +270,7 @@ export class AssetService {
     let readyFileCount = await this.fileRepository.count({
       asset_id: mongoose.Types.ObjectId(assetId),
       type: Constants.FILE_TYPE.PLAYLIST,
-      latest_status: Constants.FILE_STATUS.READY
+      latest_status: Constants.FILE_STATUS.READY,
     });
 
     if (readyFileCount === 0) {
@@ -278,10 +280,10 @@ export class AssetService {
     let master_file_name = `${Utils.getMainManifestFileName()}?v=${readyFileCount}`;
     return this.repository.findOneAndUpdate(
       {
-        _id: mongoose.Types.ObjectId(assetId)
+        _id: mongoose.Types.ObjectId(assetId),
       },
       {
-        master_file_name: master_file_name
+        master_file_name: master_file_name,
       }
     );
   }

@@ -20,7 +20,7 @@ export class TusService {
         }
 
         let createdAsset = await this.assetService.createAssetFromUploadReq({
-          file_name: upload.metadata['filename']
+          file_name: upload.metadata['filename'],
         });
         upload.id = `${createdAsset._id.toString()}.mp4`;
         upload.metadata['db_id'] = createdAsset._id.toString();
@@ -38,7 +38,9 @@ export class TusService {
         return res;
       },
       path: '/upload/files',
-      datastore: new FileStore({ directory: Utils.getTempLocalUploadDirectory(AppConfigService.appConfig.TEMP_UPLOAD_DIRECTORY) })
+      datastore: new FileStore({
+        directory: Utils.getTempLocalUploadDirectory(AppConfigService.appConfig.TEMP_UPLOAD_DIRECTORY),
+      }),
     });
   }
 
@@ -51,7 +53,9 @@ export class TusService {
     if (!fs.existsSync(rootPath)) {
       fs.mkdirSync(rootPath, { recursive: true });
     }
-    let sourceFilePath = `${Utils.getTempLocalUploadDirectory(AppConfigService.appConfig.TEMP_UPLOAD_DIRECTORY)}/${uploadId}`;
+    let sourceFilePath = `${Utils.getTempLocalUploadDirectory(
+      AppConfigService.appConfig.TEMP_UPLOAD_DIRECTORY
+    )}/${uploadId}`;
     let destinationFilePath = `${rootPath}/${assetId.toString()}.mp4`;
     console.log('renaming file', sourceFilePath, destinationFilePath);
     await this.promiseMv(sourceFilePath, destinationFilePath);

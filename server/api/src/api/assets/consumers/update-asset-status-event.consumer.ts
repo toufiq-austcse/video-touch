@@ -3,16 +3,14 @@ import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { AssetService } from '@/src/api/assets/services/asset.service';
 import { Models } from '@toufiq-austcse/video-touch-common';
 
-
 @Injectable()
 export class UpdateAssetStatusEventConsumer {
-  constructor(private assetService: AssetService) {
-  }
+  constructor(private assetService: AssetService) {}
 
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
     routingKey: process.env.RABBIT_MQ_UPDATE_ASSET_STATUS_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_UPDATE_ASSET_STATUS_QUEUE
+    queue: process.env.RABBIT_MQ_UPDATE_ASSET_STATUS_QUEUE,
   })
   public async handle(msg: Models.UpdateAssetStatusEventModel) {
     try {

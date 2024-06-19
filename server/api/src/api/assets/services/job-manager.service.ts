@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { Models } from '@toufiq-austcse/video-touch-common';
 
-
 @Injectable()
 export class JobManagerService {
   getJobData(): Models.JobMetadataModel[] {
@@ -10,28 +9,28 @@ export class JobManagerService {
       {
         height: 1080,
         width: 1920,
-        processRoutingKey: AppConfigService.appConfig.RABBIT_MQ_1080P_PROCESS_VIDEO_ROUTING_KEY
+        processRoutingKey: AppConfigService.appConfig.RABBIT_MQ_1080P_PROCESS_VIDEO_ROUTING_KEY,
       },
       {
         height: 720,
         width: 1280,
-        processRoutingKey: AppConfigService.appConfig.RABBIT_MQ_720P_PROCESS_VIDEO_ROUTING_KEY
+        processRoutingKey: AppConfigService.appConfig.RABBIT_MQ_720P_PROCESS_VIDEO_ROUTING_KEY,
       },
       {
         height: 540,
         width: 960,
-        processRoutingKey: AppConfigService.appConfig.RABBIT_MQ_540P_PROCESS_VIDEO_ROUTING_KEY
+        processRoutingKey: AppConfigService.appConfig.RABBIT_MQ_540P_PROCESS_VIDEO_ROUTING_KEY,
       },
       {
         height: 480,
         width: 854,
-        processRoutingKey: AppConfigService.appConfig.RABBIT_MQ_480P_PROCESS_VIDEO_ROUTING_KEY
+        processRoutingKey: AppConfigService.appConfig.RABBIT_MQ_480P_PROCESS_VIDEO_ROUTING_KEY,
       },
       {
         height: 360,
         width: 640,
-        processRoutingKey: AppConfigService.appConfig.RABBIT_MQ_360P_PROCESS_VIDEO_ROUTING_KEY
-      }
+        processRoutingKey: AppConfigService.appConfig.RABBIT_MQ_360P_PROCESS_VIDEO_ROUTING_KEY,
+      },
     ];
   }
 
