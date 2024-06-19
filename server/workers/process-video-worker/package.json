@@ -29,7 +29,7 @@
     "amqplib": "^0.10.4",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
-    "@toufiq-austcse/video-touch-common": "^0.0.1"
+    "@toufiq-austcse/video-touch-common": "^1.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
