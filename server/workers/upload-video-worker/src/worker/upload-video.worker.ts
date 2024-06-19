@@ -25,22 +25,22 @@ export class VideoUploaderJobHandler {
 
   async upload(msg: Models.VideoUploadJobModel) {
     try {
-      let localFilePath = Utils.getLocalResolutionPath(msg._id.toString(), msg.height, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
-      let s3VideoPath = Utils.getS3VideoPath(msg._id.toString(), msg.height, AppConfigService.appConfig.AWS_S3_BUCKET_NAME);
+      let localFilePath = Utils.getLocalResolutionPath(msg.asset_id.toString(), msg.height, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
+      let s3VideoPath = Utils.getS3VideoPath(msg.asset_id.toString(), msg.height, AppConfigService.appConfig.AWS_S3_BUCKET_NAME);
       let res = await this.syncDirToS3(localFilePath, s3VideoPath);
       console.log(`video ${msg.height}p uploaded:`, res);
 
-      await this.s3ClientService.syncMainManifestFile(msg._id.toString());
+      await this.s3ClientService.syncMainManifestFile(msg.asset_id.toString());
 
       let dirSize = await Utils.getDirSize(localFilePath);
       console.log('dir size:', dirSize);
 
-      this.publishUpdateFileStatusEvent(msg._id.toString(), 'File uploaded', dirSize, Constants.FILE_STATUS.READY, msg.height);
+      this.publishUpdateFileStatusEvent(msg.file_id.toString(), 'File uploaded', dirSize, Constants.FILE_STATUS.READY);
 
     } catch (err: any) {
       console.log('error in uploading ', msg.height, err);
 
-      this.publishUpdateFileStatusEvent(msg._id.toString(), 'File uploading failed', 0, Constants.FILE_STATUS.FAILED, msg.height);
+      this.publishUpdateFileStatusEvent(msg.file_id.toString(), 'File uploading failed', 0, Constants.FILE_STATUS.FAILED);
     }
   }
 
@@ -50,13 +50,13 @@ export class VideoUploaderJobHandler {
     queue: process.env.RABBIT_MQ_UPLOAD_VIDEO_QUEUE
   })
   public async handleUpload(msg: Models.VideoUploadJobModel) {
-    console.log(`uploading ${msg.height}p video`, msg._id.toString());
+    console.log(`uploading ${msg.height}p video`, msg.asset_id.toString());
     await this.upload(msg);
   }
 
-  publishUpdateFileStatusEvent(assetId: string, details: string, dirSize: number, status: string, height: number) {
+  publishUpdateFileStatusEvent(fileId: string, details: string, dirSize: number, status: string) {
     try {
-      let updateFileStatusEvent = this.buildUpdateFileStatusEventModel(assetId, details, dirSize, status, height);
+      let updateFileStatusEvent = this.buildUpdateFileStatusEventModel(fileId, details, dirSize, status);
       this.rabbitMqService.publish(
         AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
         AppConfigService.appConfig.RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY,
@@ -69,9 +69,9 @@ export class VideoUploaderJobHandler {
 
   }
 
-  buildUpdateFileStatusEventModel(assetId: string, details: string, dirSize: number, status: string, height: number): Models.UpdateFileStatusEventModel {
+  buildUpdateFileStatusEventModel(fileId: string, details: string, dirSize: number, status: string): Models.UpdateFileStatusEventModel {
     return {
-      asset_id: assetId, details: details, dir_size: dirSize, height: height, status: status
+      file_id: fileId, details: details, dir_size: dirSize, status: status
     };
   }
 }
