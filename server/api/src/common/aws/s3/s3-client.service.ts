@@ -9,7 +9,8 @@ import { Models, Utils } from '@toufiq-austcse/video-touch-common';
 export class S3ClientService implements OnModuleInit {
   private s3: AWS.S3;
 
-  constructor() {}
+  constructor() {
+  }
 
   onModuleInit() {
     this.s3 = new AWS.S3({
@@ -17,8 +18,8 @@ export class S3ClientService implements OnModuleInit {
       secretAccessKey: AppConfigService.appConfig.AWS_SECRET_ACCESS_KEY,
       region: AppConfigService.appConfig.AWS_REGION,
       httpOptions: {
-        timeout: 0,
-      },
+        timeout: 0
+      }
     });
   }
 
@@ -31,7 +32,7 @@ export class S3ClientService implements OnModuleInit {
         Key: key,
         Body: fs.createReadStream(filePath),
         ACL: acl,
-        ContentType: contentType,
+        ContentType: contentType
       };
 
       let res = await this.s3.upload(params).promise();
@@ -53,10 +54,10 @@ export class S3ClientService implements OnModuleInit {
   buildUploadObjModel(data: Models.VideoUploadJobModel, localFilePath: string): UploadObjModel {
     return {
       bucket: AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
-      key: `video-touch/${data._id}`,
+      key: `video-touch/${data.asset_id}`,
       filePath: localFilePath,
       acl: 'public-read',
-      contentType: 'video/mp4',
+      contentType: 'video/mp4'
     };
   }
 
@@ -68,7 +69,7 @@ export class S3ClientService implements OnModuleInit {
       key: s3ManifestPath,
       filePath: mainManifestPath,
       acl: 'public-read',
-      contentType: 'application/vnd.apple.mpegurl',
+      contentType: 'application/vnd.apple.mpegurl'
     });
     console.log('manifest uploaded:', res);
     return res;
