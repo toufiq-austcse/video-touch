@@ -1,12 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
-import { getLocalVideoMp4Path } from '@/src/common/utils';
 import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
-import { VIDEO_STATUS } from '@/src/common/constants';
-import { VideoValidationJobModel } from '@/src/worker/models/job.model';
-import { terminal } from '@/src/common/utils/terminal';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
-import { UpdateAssetEventModel, UpdateAssetStatusEventModel } from '@/src/worker/models/event.model';
+import { Constants, Models, terminal, Utils } from '@toufiq-austcse/video-touch-common';
+
 
 @Injectable()
 export class ValidateVideoWorker {
@@ -18,10 +15,10 @@ export class ValidateVideoWorker {
     routingKey: process.env.RABBIT_MQ_VALIDATE_VIDEO_ROUTING_KEY,
     queue: process.env.RABBIT_MQ_VALIDATE_VIDEO_QUEUE
   })
-  public async handle(msg: VideoValidationJobModel) {
+  public async handle(msg: Models.VideoValidationJobModel) {
     console.log('VideoValidationJobHandler', msg);
     try {
-      let videoPath = getLocalVideoMp4Path(msg._id.toString());
+      let videoPath = Utils.getLocalVideoMp4Path(msg._id.toString(), AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
       let metadata = await this.getMetadata(videoPath);
       console.log('metadata', metadata);
 
@@ -37,11 +34,11 @@ export class ValidateVideoWorker {
 
       this.publishUpdateAssetEvent(msg._id, metadata.size, metadata.height, metadata.width, metadata.duration);
 
-      this.publishUpdateAssetStatusEvent(msg._id, VIDEO_STATUS.VALIDATED, 'Video validated');
+      this.publishUpdateAssetStatusEvent(msg._id, Constants.VIDEO_STATUS.VALIDATED, 'Video validated');
 
     } catch (e: any) {
       console.log('error in video validation job handler', e);
-      this.publishUpdateAssetStatusEvent(msg._id, VIDEO_STATUS.FAILED, e.message);
+      this.publishUpdateAssetStatusEvent(msg._id, Constants.VIDEO_STATUS.FAILED, e.message);
     }
   }
 
@@ -67,7 +64,7 @@ export class ValidateVideoWorker {
     };
   }
 
-  buildUpdateAssetStatusEventModel(assetId: string, status: string, details: string): UpdateAssetStatusEventModel {
+  buildUpdateAssetStatusEventModel(assetId: string, status: string, details: string): Models.UpdateAssetStatusEventModel {
     return {
       asset_id: assetId, details: details, status: status
     };
@@ -82,7 +79,7 @@ export class ValidateVideoWorker {
     }
   }
 
-  buildUpdateAssetEventModel(assetId: string, size: number, height: number, width: number, duration: number): UpdateAssetEventModel {
+  buildUpdateAssetEventModel(assetId: string, size: number, height: number, width: number, duration: number): Models.UpdateAssetEventModel {
     return {
       asset_id: assetId,
       data: {

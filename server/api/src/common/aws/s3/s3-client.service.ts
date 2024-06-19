@@ -3,8 +3,7 @@ import fs from 'fs';
 import * as AWS from 'aws-sdk';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { UploadObjModel } from '@/src/common/aws/s3/models/upload-obj.model';
-import { VideoUploadJobModel } from '@/src/api/assets/models/job.model';
-import { getMainManifestPath, getS3ManifestPath } from '@/src/common/utils';
+import { Models, Utils } from '@toufiq-austcse/video-touch-common';
 
 @Injectable()
 export class S3ClientService implements OnModuleInit {
@@ -51,7 +50,7 @@ export class S3ClientService implements OnModuleInit {
     });
   }
 
-  buildUploadObjModel(data: VideoUploadJobModel, localFilePath: string): UploadObjModel {
+  buildUploadObjModel(data: Models.VideoUploadJobModel, localFilePath: string): UploadObjModel {
     return {
       bucket: AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
       key: `video-touch/${data._id}`,
@@ -62,8 +61,8 @@ export class S3ClientService implements OnModuleInit {
   }
 
   async syncMainManifestFile(assetId: string) {
-    let mainManifestPath = getMainManifestPath(assetId);
-    let s3ManifestPath = getS3ManifestPath(assetId);
+    let mainManifestPath = Utils.getMainManifestPath(assetId, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
+    let s3ManifestPath = Utils.getS3ManifestPath(assetId);
     let res = await this.uploadObject({
       bucket: AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
       key: s3ManifestPath,

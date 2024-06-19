@@ -4,10 +4,9 @@ import { FileStore } from '@tus/file-store';
 import { Request, Response } from 'express';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { AssetService } from '@/src/api/assets/services/asset.service';
-import { getLocalVideoRootPath, getTempLocalUploadDirectory } from '@/src/common/utils';
 import fs from 'fs';
 import mv from 'mv';
-import { VIDEO_STATUS } from '@/src/common/constants';
+import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
 
 @Injectable()
 export class TusService {
@@ -33,13 +32,15 @@ export class TusService {
 
         await this.assetService.updateAssetStatus(
           upload.metadata['db_id'],
-          VIDEO_STATUS.UPLOADED,
+          Constants.VIDEO_STATUS.UPLOADED,
           'Video uploaded successfully'
         );
         return res;
       },
       path: '/upload/files',
-      datastore: new FileStore({ directory: getTempLocalUploadDirectory() }),
+      datastore: new FileStore({
+        directory: Utils.getTempLocalUploadDirectory(AppConfigService.appConfig.TEMP_UPLOAD_DIRECTORY),
+      }),
     });
   }
 
@@ -48,11 +49,13 @@ export class TusService {
   }
 
   async moveFile(assetId: string, uploadId: string) {
-    let rootPath = getLocalVideoRootPath(assetId);
+    let rootPath = Utils.getLocalVideoRootPath(assetId, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
     if (!fs.existsSync(rootPath)) {
       fs.mkdirSync(rootPath, { recursive: true });
     }
-    let sourceFilePath = `${getTempLocalUploadDirectory()}/${uploadId}`;
+    let sourceFilePath = `${Utils.getTempLocalUploadDirectory(
+      AppConfigService.appConfig.TEMP_UPLOAD_DIRECTORY
+    )}/${uploadId}`;
     let destinationFilePath = `${rootPath}/${assetId.toString()}.mp4`;
     console.log('renaming file', sourceFilePath, destinationFilePath);
     await this.promiseMv(sourceFilePath, destinationFilePath);

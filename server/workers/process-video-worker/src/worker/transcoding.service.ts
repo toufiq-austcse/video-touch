@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { terminal } from '@/src/common/utils/terminal';
-import { getLocalResolutionPath, getLocalVideoMp4Path } from '@/src/common/utils';
+import { Utils, terminal } from '@toufiq-austcse/video-touch-common';
+import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 
 
 @Injectable()
@@ -17,8 +17,8 @@ export class TranscodingService {
   async transcodeVideoByResolution(videoId: string, height: number, width: number) {
     let result = null;
     try {
-      let inputFilePath = getLocalVideoMp4Path(videoId);
-      let outputFolderPath = getLocalResolutionPath(videoId, height);
+      let inputFilePath = Utils.getLocalVideoMp4Path(videoId, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
+      let outputFolderPath = Utils.getLocalResolutionPath(videoId, height, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
       result = await this.transcodeVideo(inputFilePath, outputFolderPath, height, width);
     } catch (e: any) {
       throw new Error(e);

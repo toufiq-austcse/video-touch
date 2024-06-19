@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { AssetRepository } from '@/src/api/assets/repositories/asset.repository';
 import mongoose from 'mongoose';
-import { UpdateAssetEventModel } from '@/src/api/assets/models/event.model';
+import { Models } from '@toufiq-austcse/video-touch-common';
 
 @Injectable()
 export class UpdateAssetEventConsumer {
@@ -13,7 +13,7 @@ export class UpdateAssetEventConsumer {
     routingKey: process.env.RABBIT_MQ_UPDATE_ASSET_ROUTING_KEY,
     queue: process.env.RABBIT_MQ_UPDATE_ASSET_QUEUE,
   })
-  public async handle(msg: UpdateAssetEventModel) {
+  public async handle(msg: Models.UpdateAssetEventModel) {
     try {
       console.log('UpdateAssetStatusEventConsumer', msg);
       await this.assetRepository.findOneAndUpdate(

@@ -10,9 +10,9 @@ import { plainToClass, plainToInstance } from 'class-transformer';
 import { BasePaginatedResponse } from '@/src/common/database/models/abstract.model';
 import { StatusDocument } from '@/src/api/assets/schemas/status.schema';
 import { StatusLogResponse } from '@/src/api/assets/models/status-logs.model';
-import { getMasterPlaylistUrl } from '@/src/common/utils';
-import { VIDEO_STATUS } from '@/src/common/constants';
 import { CreateAssetFromUploadInputDto, CreateAssetInputDto } from '@/src/api/assets/dtos/create-asset-input.dto';
+import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
+import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 
 @Injectable()
 export class AssetMapper {
@@ -98,8 +98,12 @@ export class AssetMapper {
         thumbnail_url: null,
         size: asset.size,
         master_playlist_url:
-          asset.latest_status === VIDEO_STATUS.READY
-            ? getMasterPlaylistUrl(asset._id.toString(), asset.master_file_name)
+          asset.latest_status === Constants.VIDEO_STATUS.READY
+            ? Utils.getMasterPlaylistUrl(
+                asset._id.toString(),
+                asset.master_file_name,
+                AppConfigService.appConfig.CDN_BASE_URL
+              )
             : null,
         latest_status: asset.latest_status,
         status_logs: statusLogs,

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { FILE_STATUS } from '@/src/common/constants';
+import { Constants } from '@toufiq-austcse/video-touch-common';
 import { FileRepository } from '@/src/api/assets/repositories/file.repository';
 import mongoose from 'mongoose';
 import { FileDocument } from '@/src/api/assets/schemas/files.schema';
@@ -42,7 +42,7 @@ export class FileService {
     });
     let assetId = updatedFile.asset_id;
 
-    if (updatedFile.latest_status == FILE_STATUS.READY) {
+    if (updatedFile.latest_status == Constants.FILE_STATUS.READY) {
       this.assetService
         .checkForDeleteLocalAssetFile(assetId.toString())
         .then((data) => {
@@ -69,7 +69,7 @@ export class FileService {
           console.log('error while updating master file version', err);
         });
     }
-    if (updatedFile.latest_status === FILE_STATUS.FAILED) {
+    if (updatedFile.latest_status === Constants.FILE_STATUS.FAILED) {
       await this.assetService.checkForAssetFailedStatus(assetId.toString());
     }
   }

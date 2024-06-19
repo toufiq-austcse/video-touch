@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { FileService } from '@/src/api/assets/services/file.service';
-import { UpdateFileStatusEventModel } from '@/src/api/assets/models/event.model';
+import { Models } from '@toufiq-austcse/video-touch-common';
 
 @Injectable()
 export class UpdateFileStatusEventConsumer {
@@ -12,7 +12,7 @@ export class UpdateFileStatusEventConsumer {
     routingKey: process.env.RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY,
     queue: process.env.RABBIT_MQ_UPDATE_FILE_STATUS_QUEUE,
   })
-  public async handle(msg: UpdateFileStatusEventModel) {
+  public async handle(msg: Models.UpdateFileStatusEventModel) {
     try {
       console.log('UpdateFileStatusEventConsumer', msg);
       await this.fileService.updateFileStatus(

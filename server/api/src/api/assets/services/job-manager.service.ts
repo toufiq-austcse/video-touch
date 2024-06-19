@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
-import { JobMetadataModel } from '@/src/api/assets/models/job.model';
+import { Models } from '@toufiq-austcse/video-touch-common';
 
 @Injectable()
 export class JobManagerService {
-  getJobData(): JobMetadataModel[] {
+  getJobData(): Models.JobMetadataModel[] {
     return [
       {
         height: 1080,

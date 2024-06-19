@@ -1,6 +1,6 @@
 import { FileDocument } from '../schemas/files.schema';
 import { StatusMapper } from '@/src/api/assets/mapper/status.mapper';
-import { getFileName } from '@/src/common/utils';
+import { Utils } from '@toufiq-austcse/video-touch-common';
 import mongoose from 'mongoose';
 
 export class FileMapper {
@@ -17,7 +17,7 @@ export class FileMapper {
       height: height,
       width: width,
       latest_status: status,
-      name: getFileName(height),
+      name: Utils.getFileName(height),
       size: 0,
       status_logs: [StatusMapper.mapForSave(status, status_details)],
       type: type,
