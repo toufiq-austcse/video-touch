@@ -10,24 +10,24 @@ export class JobManagerService {
     return [
       {
         height: 1080,
-        width: 1920
+        width: 1920,
       },
       {
         height: 720,
-        width: 1280
+        width: 1280,
       },
       {
         height: 540,
-        width: 960
+        width: 960,
       },
       {
         height: 480,
-        width: 854
+        width: 854,
       },
       {
         height: 360,
-        width: 640
-      }
+        width: 640,
+      },
     ];
   }
 
@@ -56,7 +56,7 @@ export class JobManagerService {
         file_id: file._id.toString(),
         height: file.height,
         width: file.width,
-        processRoutingKey: this.getHeightWiseRoutingKey(file.height)
+        processRoutingKey: this.getHeightWiseRoutingKey(file.height),
       });
     }
     return jobModels;
