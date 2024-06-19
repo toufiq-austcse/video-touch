@@ -51,7 +51,8 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.5.6",
-    "swagger-ui-express": "^4.5.0"
+    "swagger-ui-express": "^4.5.0",
+    "@toufiq-austcse/video-touch-common": "/Users/toufiqulislam/projects/personal/video-touch-common"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.0.0",

@@ -6,14 +6,12 @@ import { AssetService } from './services/asset.service';
 import { AssetResolver } from './resolvers/asset.resolver';
 import { AssetMapper } from '@/src/api/assets/mapper/asset.mapper';
 import { ModuleRef } from '@nestjs/core';
-import { VIDEO_STATUS } from '@/src/common/constants';
 import { VideoDownloadService } from '@/src/api/assets/services/video-download.service';
 import { JobManagerService } from '@/src/api/assets/services/job-manager.service';
 import { FILE_COLLECTION_NAME, FileSchema } from '@/src/api/assets/schemas/files.schema';
 import { StatusMapper } from '@/src/api/assets/mapper/status.mapper';
 import { FileRepository } from '@/src/api/assets/repositories/file.repository';
 import { FileService } from '@/src/api/assets/services/file.service';
-import { getMainManifestFileName } from '@/src/common/utils';
 import { UploadController } from '@/src/api/assets/controllers/upload.controller';
 import { TusService } from '@/src/api/assets/services/tus.service';
 import { JwtModule } from '@nestjs/jwt';
@@ -21,6 +19,8 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
 import { UpdateAssetStatusEventConsumer } from '@/src/api/assets/consumers/update-asset-status-event.consumer';
 import { UpdateAssetEventConsumer } from '@/src/api/assets/consumers/update-asset-event.consumer';
 import { UpdateFileStatusEventConsumer } from '@/src/api/assets/consumers/update-file-status-event.consumer';
+import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
+
 
 @Module({
   imports: [
@@ -30,27 +30,27 @@ import { UpdateFileStatusEventConsumer } from '@/src/api/assets/consumers/update
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = VideoSchema;
-          schema.pre('save', async function () {
+          schema.pre('save', async function() {
             console.log('assets pre save hook');
             const asset = this;
-            (asset as any).master_file_name = getMainManifestFileName();
+            (asset as any).master_file_name = Utils.getMainManifestFileName();
             if ((asset as any).source_url) {
               console.log('source url found', (asset as any).source_url);
-              (asset as any).latest_status = VIDEO_STATUS.QUEUED;
-              (asset as any).status_logs = StatusMapper.mapForSave(VIDEO_STATUS.QUEUED, 'Video is queued');
+              (asset as any).latest_status = Constants.VIDEO_STATUS.QUEUED;
+              (asset as any).status_logs = StatusMapper.mapForSave(Constants.VIDEO_STATUS.QUEUED, 'Video is queued');
             } else {
-              (asset as any).latest_status = VIDEO_STATUS.UPLOAD_PENDING;
-              (asset as any).status_logs = StatusMapper.mapForSave(VIDEO_STATUS.UPLOAD_PENDING, 'Video is uploading');
+              (asset as any).latest_status = Constants.VIDEO_STATUS.UPLOAD_PENDING;
+              (asset as any).status_logs = StatusMapper.mapForSave(Constants.VIDEO_STATUS.UPLOAD_PENDING, 'Video is uploading');
             }
           });
-          schema.post('save', async function (doc) {
+          schema.post('save', async function(doc) {
             let assetService = moduleRef.get<AssetService>(AssetService, { strict: false });
             console.log('post save hook');
             await assetService.afterSave(doc);
             return;
           });
 
-          schema.post('findOneAndUpdate', async function (doc) {
+          schema.post('findOneAndUpdate', async function(doc) {
             console.log('this ', this['_update']);
             if (!doc) {
               return;
@@ -65,14 +65,14 @@ import { UpdateFileStatusEventConsumer } from '@/src/api/assets/consumers/update
           });
 
           return schema;
-        },
+        }
       },
       {
         name: FILE_COLLECTION_NAME,
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = FileSchema;
-          schema.post('findOneAndUpdate', async function (doc) {
+          schema.post('findOneAndUpdate', async function(doc) {
             if (!doc) {
               return;
             }
@@ -86,16 +86,16 @@ import { UpdateFileStatusEventConsumer } from '@/src/api/assets/consumers/update
           });
 
           return schema;
-        },
-      },
+        }
+      }
     ]),
     JwtModule.registerAsync({
       inject: [AppConfigService],
       useFactory: async () => ({
         secret: process.env.JWT_SECRET,
-        signOptions: { expiresIn: '1h' },
-      }),
-    }),
+        signOptions: { expiresIn: '1h' }
+      })
+    })
   ],
   controllers: [UploadController],
   providers: [
@@ -110,7 +110,8 @@ import { UpdateFileStatusEventConsumer } from '@/src/api/assets/consumers/update
     UpdateAssetEventConsumer,
     UpdateFileStatusEventConsumer,
     JobManagerService,
-    TusService,
-  ],
+    TusService
+  ]
 })
-export class AssetsModule {}
+export class AssetsModule {
+}
