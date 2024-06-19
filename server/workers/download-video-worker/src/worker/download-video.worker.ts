@@ -1,12 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { DownloaderHttpService } from '@/src/common/http-clients/downloader/downloader-http.service';
-import { getLocalVideoMp4Path } from '@/src/common/utils';
-import { VideoDownloadJobModel } from '@/src/worker/models/job.model';
 import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
-import { VIDEO_STATUS } from '@/src/common/constants';
-import { UpdateAssetStatusEventModel } from '@/src/worker/models/event.model';
+import { Constants, Utils, Models } from '@toufiq-austcse/video-touch-common';
 
 @Injectable()
 export class DownloadVideoJobHandler {
@@ -18,21 +15,21 @@ export class DownloadVideoJobHandler {
     routingKey: process.env.RABBIT_MQ_DOWNLOAD_VIDEO_ROUTING_KEY,
     queue: process.env.RABBIT_MQ_DOWNLOAD_VIDEO_QUEUE
   })
-  public async handle(msg: VideoDownloadJobModel) {
+  public async handle(msg: Models.VideoDownloadJobModel) {
     try {
-      let destinationPath = getLocalVideoMp4Path(msg._id.toString());
+      let destinationPath = Utils.getLocalVideoMp4Path(msg._id.toString(), AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
       await this.download(msg, destinationPath);
 
-      this.publishUpdateAssetEvent(msg._id, VIDEO_STATUS.DOWNLOADED, 'Video downloaded');
+      this.publishUpdateAssetEvent(msg._id, Constants.VIDEO_STATUS.DOWNLOADED, 'Video downloaded');
 
     } catch (e: any) {
       console.log('error in video download job handler', e);
-      this.publishUpdateAssetEvent(msg._id, VIDEO_STATUS.FAILED, e.message);
+      this.publishUpdateAssetEvent(msg._id, Constants.VIDEO_STATUS.FAILED, e.message);
 
     }
   }
 
-  async download(msg: VideoDownloadJobModel, destinationPath: string) {
+  async download(msg: Models.VideoDownloadJobModel, destinationPath: string) {
     try {
       let res = await this.downloadHttpService.downloadVideo(msg.source_url, destinationPath);
       console.log('assets downloaded:', res);
@@ -41,7 +38,7 @@ export class DownloadVideoJobHandler {
     }
   }
 
-  buildAssetUpdateEventModel(assetId: string, status: string, details: string): UpdateAssetStatusEventModel {
+  buildAssetUpdateEventModel(assetId: string, status: string, details: string): Models.UpdateAssetStatusEventModel {
     return {
       asset_id: assetId,
       status: status,

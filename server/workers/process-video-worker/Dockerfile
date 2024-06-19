@@ -3,6 +3,7 @@ FROM node:18 as base
 
 WORKDIR /app
 COPY package.json \
+    .npmrc \
   ./
 
 RUN yarn --production

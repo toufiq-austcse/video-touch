@@ -28,7 +28,8 @@
     "@nestjs/platform-express": "^10.0.0",
     "amqplib": "^0.10.4",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "@toufiq-austcse/video-touch-common": "^0.0.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
