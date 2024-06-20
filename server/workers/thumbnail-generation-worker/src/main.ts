@@ -4,7 +4,7 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
 
 async function bootstrap() {
   let app = await NestFactory.create(WorkerModule);
-  await app.listen(AppConfigService.appConfig.VALIDATE_VIDEO_WORKER_PORT);
+  await app.listen(AppConfigService.appConfig.THUMBNAIL_WORKER_PORT);
 }
 
 bootstrap();

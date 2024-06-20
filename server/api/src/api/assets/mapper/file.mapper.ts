@@ -1,11 +1,11 @@
 import { FileDocument } from '../schemas/files.schema';
 import { StatusMapper } from '@/src/api/assets/mapper/status.mapper';
-import { Utils } from '@toufiq-austcse/video-touch-common';
 import mongoose from 'mongoose';
 
 export class FileMapper {
   static mapForSave(
     asset_id: string,
+    name: string,
     type: string,
     height: number,
     width: number,
@@ -17,10 +17,10 @@ export class FileMapper {
       height: height,
       width: width,
       latest_status: status,
-      name: Utils.getFileName(height),
+      name: name,
       size: 0,
       status_logs: [StatusMapper.mapForSave(status, status_details)],
-      type: type,
+      type: type
     };
   }
 }

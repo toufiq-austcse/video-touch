@@ -1,45 +1,61 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
-import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { Constants, Models, terminal, Utils } from '@toufiq-austcse/video-touch-common';
+import { S3ClientService } from '@/src/common/aws/s3/s3-client.service';
+import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
 
 
 @Injectable()
 export class ThumbnailGenerationWorker {
-  constructor(private rabbitMqService: RabbitMqService) {
+  constructor(private s3ClientService: S3ClientService, private rabbitMqService: RabbitMqService) {
   }
 
   @RabbitSubscribe({
     exchange: process.env.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
-    routingKey: process.env.RABBIT_MQ_VALIDATE_VIDEO_ROUTING_KEY,
-    queue: process.env.RABBIT_MQ_VALIDATE_VIDEO_QUEUE
+    routingKey: process.env.RABBIT_MQ_THUMBNAIL_GENERATION_ROUTING_KEY,
+    queue: process.env.RABBIT_MQ_THUMBNAIL_GENERATION_QUEUE
   })
-  public async handle(msg: Models.VideoValidationJobModel) {
-    console.log('VideoValidationJobHandler', msg);
+  public async handle(msg: Models.ThumbnailGenerationJobModel) {
+    console.log('ThumbnailGenerationJobHandler', msg);
     try {
+      this.publishUpdateFileStatusEvent(msg.file_id, 0, Constants.FILE_STATUS.PROCESSING, 'Processing started');
       let videoPath = Utils.getLocalVideoMp4Path(msg.asset_id.toString(), AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
-      let metadata = await this.getMetadata(videoPath);
-      console.log('metadata', metadata);
+      let thumbnailOutputPath = Utils.getLocalThumbnailPath(msg.asset_id.toString(), AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
 
-      this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE, AppConfigService.appConfig.RABBIT_MQ_UPDATE_ASSET_ROUTING_KEY, {
-        asset_id: msg.asset_id,
-        data: {
-          size: metadata.size,
-          height: metadata.height,
-          width: metadata.width,
-          duration: metadata.duration
-        }
-      });
+      await this.generateThumbnnail(videoPath, thumbnailOutputPath);
+      let metadata = await this.getMetadata(thumbnailOutputPath);
+      Logger.debug(metadata, 'Thumbnail metadata');
 
-      this.publishUpdateAssetEvent(msg.asset_id, metadata.size, metadata.height, metadata.width, metadata.duration);
+      let uploadRes = await this.s3ClientService.uploadObject({
+        bucket: AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
+        key: Utils.getS3ThumbnailPath(msg.asset_id.toString()),
+        filePath: thumbnailOutputPath,
+        contentType: 'image/png'
+      }, true);
 
-      this.publishUpdateAssetStatusEvent(msg.asset_id, Constants.VIDEO_STATUS.VALIDATED, 'Video validated');
+      Logger.debug(uploadRes, 'Thumbnail upload response');
+
+      this.publishUpdateFileStatusEvent(msg.file_id, metadata.size, Constants.FILE_STATUS.READY, 'Thumbnail generated');
+      console.log('event published');
 
     } catch (e: any) {
-      console.log('error in video validation job handler', e);
-      this.publishUpdateAssetStatusEvent(msg.asset_id, Constants.VIDEO_STATUS.FAILED, e.message);
+      console.log('error in thumbnail generation job handler', e);
+      this.publishUpdateFileStatusEvent(msg.file_id, 0, Constants.FILE_STATUS.FAILED, e.message);
     }
+  }
+
+  async generateThumbnnail(mp4FilePath: string, thumbnailOutPutPath: string): Promise<string> {
+    let thumbnailGenerationCommand = `ffmpeg -i ${mp4FilePath} -vf "thumbnail" -frames:v 1 ${thumbnailOutPutPath}`;
+    let showStreamCommandRes = await terminal(thumbnailGenerationCommand);
+    console.log('showStreamCommandRes', showStreamCommandRes);
+    return thumbnailOutPutPath;
+  }
+
+  buildUpdateAssetStatusEventModel(assetId: string, status: string, details: string): Models.UpdateAssetStatusEventModel {
+    return {
+      asset_id: assetId, details: details, status: status
+    };
   }
 
   async getMetadata(url: string): Promise<{
@@ -64,40 +80,24 @@ export class ThumbnailGenerationWorker {
     };
   }
 
-  buildUpdateAssetStatusEventModel(assetId: string, status: string, details: string): Models.UpdateAssetStatusEventModel {
+  // publishUpdateAssetStatusEvent(assetId: string, status: string, details: string) {
+  //   try {
+  //     let event = this.buildUpdateAssetStatusEventModel(assetId, status, details);
+  //     this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE, AppConfigService.appConfig.RABBIT_MQ_UPDATE_ASSET_STATUS_ROUTING_KEY, event);
+  //   } catch (e) {
+  //     console.log('error in publishing update asset status event', e);
+  //   }
+  // }
+  //
+  buildUpdateFileStatusEventModel(fileId: string, details: string, dirSize: number, status: string): Models.UpdateFileStatusEventModel {
     return {
-      asset_id: assetId, details: details, status: status
+      file_id: fileId, details: details, dir_size: dirSize, status: status
     };
   }
 
-  publishUpdateAssetStatusEvent(assetId: string, status: string, details: string) {
-    try {
-      let event = this.buildUpdateAssetStatusEventModel(assetId, status, details);
-      this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE, AppConfigService.appConfig.RABBIT_MQ_UPDATE_ASSET_STATUS_ROUTING_KEY, event);
-    } catch (e) {
-      console.log('error in publishing update asset status event', e);
-    }
-  }
+  private publishUpdateFileStatusEvent(fileId: string, size: number, status: string, detail: string) {
+    let event = this.buildUpdateFileStatusEventModel(fileId, detail, size, status);
+    this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE, AppConfigService.appConfig.RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY, event);
 
-  buildUpdateAssetEventModel(assetId: string, size: number, height: number, width: number, duration: number): Models.UpdateAssetEventModel {
-    return {
-      asset_id: assetId,
-      data: {
-        size,
-        height,
-        width,
-        duration
-      }
-    };
-  }
-
-  publishUpdateAssetEvent(assetId: string, size: number, height: number, width: number, duration: number) {
-    try {
-      let event = this.buildUpdateAssetEventModel(assetId, size, height, width, duration);
-      this.rabbitMqService.publish(AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE, AppConfigService.appConfig.RABBIT_MQ_UPDATE_ASSET_ROUTING_KEY, event);
-
-    } catch (e) {
-      console.log('error in publishing update asset event', e);
-    }
   }
 }
