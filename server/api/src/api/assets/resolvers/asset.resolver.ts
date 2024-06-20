@@ -12,8 +12,7 @@ import { FileService } from '@/src/api/assets/services/file.service';
 
 @Resolver(() => Asset)
 export class AssetResolver {
-  constructor(private assetService: AssetService, private fileService: FileService, private assetMapper: AssetMapper) {
-  }
+  constructor(private assetService: AssetService, private fileService: FileService, private assetMapper: AssetMapper) {}
 
   @Mutation(() => CreateAssetResponse, { name: 'CreateAsset' })
   async createVideo(@Args('createAssetInput') createAssetInputDto: CreateAssetInputDto): Promise<CreateAssetResponse> {
