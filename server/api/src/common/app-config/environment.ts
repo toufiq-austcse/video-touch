@@ -45,4 +45,6 @@ export interface EnvironmentVariables {
   TEMP_VIDEO_DIRECTORY: string;
 
   CDN_BASE_URL: string;
+
+  RABBIT_MQ_THUMBNAIL_GENERATION_ROUTING_KEY: string;
 }
