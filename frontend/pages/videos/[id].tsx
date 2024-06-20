@@ -43,7 +43,10 @@ export default function VideoDetailsPage() {
         <Separator />
         <div className={"border-2 min-h-[300px]"}>
           {masterPlaylistUrl ? (
-            <PlyrHlsPlayer source={masterPlaylistUrl} />
+            <PlyrHlsPlayer
+              source={masterPlaylistUrl}
+              thumbnailUrl={videoDetails.thumbnail_url}
+            />
           ) : (
             <div
               className={

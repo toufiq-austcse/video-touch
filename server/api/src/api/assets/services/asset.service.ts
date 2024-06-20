@@ -205,6 +205,7 @@ export class AssetService {
       let jobModels = this.jobManagerService.getJobData(updatedAsset._id.toString(), files);
       await this.updateAssetStatus(updatedAsset._id.toString(), Constants.VIDEO_STATUS.PROCESSING, 'Video processing');
       this.publishVideoProcessingJob(updatedAsset._id.toString(), jobModels);
+      await this.initThumbnailGeneration(updatedAsset._id.toString(), updatedAsset.height, updatedAsset.width);
     }
   }
 
@@ -248,8 +249,10 @@ export class AssetService {
   }
 
   async createFileAfterValidation(assetId: string, height: number, width: number) {
+    let name = Utils.getFileName(height);
     let doc = FileMapper.mapForSave(
       assetId,
+      name,
       Constants.FILE_TYPE.PLAYLIST,
       height,
       width,
@@ -293,5 +296,32 @@ export class AssetService {
         master_file_name: master_file_name,
       }
     );
+  }
+
+  private publishThumbnailGenerationJob(assetId: string, fileId: string) {
+    let thumbnailGenerationJob: Models.ThumbnailGenerationJobModel = {
+      asset_id: assetId,
+      file_id: fileId,
+    };
+    this.rabbitMqService.publish(
+      AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
+      AppConfigService.appConfig.RABBIT_MQ_THUMBNAIL_GENERATION_ROUTING_KEY,
+      thumbnailGenerationJob
+    );
+  }
+
+  private async initThumbnailGeneration(assetId: string, height: number, width: number) {
+    let thumbnailName = Utils.getThumbnailFileName();
+    let fileToBeSaved = FileMapper.mapForSave(
+      assetId,
+      thumbnailName,
+      Constants.FILE_TYPE.THUMBNAIL,
+      height,
+      width,
+      Constants.FILE_STATUS.QUEUED,
+      'Thumbnail queued for processing'
+    );
+    let thumbnailFile = await this.fileRepository.create(fileToBeSaved);
+    this.publishThumbnailGenerationJob(assetId, thumbnailFile._id.toString());
   }
 }

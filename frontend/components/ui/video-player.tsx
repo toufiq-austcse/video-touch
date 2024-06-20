@@ -2,7 +2,13 @@ import React, { useEffect, useRef } from "react";
 import Plyr from "plyr";
 import Hls from "hls.js";
 
-const PlyrHlsPlayer = ({ source }: { source: string }) => {
+const PlyrHlsPlayer = ({
+  source,
+  thumbnailUrl,
+}: {
+  source: string;
+  thumbnailUrl: string;
+}) => {
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
 
@@ -55,6 +61,7 @@ const PlyrHlsPlayer = ({ source }: { source: string }) => {
 
         // @ts-ignore
         const player = new Plyr(videoRef.current, defaultOptions);
+        player.poster = thumbnailUrl;
       });
 
       // @ts-ignore

@@ -65,6 +65,10 @@ export class AppConfigService {
       RABBIT_MQ_UPDATE_FILE_STATUS_QUEUE: this.configService.getOrThrow('RABBIT_MQ_UPDATE_FILE_STATUS_QUEUE'),
       TEMP_VIDEO_DIRECTORY: this.configService.getOrThrow('TEMP_VIDEO_DIRECTORY'),
       CDN_BASE_URL: this.configService.getOrThrow('CDN_BASE_URL'),
+      RABBIT_MQ_THUMBNAIL_GENERATION_ROUTING_KEY: this.configService.getOrThrow(
+        'RABBIT_MQ_THUMBNAIL_GENERATION_ROUTING_KEY'
+      ),
+      DEFAULT_THUMBNAIL_URL: this.configService.getOrThrow('DEFAULT_THUMBNAIL_URL'),
     };
   }
 }

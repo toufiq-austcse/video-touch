@@ -63,7 +63,7 @@ export const columns: ColumnDef<Video>[] = [
       return (
         <Link className="flex space-x-4" href={`/videos/${row.original._id}`}>
           <Image
-            src="/error_dark_thumb.svg"
+            src={row.original.thumbnail_url}
             alt="default thumbnail"
             width={100}
             height={100}
