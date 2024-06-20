@@ -41,6 +41,9 @@ export class FileService {
     let updatedFile = await this.repository.findOne({
       _id: mongoose.Types.ObjectId(oldDoc._id.toString())
     });
+    if (updatedFile.type === Constants.FILE_TYPE.THUMBNAIL) {
+      return;
+    }
     let assetId = updatedFile.asset_id;
 
     if (updatedFile.latest_status == Constants.FILE_STATUS.READY) {
@@ -79,6 +82,14 @@ export class FileService {
     let assetIds = items.map((item) => item._id);
     return this.repository.find({
       asset_id: { $in: assetIds },
+      latest_status: Constants.FILE_STATUS.READY,
+      type: Constants.FILE_TYPE.THUMBNAIL
+    });
+  }
+
+  async getThumbnailFile(assetId: string) {
+    return this.repository.findOne({
+      _id: mongoose.Types.ObjectId(assetId),
       latest_status: Constants.FILE_STATUS.READY,
       type: Constants.FILE_TYPE.THUMBNAIL
     });

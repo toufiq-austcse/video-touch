@@ -62,7 +62,10 @@ export class AssetMapper {
     return `${AppConfigService.appConfig.CDN_BASE_URL}/${Utils.getS3ThumbnailPath(assetId)}`;
   }
 
-  toPaginatedAssetResponse(paginatedAssetResponse: BasePaginatedResponse<AssetDocument>, thumbnailFileDocuments: FileDocument[]): PaginatedAssetResponse {
+  toPaginatedAssetResponse(
+    paginatedAssetResponse: BasePaginatedResponse<AssetDocument>,
+    thumbnailFileDocuments: FileDocument[]
+  ): PaginatedAssetResponse {
     let assets: AssetMinimalResponse[] = [];
     for (let asset of paginatedAssetResponse.items) {
       let thumbnailFile = thumbnailFileDocuments.find((file) => file.asset_id.toString() === asset._id.toString());
@@ -72,7 +75,9 @@ export class AssetMapper {
           {
             _id: asset._id.toString(),
             title: asset.title,
-            thumbnail_url: thumbnailFile ? this.getThumbnailCDNUrl(asset._id.toString()) : AppConfigService.appConfig.DEFAULT_THUMBNAIL_URL,
+            thumbnail_url: thumbnailFile
+              ? this.getThumbnailCDNUrl(asset._id.toString())
+              : AppConfigService.appConfig.DEFAULT_THUMBNAIL_URL,
             duration: asset.duration,
             status: asset.latest_status,
             created_at: asset.createdAt,
@@ -91,7 +96,7 @@ export class AssetMapper {
     };
   }
 
-  toGetAssetResponse(asset: AssetDocument, statusLogs: StatusLogResponse[]): Asset {
+  toGetAssetResponse(asset: AssetDocument, statusLogs: StatusLogResponse[], fileDocument: FileDocument): Asset {
     return plainToInstance(
       Asset,
       {
@@ -101,14 +106,11 @@ export class AssetMapper {
         source_url: asset.source_url,
         height: asset.height,
         width: asset.width,
-        thumbnail_url: this.getThumbnailCDNUrl(asset._id.toString()),
+        thumbnail_url: fileDocument ? this.getThumbnailCDNUrl(asset._id.toString()) : null,
         size: asset.size,
         master_playlist_url:
           asset.latest_status === Constants.VIDEO_STATUS.READY
-            ? Utils.getMasterPlaylistUrl(
-              asset._id.toString(),
-              AppConfigService.appConfig.CDN_BASE_URL
-            )
+            ? Utils.getMasterPlaylistUrl(asset._id.toString(), AppConfigService.appConfig.CDN_BASE_URL)
             : null,
         latest_status: asset.latest_status,
         status_logs: statusLogs,

@@ -41,8 +41,9 @@ export class AssetResolver {
 
     let updatedAsset = await this.assetService.update(currentVideo, updateAssetInputDto);
     let statusLogs = this.assetMapper.toStatusLogsResponse(updatedAsset.status_logs as [StatusDocument]);
+    let thumbnailFile = await this.fileService.getThumbnailFile(updatedAsset._id.toString());
 
-    return this.assetMapper.toGetAssetResponse(updatedAsset, statusLogs);
+    return this.assetMapper.toGetAssetResponse(updatedAsset, statusLogs, thumbnailFile);
   }
 
   @Mutation(() => String, { name: 'DeleteAsset' })
@@ -71,7 +72,8 @@ export class AssetResolver {
       throw new NotFoundException('Asset not found');
     }
     let statusLogs = this.assetMapper.toStatusLogsResponse(asset.status_logs as [StatusDocument]);
+    let thumbnailFile = await this.fileService.getThumbnailFile(asset._id.toString());
 
-    return this.assetMapper.toGetAssetResponse(asset, statusLogs);
+    return this.assetMapper.toGetAssetResponse(asset, statusLogs, thumbnailFile);
   }
 }
