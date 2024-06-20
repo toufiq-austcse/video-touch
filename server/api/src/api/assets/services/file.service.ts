@@ -8,7 +8,8 @@ import { AssetDocument } from '@/src/api/assets/schemas/assets.schema';
 
 @Injectable()
 export class FileService {
-  constructor(private repository: FileRepository, private assetService: AssetService) {}
+  constructor(private repository: FileRepository, private assetService: AssetService) {
+  }
 
   async updateFileStatus(fileId: string, status: string, details: string, size?: number) {
     let updatedData: mongoose.UpdateQuery<FileDocument> = {
@@ -16,20 +17,20 @@ export class FileService {
       $push: {
         status_logs: {
           status: status,
-          details: details,
-        },
-      },
+          details: details
+        }
+      }
     };
     if (size) {
       updatedData = {
         ...updatedData,
-        size: size,
+        size: size
       };
     }
 
     return this.repository.findOneAndUpdate(
       {
-        _id: mongoose.Types.ObjectId(fileId),
+        _id: mongoose.Types.ObjectId(fileId)
       },
       updatedData
     );
@@ -38,7 +39,7 @@ export class FileService {
   async afterUpdateFileLatestStatus(oldDoc: FileDocument) {
     console.log('oldDoc ', oldDoc);
     let updatedFile = await this.repository.findOne({
-      _id: mongoose.Types.ObjectId(oldDoc._id.toString()),
+      _id: mongoose.Types.ObjectId(oldDoc._id.toString())
     });
     if (updatedFile.type === Constants.FILE_TYPE.THUMBNAIL) {
       return;
@@ -82,15 +83,15 @@ export class FileService {
     return this.repository.find({
       asset_id: { $in: assetIds },
       latest_status: Constants.FILE_STATUS.READY,
-      type: Constants.FILE_TYPE.THUMBNAIL,
+      type: Constants.FILE_TYPE.THUMBNAIL
     });
   }
 
   async getThumbnailFile(assetId: string) {
     return this.repository.findOne({
-      _id: mongoose.Types.ObjectId(assetId),
+      asset_id: mongoose.Types.ObjectId(assetId),
       latest_status: Constants.FILE_STATUS.READY,
-      type: Constants.FILE_TYPE.THUMBNAIL,
+      type: Constants.FILE_TYPE.THUMBNAIL
     });
   }
 }
