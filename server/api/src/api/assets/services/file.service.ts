@@ -4,10 +4,12 @@ import { FileRepository } from '@/src/api/assets/repositories/file.repository';
 import mongoose from 'mongoose';
 import { FileDocument } from '@/src/api/assets/schemas/files.schema';
 import { AssetService } from '@/src/api/assets/services/asset.service';
+import { AssetDocument } from '@/src/api/assets/schemas/assets.schema';
 
 @Injectable()
 export class FileService {
-  constructor(private repository: FileRepository, private assetService: AssetService) {}
+  constructor(private repository: FileRepository, private assetService: AssetService) {
+  }
 
   async updateFileStatus(fileId: string, status: string, details: string, size?: number) {
     let updatedData: mongoose.UpdateQuery<FileDocument> = {
@@ -15,20 +17,20 @@ export class FileService {
       $push: {
         status_logs: {
           status: status,
-          details: details,
-        },
-      },
+          details: details
+        }
+      }
     };
     if (size) {
       updatedData = {
         ...updatedData,
-        size: size,
+        size: size
       };
     }
 
     return this.repository.findOneAndUpdate(
       {
-        _id: mongoose.Types.ObjectId(fileId),
+        _id: mongoose.Types.ObjectId(fileId)
       },
       updatedData
     );
@@ -37,7 +39,7 @@ export class FileService {
   async afterUpdateFileLatestStatus(oldDoc: FileDocument) {
     console.log('oldDoc ', oldDoc);
     let updatedFile = await this.repository.findOne({
-      _id: mongoose.Types.ObjectId(oldDoc._id.toString()),
+      _id: mongoose.Types.ObjectId(oldDoc._id.toString())
     });
     let assetId = updatedFile.asset_id;
 
@@ -71,5 +73,15 @@ export class FileService {
     if (updatedFile.latest_status === Constants.FILE_STATUS.FAILED) {
       await this.assetService.checkForAssetFailedStatus(assetId.toString());
     }
+  }
+
+  async listThumbnailFiles(items: AssetDocument[]): Promise<FileDocument[]> {
+    let assetIds = items.map((item) => item._id);
+    return this.repository.find({
+      asset_id: { $in: assetIds },
+      latest_status: Constants.FILE_STATUS.READY,
+      type: Constants.FILE_TYPE.THUMBNAIL
+    });
+
   }
 }

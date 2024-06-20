@@ -68,6 +68,7 @@ export class AppConfigService {
       RABBIT_MQ_THUMBNAIL_GENERATION_ROUTING_KEY: this.configService.getOrThrow(
         'RABBIT_MQ_THUMBNAIL_GENERATION_ROUTING_KEY'
       ),
+      DEFAULT_THUMBNAIL_URL: this.configService.getOrThrow('DEFAULT_THUMBNAIL_URL')
     };
   }
 }

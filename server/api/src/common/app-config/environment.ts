@@ -47,4 +47,5 @@ export interface EnvironmentVariables {
   CDN_BASE_URL: string;
 
   RABBIT_MQ_THUMBNAIL_GENERATION_ROUTING_KEY: string;
+  DEFAULT_THUMBNAIL_URL: string;
 }

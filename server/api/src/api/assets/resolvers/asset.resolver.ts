@@ -8,10 +8,12 @@ import { GetAssetInputDto } from '@/src/api/assets/dtos/get-asset-input.dto';
 import { NotFoundException } from '@nestjs/common';
 import { UpdateAssetInputDto } from '@/src/api/assets/dtos/update-asset-input.dto';
 import { StatusDocument } from '@/src/api/assets/schemas/status.schema';
+import { FileService } from '@/src/api/assets/services/file.service';
 
 @Resolver(() => Asset)
 export class AssetResolver {
-  constructor(private assetService: AssetService, private assetMapper: AssetMapper) {}
+  constructor(private assetService: AssetService, private fileService: FileService, private assetMapper: AssetMapper) {
+  }
 
   @Mutation(() => CreateAssetResponse, { name: 'CreateAsset' })
   async createVideo(@Args('createAssetInput') createAssetInputDto: CreateAssetInputDto): Promise<CreateAssetResponse> {
@@ -55,19 +57,19 @@ export class AssetResolver {
   }
 
   @Query(() => PaginatedAssetResponse, { name: 'ListAsset' })
-  async listVideos(@Args('listAssetInputDto') listAssetInputDto: ListAssetInputDto): Promise<PaginatedAssetResponse> {
+  async listAssets(@Args('listAssetInputDto') listAssetInputDto: ListAssetInputDto): Promise<PaginatedAssetResponse> {
     console.log('list assets ', listAssetInputDto);
     let paginatedResult = await this.assetService.listVideos(listAssetInputDto);
-    return this.assetMapper.toPaginatedAssetResponse(paginatedResult);
+    let thumbnails = await this.fileService.listThumbnailFiles(paginatedResult.items);
+    return this.assetMapper.toPaginatedAssetResponse(paginatedResult, thumbnails);
   }
 
   @Query(() => Asset, { name: 'GetAsset' })
-  async getVideo(@Args('getAssetInputDto') getAssetInputDto: GetAssetInputDto): Promise<Asset> {
+  async getAsset(@Args('getAssetInputDto') getAssetInputDto: GetAssetInputDto): Promise<Asset> {
     let asset = await this.assetService.getAsset(getAssetInputDto);
     if (!asset) {
       throw new NotFoundException('Asset not found');
     }
-    console.log('asset', asset);
     let statusLogs = this.assetMapper.toStatusLogsResponse(asset.status_logs as [StatusDocument]);
 
     return this.assetMapper.toGetAssetResponse(asset, statusLogs);

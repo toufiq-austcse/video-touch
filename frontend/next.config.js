@@ -1,4 +1,10 @@
+const withPlugins = require('next-compose-plugins')
+const withImages = require('next-images')
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  images: {
+   domains:["cdn.toufiq.dev"],
+  }
+};
 
-module.exports = nextConfig
+module.exports = withPlugins([[withImages]], nextConfig)
