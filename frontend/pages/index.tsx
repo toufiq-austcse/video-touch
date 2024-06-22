@@ -23,6 +23,7 @@ import { LIST_ASSETS } from "@/api/graphql/queries/query";
 import UploadNew from "@/components/ui/upload-new";
 import { VIDEO_STATUS } from "@/lib/constant";
 import { secondsToHHMMSS } from "@/lib/utils";
+import Navbar from '@/components/ui/navbar';
 
 export type Video = {
   _id: string;
