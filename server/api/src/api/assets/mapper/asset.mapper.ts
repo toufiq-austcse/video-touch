@@ -10,7 +10,6 @@ import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { FileDocument } from '@/src/api/assets/schemas/files.schema';
 
-
 @Injectable()
 export class AssetMapper {
   toCreateAssetResponse(videoDocument: AssetDocument): CreateAssetResponse {
@@ -20,7 +19,7 @@ export class AssetMapper {
       source_url: videoDocument.source_url,
       status: videoDocument.latest_status,
       tags: videoDocument.tags,
-      title: videoDocument.title
+      title: videoDocument.title,
     };
   }
 
@@ -33,7 +32,7 @@ export class AssetMapper {
       title: title,
       description: createVideoInput.description,
       source_url: createVideoInput.source_url,
-      tags: createVideoInput.tags
+      tags: createVideoInput.tags,
     };
   }
 
@@ -46,7 +45,7 @@ export class AssetMapper {
       title: title,
       description: uploadAssetReqDto.description,
       source_url: null,
-      tags: uploadAssetReqDto.tags
+      tags: uploadAssetReqDto.tags,
     };
   }
 
@@ -69,7 +68,7 @@ export class AssetMapper {
     }
     return {
       assets: assets,
-      page_info: paginatedAssetResponse.pageInfo
+      page_info: paginatedAssetResponse.pageInfo,
     };
   }
 
@@ -94,7 +93,7 @@ export class AssetMapper {
         tags: asset.tags,
         created_at: asset.createdAt,
         updated_at: asset.updatedAt,
-        _id: asset._id.toString()
+        _id: asset._id.toString(),
       } as Asset,
       { excludeExtraneousValues: true, enableImplicitConversion: true }
     );
@@ -110,11 +109,11 @@ export class AssetMapper {
           {
             ...log,
             created_at: log.createdAt,
-            updated_at: log.updatedAt
+            updated_at: log.updatedAt,
           } as StatusLogResponse,
           {
             excludeExtraneousValues: true,
-            enableImplicitConversion: true
+            enableImplicitConversion: true,
           }
         )
       );
