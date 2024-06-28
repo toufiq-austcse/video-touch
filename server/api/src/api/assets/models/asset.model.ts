@@ -139,9 +139,9 @@ export class PageInfo {
 
 @ObjectType()
 export class PaginatedAssetResponse {
-  @Field((type) => [AssetMinimalResponse])
+  @Field((type) => [Asset])
   @Expose()
-  assets: AssetMinimalResponse[];
+  assets: Asset[];
 
   @Field((type) => PageInfo)
   @Expose()

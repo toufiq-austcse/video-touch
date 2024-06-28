@@ -27,7 +27,6 @@ export class AssetRepository extends BaseRepository<AssetDocument> {
       filter = { ...filter, _id: { $gt: beforeCursor } };
       sort = { _id: 1, ...sort };
     }
-    console.log(filter);
 
     let total = await this.videoModel.countDocuments({ is_deleted: { $ne: true } });
     docs = await this.videoModel.find(filter).sort(sort).limit(first).lean();
@@ -41,8 +40,8 @@ export class AssetRepository extends BaseRepository<AssetDocument> {
       pageInfo: {
         prev_cursor: docs.length > 0 ? docs[0]._id.toString() : null,
         next_cursor: docs.length > 0 ? docs[docs.length - 1]._id.toString() : null,
-        total_pages: Math.ceil(total / first),
-      },
+        total_pages: Math.ceil(total / first)
+      }
     };
   }
 }

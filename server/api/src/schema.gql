@@ -40,16 +40,6 @@ type Asset {
   updated_at: DateTime!
 }
 
-type AssetMinimalResponse {
-  _id: String!
-  title: String!
-  duration: Float!
-  thumbnail_url: String
-  status: String!
-  created_at: DateTime!
-  updated_at: DateTime!
-}
-
 type PageInfo {
   prev_cursor: String
   next_cursor: String
@@ -57,7 +47,7 @@ type PageInfo {
 }
 
 type PaginatedAssetResponse {
-  assets: [AssetMinimalResponse!]!
+  assets: [Asset!]!
   page_info: PageInfo!
 }
 
@@ -78,7 +68,6 @@ input GetAssetInputDto {
 
 type Mutation {
   CreateAsset(createAssetInput: CreateAssetInputDto!): CreateAssetResponse!
-  CreateAssetFromUpload(createAssetFromUploadInput: CreateAssetFromUploadInputDto!): CreateAssetResponse!
   UpdateAsset(_id: String!, updateAssetInputDto: UpdateAssetInputDto!): Asset!
   DeleteAsset(_id: String!): String!
 }
@@ -87,13 +76,6 @@ input CreateAssetInputDto {
   title: String
   description: String
   source_url: String!
-  tags: [String!]
-}
-
-input CreateAssetFromUploadInputDto {
-  title: String
-  description: String
-  file_name: String!
   tags: [String!]
 }
 

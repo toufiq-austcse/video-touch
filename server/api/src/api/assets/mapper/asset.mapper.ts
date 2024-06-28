@@ -1,12 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import {
-  Asset,
-  AssetMinimalResponse,
-  CreateAssetResponse,
-  PaginatedAssetResponse,
-} from '@/src/api/assets/models/asset.model';
+import { Asset, CreateAssetResponse, PaginatedAssetResponse } from '@/src/api/assets/models/asset.model';
 import { AssetDocument } from '@/src/api/assets/schemas/assets.schema';
-import { plainToClass, plainToInstance } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { BasePaginatedResponse } from '@/src/common/database/models/abstract.model';
 import { StatusDocument } from '@/src/api/assets/schemas/status.schema';
 import { StatusLogResponse } from '@/src/api/assets/models/status-logs.model';
@@ -14,6 +9,7 @@ import { CreateAssetFromUploadInputDto, CreateAssetInputDto } from '@/src/api/as
 import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { FileDocument } from '@/src/api/assets/schemas/files.schema';
+
 
 @Injectable()
 export class AssetMapper {
@@ -24,7 +20,7 @@ export class AssetMapper {
       source_url: videoDocument.source_url,
       status: videoDocument.latest_status,
       tags: videoDocument.tags,
-      title: videoDocument.title,
+      title: videoDocument.title
     };
   }
 
@@ -37,7 +33,7 @@ export class AssetMapper {
       title: title,
       description: createVideoInput.description,
       source_url: createVideoInput.source_url,
-      tags: createVideoInput.tags,
+      tags: createVideoInput.tags
     };
   }
 
@@ -50,7 +46,7 @@ export class AssetMapper {
       title: title,
       description: uploadAssetReqDto.description,
       source_url: null,
-      tags: uploadAssetReqDto.tags,
+      tags: uploadAssetReqDto.tags
     };
   }
 
@@ -66,37 +62,18 @@ export class AssetMapper {
     paginatedAssetResponse: BasePaginatedResponse<AssetDocument>,
     thumbnailFileDocuments: FileDocument[]
   ): PaginatedAssetResponse {
-    let assets: AssetMinimalResponse[] = [];
+    let assets: Asset[] = [];
     for (let asset of paginatedAssetResponse.items) {
       let thumbnailFile = thumbnailFileDocuments.find((file) => file.asset_id.toString() === asset._id.toString());
-      assets.push(
-        plainToClass(
-          AssetMinimalResponse,
-          {
-            _id: asset._id.toString(),
-            title: asset.title,
-            thumbnail_url: thumbnailFile
-              ? this.getThumbnailCDNUrl(asset._id.toString())
-              : AppConfigService.appConfig.DEFAULT_THUMBNAIL_URL,
-            duration: asset.duration,
-            status: asset.latest_status,
-            created_at: asset.createdAt,
-            updated_at: asset.updatedAt,
-          } as AssetMinimalResponse,
-          {
-            excludeExtraneousValues: true,
-            enableImplicitConversion: true,
-          }
-        )
-      );
+      assets.push(this.toAssetResponse(asset, this.toStatusLogsResponse(asset.status_logs as any), thumbnailFile));
     }
     return {
       assets: assets,
-      page_info: paginatedAssetResponse.pageInfo,
+      page_info: paginatedAssetResponse.pageInfo
     };
   }
 
-  toGetAssetResponse(asset: AssetDocument, statusLogs: StatusLogResponse[], fileDocument: FileDocument): Asset {
+  toAssetResponse(asset: AssetDocument, statusLogs: StatusLogResponse[], fileDocument: FileDocument): Asset {
     return plainToInstance(
       Asset,
       {
@@ -117,7 +94,7 @@ export class AssetMapper {
         tags: asset.tags,
         created_at: asset.createdAt,
         updated_at: asset.updatedAt,
-        _id: asset._id.toString(),
+        _id: asset._id.toString()
       } as Asset,
       { excludeExtraneousValues: true, enableImplicitConversion: true }
     );
@@ -133,16 +110,15 @@ export class AssetMapper {
           {
             ...log,
             created_at: log.createdAt,
-            updated_at: log.updatedAt,
+            updated_at: log.updatedAt
           } as StatusLogResponse,
           {
             excludeExtraneousValues: true,
-            enableImplicitConversion: true,
+            enableImplicitConversion: true
           }
         )
       );
     }
-    console.log(logs);
     return logs;
   }
 }
