@@ -8,18 +8,17 @@ import { GetAssetInputDto } from '@/src/api/assets/dtos/get-asset-input.dto';
 import { NotFoundException } from '@nestjs/common';
 import { UpdateAssetInputDto } from '@/src/api/assets/dtos/update-asset-input.dto';
 import { StatusDocument } from '@/src/api/assets/schemas/status.schema';
-import { FileService } from '@/src/api/assets/services/file.service';
 
 @Resolver(() => Asset)
 export class AssetResolver {
-  constructor(private assetService: AssetService, private fileService: FileService, private assetMapper: AssetMapper) {}
+  constructor(private assetService: AssetService) {
+  }
 
   @Mutation(() => CreateAssetResponse, { name: 'CreateAsset' })
   async createAsset(@Args('createAssetInput') createAssetInputDto: CreateAssetInputDto): Promise<Asset> {
     let createdAsset = await this.assetService.create(createAssetInputDto);
-    let statusLogs = this.assetMapper.toStatusLogsResponse(createdAsset.status_logs as [StatusDocument]);
-    let thumbnailFile = await this.fileService.getThumbnailFile(createdAsset._id.toString());
-    return this.assetMapper.toAssetResponse(createdAsset, statusLogs, thumbnailFile);
+    let statusLogs = AssetMapper.toStatusLogsResponse(createdAsset.status_logs as [StatusDocument]);
+    return AssetMapper.toAssetResponse(createdAsset, statusLogs);
   }
 
   @Mutation(() => Asset, { name: 'UpdateAsset' })
@@ -33,10 +32,9 @@ export class AssetResolver {
     }
 
     let updatedAsset = await this.assetService.update(currentAsset, updateAssetInputDto);
-    let statusLogs = this.assetMapper.toStatusLogsResponse(updatedAsset.status_logs as [StatusDocument]);
-    let thumbnailFile = await this.fileService.getThumbnailFile(updatedAsset._id.toString());
+    let statusLogs = AssetMapper.toStatusLogsResponse(updatedAsset.status_logs as [StatusDocument]);
 
-    return this.assetMapper.toAssetResponse(updatedAsset, statusLogs, thumbnailFile);
+    return AssetMapper.toAssetResponse(updatedAsset, statusLogs);
   }
 
   @Mutation(() => String, { name: 'DeleteAsset' })
@@ -53,8 +51,7 @@ export class AssetResolver {
   @Query(() => PaginatedAssetResponse, { name: 'ListAsset' })
   async listAssets(@Args('listAssetInputDto') listAssetInputDto: ListAssetInputDto): Promise<PaginatedAssetResponse> {
     let paginatedResult = await this.assetService.listVideos(listAssetInputDto);
-    let thumbnails = await this.fileService.listThumbnailFiles(paginatedResult.items);
-    return this.assetMapper.toPaginatedAssetResponse(paginatedResult, thumbnails);
+    return AssetMapper.toPaginatedAssetResponse(paginatedResult);
   }
 
   @Query(() => Asset, { name: 'GetAsset' })
@@ -63,9 +60,8 @@ export class AssetResolver {
     if (!asset) {
       throw new NotFoundException('Asset not found');
     }
-    let statusLogs = this.assetMapper.toStatusLogsResponse(asset.status_logs as [StatusDocument]);
-    let thumbnailFile = await this.fileService.getThumbnailFile(asset._id.toString());
+    let statusLogs = AssetMapper.toStatusLogsResponse(asset.status_logs as [StatusDocument]);
 
-    return this.assetMapper.toAssetResponse(asset, statusLogs, thumbnailFile);
+    return AssetMapper.toAssetResponse(asset, statusLogs);
   }
 }

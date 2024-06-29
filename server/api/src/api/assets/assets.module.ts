@@ -20,6 +20,8 @@ import { UpdateAssetStatusEventConsumer } from '@/src/api/assets/consumers/updat
 import { UpdateAssetEventConsumer } from '@/src/api/assets/consumers/update-asset-event.consumer';
 import { UpdateFileStatusEventConsumer } from '@/src/api/assets/consumers/update-file-status-event.consumer';
 import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
+import { AssetFilesResolver } from '@/src/api/assets/resolvers/asset-files.resolver';
+import { AssetThumbnailLoader } from '@/src/api/assets/data-loaders/asset-thumbnail .loader';
 
 @Module({
   imports: [
@@ -29,7 +31,7 @@ import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = VideoSchema;
-          schema.pre('save', async function () {
+          schema.pre('save', async function() {
             console.log('assets pre save hook');
             const asset = this;
             (asset as any).master_file_name = Utils.getMainManifestFileName();
@@ -45,14 +47,14 @@ import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
               );
             }
           });
-          schema.post('save', async function (doc) {
+          schema.post('save', async function(doc) {
             let assetService = moduleRef.get<AssetService>(AssetService, { strict: false });
             console.log('post save hook');
             await assetService.afterSave(doc);
             return;
           });
 
-          schema.post('findOneAndUpdate', async function (doc) {
+          schema.post('findOneAndUpdate', async function(doc) {
             console.log('this ', this['_update']);
             if (!doc) {
               return;
@@ -67,14 +69,14 @@ import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
           });
 
           return schema;
-        },
+        }
       },
       {
         name: FILE_COLLECTION_NAME,
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = FileSchema;
-          schema.post('findOneAndUpdate', async function (doc) {
+          schema.post('findOneAndUpdate', async function(doc) {
             if (!doc) {
               return;
             }
@@ -88,16 +90,16 @@ import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
           });
 
           return schema;
-        },
-      },
+        }
+      }
     ]),
     JwtModule.registerAsync({
       inject: [AppConfigService],
       useFactory: async () => ({
         secret: process.env.JWT_SECRET,
-        signOptions: { expiresIn: '1h' },
-      }),
-    }),
+        signOptions: { expiresIn: '1h' }
+      })
+    })
   ],
   controllers: [UploadController],
   providers: [
@@ -105,6 +107,7 @@ import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
     FileRepository,
     AssetService,
     AssetResolver,
+    AssetFilesResolver,
     AssetMapper,
     VideoDownloadService,
     FileService,
@@ -113,6 +116,8 @@ import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
     UpdateFileStatusEventConsumer,
     JobManagerService,
     TusService,
-  ],
+    AssetThumbnailLoader
+  ]
 })
-export class AssetsModule {}
+export class AssetsModule {
+}

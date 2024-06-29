@@ -30,7 +30,6 @@ type Asset {
   duration: Float!
   height: Float!
   width: Float!
-  thumbnail_url: String
   size: Float!
   master_playlist_url: String
   latest_status: String!
@@ -38,6 +37,7 @@ type Asset {
   tags: [String!]!
   created_at: DateTime!
   updated_at: DateTime!
+  thumbnail_url: String!
 }
 
 type PageInfo {
