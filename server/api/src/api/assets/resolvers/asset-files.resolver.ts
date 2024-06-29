@@ -4,11 +4,10 @@ import { AssetThumbnailLoader } from '@/src/api/assets/data-loaders/asset-thumbn
 
 @Resolver(() => Asset)
 export class AssetFilesResolver {
-  constructor(private thumbnailLoader: AssetThumbnailLoader) {
-  }
+  constructor(private thumbnailLoader: AssetThumbnailLoader) {}
 
   @ResolveField('thumbnail_url', () => String)
   async getFilesOfAsset(@Parent() asset: Asset) {
-    return  this.thumbnailLoader.load(asset._id.toString());
+    return this.thumbnailLoader.load(asset._id.toString());
   }
 }

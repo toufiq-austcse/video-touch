@@ -7,7 +7,7 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
 @Injectable({ scope: Scope.REQUEST })
 export class AssetThumbnailLoader extends DataLoader<string, string> {
   constructor(private fileRepository: FileRepository) {
-    super(keys => this.batchLoadFn(keys));
+    super((keys) => this.batchLoadFn(keys));
   }
 
   private async batchLoadFn(assetIds: readonly string[]): Promise<string[]> {
@@ -15,15 +15,14 @@ export class AssetThumbnailLoader extends DataLoader<string, string> {
     let thumbnailsFiles = await this.fileRepository.find({
       asset_id: { $in: assetIds as string[] },
       type: FILE_TYPE.THUMBNAIL,
-      latest_status: FILE_STATUS.READY
+      latest_status: FILE_STATUS.READY,
     });
 
     for (let assetId of assetIds) {
-      let thumbnailFile = thumbnailsFiles.find(file => file.asset_id.toString() === assetId);
+      let thumbnailFile = thumbnailsFiles.find((file) => file.asset_id.toString() === assetId);
       thumbnailUrls.push(thumbnailFile ? thumbnailFile.name : AppConfigService.appConfig.DEFAULT_THUMBNAIL_URL);
     }
 
     return thumbnailUrls;
-
   }
 }

@@ -11,8 +11,7 @@ import { StatusDocument } from '@/src/api/assets/schemas/status.schema';
 
 @Resolver(() => Asset)
 export class AssetResolver {
-  constructor(private assetService: AssetService) {
-  }
+  constructor(private assetService: AssetService) {}
 
   @Mutation(() => CreateAssetResponse, { name: 'CreateAsset' })
   async createAsset(@Args('createAssetInput') createAssetInputDto: CreateAssetInputDto): Promise<Asset> {
