@@ -38,6 +38,7 @@ type Asset {
   created_at: DateTime!
   updated_at: DateTime!
   thumbnail_url: String!
+  files: [File!]!
 }
 
 type PageInfo {
@@ -49,6 +50,18 @@ type PageInfo {
 type PaginatedAssetResponse {
   assets: [Asset!]!
   page_info: PageInfo!
+}
+
+type File {
+  _id: String!
+  height: Float!
+  width: Float!
+  latest_status: String!
+  name: String!
+  size: Float!
+  type: String!
+  created_at: DateTime!
+  updated_at: DateTime!
 }
 
 type Query {

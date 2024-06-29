@@ -21,7 +21,8 @@ import { UpdateAssetEventConsumer } from '@/src/api/assets/consumers/update-asse
 import { UpdateFileStatusEventConsumer } from '@/src/api/assets/consumers/update-file-status-event.consumer';
 import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
 import { AssetFilesResolver } from '@/src/api/assets/resolvers/asset-files.resolver';
-import { AssetThumbnailLoader } from '@/src/api/assets/data-loaders/asset-thumbnail .loader';
+import { thumbnailByAssetLoader } from '@/src/api/assets/data-loaders/thumbnail-by-asset.loader';
+import { FilesByAssetLoader } from '@/src/api/assets/data-loaders/asset-files.loader';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { AssetThumbnailLoader } from '@/src/api/assets/data-loaders/asset-thumbn
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = VideoSchema;
-          schema.pre('save', async function () {
+          schema.pre('save', async function() {
             console.log('assets pre save hook');
             const asset = this;
             (asset as any).master_file_name = Utils.getMainManifestFileName();
@@ -47,14 +48,14 @@ import { AssetThumbnailLoader } from '@/src/api/assets/data-loaders/asset-thumbn
               );
             }
           });
-          schema.post('save', async function (doc) {
+          schema.post('save', async function(doc) {
             let assetService = moduleRef.get<AssetService>(AssetService, { strict: false });
             console.log('post save hook');
             await assetService.afterSave(doc);
             return;
           });
 
-          schema.post('findOneAndUpdate', async function (doc) {
+          schema.post('findOneAndUpdate', async function(doc) {
             console.log('this ', this['_update']);
             if (!doc) {
               return;
@@ -69,14 +70,14 @@ import { AssetThumbnailLoader } from '@/src/api/assets/data-loaders/asset-thumbn
           });
 
           return schema;
-        },
+        }
       },
       {
         name: FILE_COLLECTION_NAME,
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = FileSchema;
-          schema.post('findOneAndUpdate', async function (doc) {
+          schema.post('findOneAndUpdate', async function(doc) {
             if (!doc) {
               return;
             }
@@ -90,16 +91,16 @@ import { AssetThumbnailLoader } from '@/src/api/assets/data-loaders/asset-thumbn
           });
 
           return schema;
-        },
-      },
+        }
+      }
     ]),
     JwtModule.registerAsync({
       inject: [AppConfigService],
       useFactory: async () => ({
         secret: process.env.JWT_SECRET,
-        signOptions: { expiresIn: '1h' },
-      }),
-    }),
+        signOptions: { expiresIn: '1h' }
+      })
+    })
   ],
   controllers: [UploadController],
   providers: [
@@ -116,7 +117,9 @@ import { AssetThumbnailLoader } from '@/src/api/assets/data-loaders/asset-thumbn
     UpdateFileStatusEventConsumer,
     JobManagerService,
     TusService,
-    AssetThumbnailLoader,
-  ],
+    thumbnailByAssetLoader,
+    FilesByAssetLoader
+  ]
 })
-export class AssetsModule {}
+export class AssetsModule {
+}
