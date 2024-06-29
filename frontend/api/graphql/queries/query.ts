@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 
 export const LIST_ASSETS = gql`
 query($first:Float,$before:String,$after:String){
-  ListAsset(listAssetInputDto:{first:$first,before:$before,after:$after}){assets{_id,title,status,duration,created_at,thumbnail_url},page_info{total_pages,prev_cursor,next_cursor}}
+  ListAsset(listAssetInputDto:{first:$first,before:$before,after:$after}){assets{_id,title,latest_status,duration,created_at,thumbnail_url},page_info{total_pages,prev_cursor,next_cursor}}
 }
 `;
 export const GET_ASSET_QUERY = gql`
