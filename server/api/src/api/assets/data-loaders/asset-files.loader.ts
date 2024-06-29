@@ -15,7 +15,7 @@ export class FilesByAssetLoader extends DataLoader<string, File[]> {
     let assetIdsInObjectIds = assetIds.map((assetId) => mongoose.Types.ObjectId(assetId));
     let response: File[][] = [];
     let files = await this.fileRepository.find({
-      asset_id: { $in: assetIdsInObjectIds }
+      asset_id: { $in: assetIdsInObjectIds },
     });
 
     for (let assetId of assetIds) {
@@ -30,6 +30,5 @@ export class FilesByAssetLoader extends DataLoader<string, File[]> {
     }
 
     return response;
-
   }
 }

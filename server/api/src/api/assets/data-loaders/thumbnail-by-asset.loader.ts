@@ -18,12 +18,14 @@ export class thumbnailByAssetLoader extends DataLoader<string, string> {
     let thumbnailsFiles = await this.fileRepository.find({
       asset_id: { $in: assetIdsInObjectIds },
       type: FILE_TYPE.THUMBNAIL,
-      latest_status: FILE_STATUS.READY
+      latest_status: FILE_STATUS.READY,
     });
 
     for (let assetId of assetIds) {
       let thumbnailFile = thumbnailsFiles.find((file) => file.asset_id.toString() === assetId);
-      thumbnailUrls.push(thumbnailFile ? FileMapper.getThumbnailCDNUrl(assetId) : AppConfigService.appConfig.DEFAULT_THUMBNAIL_URL);
+      thumbnailUrls.push(
+        thumbnailFile ? FileMapper.getThumbnailCDNUrl(assetId) : AppConfigService.appConfig.DEFAULT_THUMBNAIL_URL
+      );
     }
 
     return thumbnailUrls;

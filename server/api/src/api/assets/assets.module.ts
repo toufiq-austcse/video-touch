@@ -32,7 +32,7 @@ import { FilesByAssetLoader } from '@/src/api/assets/data-loaders/asset-files.lo
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = VideoSchema;
-          schema.pre('save', async function() {
+          schema.pre('save', async function () {
             console.log('assets pre save hook');
             const asset = this;
             (asset as any).master_file_name = Utils.getMainManifestFileName();
@@ -48,14 +48,14 @@ import { FilesByAssetLoader } from '@/src/api/assets/data-loaders/asset-files.lo
               );
             }
           });
-          schema.post('save', async function(doc) {
+          schema.post('save', async function (doc) {
             let assetService = moduleRef.get<AssetService>(AssetService, { strict: false });
             console.log('post save hook');
             await assetService.afterSave(doc);
             return;
           });
 
-          schema.post('findOneAndUpdate', async function(doc) {
+          schema.post('findOneAndUpdate', async function (doc) {
             console.log('this ', this['_update']);
             if (!doc) {
               return;
@@ -70,14 +70,14 @@ import { FilesByAssetLoader } from '@/src/api/assets/data-loaders/asset-files.lo
           });
 
           return schema;
-        }
+        },
       },
       {
         name: FILE_COLLECTION_NAME,
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = FileSchema;
-          schema.post('findOneAndUpdate', async function(doc) {
+          schema.post('findOneAndUpdate', async function (doc) {
             if (!doc) {
               return;
             }
@@ -91,16 +91,16 @@ import { FilesByAssetLoader } from '@/src/api/assets/data-loaders/asset-files.lo
           });
 
           return schema;
-        }
-      }
+        },
+      },
     ]),
     JwtModule.registerAsync({
       inject: [AppConfigService],
       useFactory: async () => ({
         secret: process.env.JWT_SECRET,
-        signOptions: { expiresIn: '1h' }
-      })
-    })
+        signOptions: { expiresIn: '1h' },
+      }),
+    }),
   ],
   controllers: [UploadController],
   providers: [
@@ -118,8 +118,7 @@ import { FilesByAssetLoader } from '@/src/api/assets/data-loaders/asset-files.lo
     JobManagerService,
     TusService,
     thumbnailByAssetLoader,
-    FilesByAssetLoader
-  ]
+    FilesByAssetLoader,
+  ],
 })
-export class AssetsModule {
-}
+export class AssetsModule {}

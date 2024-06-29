@@ -24,28 +24,32 @@ export class FileMapper {
       name: name,
       size: 0,
       status_logs: [StatusMapper.mapForSave(status, status_details)],
-      type: type
+      type: type,
     };
   }
 
   static toFileResponse(file: FileDocument): File {
-    return plainToInstance(File, {
-      _id: file._id.toString(),
-      height: file.height,
-      width: file.width,
-      latest_status: file.latest_status,
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      created_at: file.createdAt,
-      updated_at: file.updatedAt
-    } as File, {
-      enableImplicitConversion: true,
-      excludeExtraneousValues: true
-    });
+    return plainToInstance(
+      File,
+      {
+        _id: file._id.toString(),
+        height: file.height,
+        width: file.width,
+        latest_status: file.latest_status,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        created_at: file.createdAt,
+        updated_at: file.updatedAt,
+      } as File,
+      {
+        enableImplicitConversion: true,
+        excludeExtraneousValues: true,
+      }
+    );
   }
 
-   static getThumbnailCDNUrl(assetId: string) {
+  static getThumbnailCDNUrl(assetId: string) {
     return `${AppConfigService.appConfig.CDN_BASE_URL}/${Utils.getS3ThumbnailPath(assetId)}`;
   }
 }

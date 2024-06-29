@@ -6,8 +6,7 @@ import { File } from '@/src/api/assets/models/file.model';
 
 @Resolver(() => Asset)
 export class AssetFilesResolver {
-  constructor(private thumbnailLoader: thumbnailByAssetLoader, private filesByAssetLoader: FilesByAssetLoader) {
-  }
+  constructor(private thumbnailLoader: thumbnailByAssetLoader, private filesByAssetLoader: FilesByAssetLoader) {}
 
   @ResolveField('thumbnail_url', () => String)
   async getThumbnailUrlOfAsset(@Parent() asset: Asset) {
