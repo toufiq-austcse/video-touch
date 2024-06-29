@@ -1,34 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import {
-  Asset,
-  AssetMinimalResponse,
-  CreateAssetResponse,
-  PaginatedAssetResponse,
-} from '@/src/api/assets/models/asset.model';
+import { Asset, PaginatedAssetResponse } from '@/src/api/assets/models/asset.model';
 import { AssetDocument } from '@/src/api/assets/schemas/assets.schema';
-import { plainToClass, plainToInstance } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { BasePaginatedResponse } from '@/src/common/database/models/abstract.model';
 import { StatusDocument } from '@/src/api/assets/schemas/status.schema';
 import { StatusLogResponse } from '@/src/api/assets/models/status-logs.model';
 import { CreateAssetFromUploadInputDto, CreateAssetInputDto } from '@/src/api/assets/dtos/create-asset-input.dto';
 import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
-import { FileDocument } from '@/src/api/assets/schemas/files.schema';
 
-@Injectable()
 export class AssetMapper {
-  toCreateAssetResponse(videoDocument: AssetDocument): CreateAssetResponse {
-    return {
-      _id: videoDocument._id.toString(),
-      description: videoDocument.description,
-      source_url: videoDocument.source_url,
-      status: videoDocument.latest_status,
-      tags: videoDocument.tags,
-      title: videoDocument.title,
-    };
-  }
-
-  buildAssetDocumentForSaving(createVideoInput: CreateAssetInputDto): Omit<AssetDocument, '_id'> {
+  static buildAssetDocumentForSaving(createVideoInput: CreateAssetInputDto): Omit<AssetDocument, '_id'> {
     let title = createVideoInput.title;
     if (!title) {
       title = this.parsedTitle(createVideoInput.source_url);
@@ -41,7 +22,7 @@ export class AssetMapper {
     };
   }
 
-  buildAssetDocumentFromUploadReq(uploadAssetReqDto: CreateAssetFromUploadInputDto): Omit<AssetDocument, '_id'> {
+  static buildAssetDocumentFromUploadReq(uploadAssetReqDto: CreateAssetFromUploadInputDto): Omit<AssetDocument, '_id'> {
     let title = uploadAssetReqDto.title;
     if (!title) {
       title = this.parsedTitle(uploadAssetReqDto.file_name);
@@ -54,41 +35,16 @@ export class AssetMapper {
     };
   }
 
-  private parsedTitle(source_url: string) {
+  static parsedTitle(source_url: string) {
     return source_url.split('/').pop().split('.').shift();
   }
 
-  private getThumbnailCDNUrl(assetId: string) {
-    return `${AppConfigService.appConfig.CDN_BASE_URL}/${Utils.getS3ThumbnailPath(assetId)}`;
-  }
-
-  toPaginatedAssetResponse(
-    paginatedAssetResponse: BasePaginatedResponse<AssetDocument>,
-    thumbnailFileDocuments: FileDocument[]
+  static toPaginatedAssetResponse(
+    paginatedAssetResponse: BasePaginatedResponse<AssetDocument>
   ): PaginatedAssetResponse {
-    let assets: AssetMinimalResponse[] = [];
+    let assets: Asset[] = [];
     for (let asset of paginatedAssetResponse.items) {
-      let thumbnailFile = thumbnailFileDocuments.find((file) => file.asset_id.toString() === asset._id.toString());
-      assets.push(
-        plainToClass(
-          AssetMinimalResponse,
-          {
-            _id: asset._id.toString(),
-            title: asset.title,
-            thumbnail_url: thumbnailFile
-              ? this.getThumbnailCDNUrl(asset._id.toString())
-              : AppConfigService.appConfig.DEFAULT_THUMBNAIL_URL,
-            duration: asset.duration,
-            status: asset.latest_status,
-            created_at: asset.createdAt,
-            updated_at: asset.updatedAt,
-          } as AssetMinimalResponse,
-          {
-            excludeExtraneousValues: true,
-            enableImplicitConversion: true,
-          }
-        )
-      );
+      assets.push(this.toAssetResponse(asset, this.toStatusLogsResponse(asset.status_logs as any)));
     }
     return {
       assets: assets,
@@ -96,7 +52,7 @@ export class AssetMapper {
     };
   }
 
-  toGetAssetResponse(asset: AssetDocument, statusLogs: StatusLogResponse[], fileDocument: FileDocument): Asset {
+  static toAssetResponse(asset: AssetDocument, statusLogs: StatusLogResponse[]): Asset {
     return plainToInstance(
       Asset,
       {
@@ -106,7 +62,6 @@ export class AssetMapper {
         source_url: asset.source_url,
         height: asset.height,
         width: asset.width,
-        thumbnail_url: fileDocument ? this.getThumbnailCDNUrl(asset._id.toString()) : null,
         size: asset.size,
         master_playlist_url:
           asset.latest_status === Constants.VIDEO_STATUS.READY
@@ -123,7 +78,7 @@ export class AssetMapper {
     );
   }
 
-  toStatusLogsResponse(statusLogs: StatusDocument[]): StatusLogResponse[] {
+  static toStatusLogsResponse(statusLogs: StatusDocument[]): StatusLogResponse[] {
     let logs: StatusLogResponse[] = [];
 
     for (let log of statusLogs) {
@@ -142,7 +97,6 @@ export class AssetMapper {
         )
       );
     }
-    console.log(logs);
     return logs;
   }
 }

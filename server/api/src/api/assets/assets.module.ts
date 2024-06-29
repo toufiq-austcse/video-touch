@@ -20,6 +20,9 @@ import { UpdateAssetStatusEventConsumer } from '@/src/api/assets/consumers/updat
 import { UpdateAssetEventConsumer } from '@/src/api/assets/consumers/update-asset-event.consumer';
 import { UpdateFileStatusEventConsumer } from '@/src/api/assets/consumers/update-file-status-event.consumer';
 import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
+import { AssetFilesResolver } from '@/src/api/assets/resolvers/asset-files.resolver';
+import { thumbnailByAssetLoader } from '@/src/api/assets/data-loaders/thumbnail-by-asset.loader';
+import { FilesByAssetLoader } from '@/src/api/assets/data-loaders/asset-files.loader';
 
 @Module({
   imports: [
@@ -105,6 +108,7 @@ import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
     FileRepository,
     AssetService,
     AssetResolver,
+    AssetFilesResolver,
     AssetMapper,
     VideoDownloadService,
     FileService,
@@ -113,6 +117,8 @@ import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
     UpdateFileStatusEventConsumer,
     JobManagerService,
     TusService,
+    thumbnailByAssetLoader,
+    FilesByAssetLoader,
   ],
 })
 export class AssetsModule {}

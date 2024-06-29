@@ -62,7 +62,6 @@ const PlyrHlsPlayer = ({
         // @ts-ignore
         const player = new Plyr(videoRef.current, defaultOptions);
         player.poster = thumbnailUrl;
-
       });
 
       // @ts-ignore

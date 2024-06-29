@@ -13,7 +13,7 @@ import { FileRepository } from '@/src/api/assets/repositories/file.repository';
 import { AssetMapper } from '@/src/api/assets/mapper/asset.mapper';
 import { JobManagerService } from '@/src/api/assets/services/job-manager.service';
 import { FileMapper } from '@/src/api/assets/mapper/file.mapper';
-import { Constants, Utils, Models } from '@toufiq-austcse/video-touch-common';
+import { Constants, Models, Utils } from '@toufiq-austcse/video-touch-common';
 import { HeightWidthMap } from '@/src/api/assets/models/file.model';
 import { FileDocument } from '@/src/api/assets/schemas/files.schema';
 
@@ -23,17 +23,16 @@ export class AssetService {
     private repository: AssetRepository,
     private rabbitMqService: RabbitMqService,
     private fileRepository: FileRepository,
-    private assetMapper: AssetMapper,
     private jobManagerService: JobManagerService
   ) {}
 
   async create(createVideoInput: CreateAssetInputDto) {
-    let assetDocument = this.assetMapper.buildAssetDocumentForSaving(createVideoInput);
+    let assetDocument = AssetMapper.buildAssetDocumentForSaving(createVideoInput);
     return this.repository.create(assetDocument);
   }
 
   async createAssetFromUploadReq(uploadAssetReqDto: CreateAssetFromUploadInputDto) {
-    let assetDocument = this.assetMapper.buildAssetDocumentFromUploadReq(uploadAssetReqDto);
+    let assetDocument = AssetMapper.buildAssetDocumentFromUploadReq(uploadAssetReqDto);
     return this.repository.create(assetDocument);
   }
 

@@ -19,7 +19,6 @@ import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { useMutation } from "@apollo/client";
 import { UPDATE_ASSET_MUTATION } from "@/api/graphql/queries/query";
-import { Label } from "@/components/ui/label";
 
 const formSchema = z.object({
   description: z.string().optional(),
@@ -68,14 +67,13 @@ const VideoDetailsComponent = ({
   };
 
   const onKeyDownInTagInput = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // let formTags = form.getValues();
-    // console.log('formTags', formTags);
-
     if (e.key === "Enter") {
+      let existingValues = form.getValues("tags");
       if (
-        !tags.includes((e.target as any).value) &&
+        !existingValues.includes((e.target as any).value) &&
         (e.target as any).value !== ""
       ) {
+        console.log("dhukse");
         let formTags = form.getValues("tags");
         form.setValue("tags", [...formTags, (e.target as any).value]);
       }

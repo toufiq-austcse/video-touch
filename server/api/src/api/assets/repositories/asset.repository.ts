@@ -27,7 +27,6 @@ export class AssetRepository extends BaseRepository<AssetDocument> {
       filter = { ...filter, _id: { $gt: beforeCursor } };
       sort = { _id: 1, ...sort };
     }
-    console.log(filter);
 
     let total = await this.videoModel.countDocuments({ is_deleted: { $ne: true } });
     docs = await this.videoModel.find(filter).sort(sort).limit(first).lean();

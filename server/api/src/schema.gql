@@ -30,7 +30,6 @@ type Asset {
   duration: Float!
   height: Float!
   width: Float!
-  thumbnail_url: String
   size: Float!
   master_playlist_url: String
   latest_status: String!
@@ -38,16 +37,8 @@ type Asset {
   tags: [String!]!
   created_at: DateTime!
   updated_at: DateTime!
-}
-
-type AssetMinimalResponse {
-  _id: String!
-  title: String!
-  duration: Float!
-  thumbnail_url: String
-  status: String!
-  created_at: DateTime!
-  updated_at: DateTime!
+  thumbnail_url: String!
+  files: [File!]!
 }
 
 type PageInfo {
@@ -57,8 +48,20 @@ type PageInfo {
 }
 
 type PaginatedAssetResponse {
-  assets: [AssetMinimalResponse!]!
+  assets: [Asset!]!
   page_info: PageInfo!
+}
+
+type File {
+  _id: String!
+  height: Float!
+  width: Float!
+  latest_status: String!
+  name: String!
+  size: Float!
+  type: String!
+  created_at: DateTime!
+  updated_at: DateTime!
 }
 
 type Query {
@@ -78,7 +81,6 @@ input GetAssetInputDto {
 
 type Mutation {
   CreateAsset(createAssetInput: CreateAssetInputDto!): CreateAssetResponse!
-  CreateAssetFromUpload(createAssetFromUploadInput: CreateAssetFromUploadInputDto!): CreateAssetResponse!
   UpdateAsset(_id: String!, updateAssetInputDto: UpdateAssetInputDto!): Asset!
   DeleteAsset(_id: String!): String!
 }
@@ -87,13 +89,6 @@ input CreateAssetInputDto {
   title: String
   description: String
   source_url: String!
-  tags: [String!]
-}
-
-input CreateAssetFromUploadInputDto {
-  title: String
-  description: String
-  file_name: String!
   tags: [String!]
 }
 

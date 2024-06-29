@@ -52,10 +52,10 @@ export class Asset {
   @Transform((value) => value.obj.width ?? 0)
   width: number;
 
-  @Field({ nullable: true })
-  @Expose()
-  @Transform((value) => value.obj.thumbnail_url ?? null)
-  thumbnail_url: string;
+  // @Field({ nullable: true })
+  // @Expose()
+  // @Transform((value) => value.obj.thumbnail_url ?? null)
+  // thumbnail_url: string;
 
   @Field()
   @Expose()
@@ -139,9 +139,9 @@ export class PageInfo {
 
 @ObjectType()
 export class PaginatedAssetResponse {
-  @Field((type) => [AssetMinimalResponse])
+  @Field((type) => [Asset])
   @Expose()
-  assets: AssetMinimalResponse[];
+  assets: Asset[];
 
   @Field((type) => PageInfo)
   @Expose()
