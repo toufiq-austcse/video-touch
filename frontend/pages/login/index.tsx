@@ -4,38 +4,44 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
-import React from 'react';
-import Link from 'next/link';
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/ui/button";
+import React from "react";
+import Link from "next/link";
 
 const formSchema = z.object({
   email: z.string().email({
-    message: 'Please enter a valid email address'
+    message: "Please enter a valid email address",
   }),
-  password: z.string()
+  password: z.string(),
 });
 
 export default function Login() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
-      password: ''
-    }
+      email: "",
+      password: "",
+    },
   });
   return (
     <div className="flex m-5">
       <div className="m-auto h-1/4 w-1/4">
         <h1 className="text-4xl flex justify-center">Login</h1>
         <p className="flex justify-center">
-          {' '}
-          Don't have an account yet? <Link href={'signup'} className="mx-1 underline text-blue-600 hover:text-blue-800 visited:text-purple-600">Signup</Link>
+          {" "}
+          Don't have an account yet?{" "}
+          <Link
+            href={"signup"}
+            className="mx-1 underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
+          >
+            Signup
+          </Link>
         </p>
         <Form {...form}>
           <form id="login-form">

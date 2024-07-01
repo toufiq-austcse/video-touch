@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import Image from 'next/image';
+import Link from "next/link";
+import Image from "next/image";
 
 const Navbar = () => {
   return (
@@ -59,8 +59,12 @@ const Navbar = () => {
 
             <div className="relative ml-3 ">
               <div>
-                <Link className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
-                      href={'login'}>Login</Link>
+                <Link
+                  className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
+                  href={"login"}
+                >
+                  Login
+                </Link>
               </div>
 
               {/*<div*/}
