@@ -5,7 +5,7 @@ export const USER_COLLECTION_NAME = 'users';
 
 @Schema({
   timestamps: true,
-  collection: USER_COLLECTION_NAME
+  collection: USER_COLLECTION_NAME,
 })
 export class UserDocument extends AbstractDocument {
   @Prop({ required: true })

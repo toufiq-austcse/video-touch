@@ -9,8 +9,7 @@ import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 @Controller('auth')
 @ApiTags('Auth')
 export class AuthController {
-  constructor(private userService: UserService, private authService: AuthService) {
-  }
+  constructor(private userService: UserService, private authService: AuthService) {}
 
   @Post('signup')
   @ApiCreatedResponse({ description: 'User signed up successfully', type: SignupResDto })
@@ -19,5 +18,4 @@ export class AuthController {
     let tokenDetails = await this.authService.generateToken(newUser);
     return AuthMapper.toSignUpRes(newUser, tokenDetails);
   }
-
 }

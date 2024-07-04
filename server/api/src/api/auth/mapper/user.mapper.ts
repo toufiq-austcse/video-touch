@@ -5,9 +5,7 @@ export class UserMapper {
     return {
       name,
       email,
-      password
-
+      password,
     };
-
   }
 }

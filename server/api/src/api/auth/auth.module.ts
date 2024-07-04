@@ -9,15 +9,14 @@ import { AuthService } from '@/src/api/auth/services/auth.service';
 import { UserService } from '@/src/api/auth/services/user.service';
 import { ModuleRef } from '@nestjs/core';
 
-
 @Module({
   imports: [
     JwtModule.registerAsync({
       inject: [AppConfigService],
       useFactory: () => ({
         secret: AppConfigService.appConfig.JWT_SECRET,
-        signOptions: { expiresIn: AppConfigService.appConfig.JWT_EXPIRATION_TIME_IN_SEC }
-      })
+        signOptions: { expiresIn: AppConfigService.appConfig.JWT_EXPIRATION_TIME_IN_SEC },
+      }),
     }),
     MongooseModule.forFeatureAsync([
       {
@@ -25,7 +24,7 @@ import { ModuleRef } from '@nestjs/core';
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = UserSchema;
-          schema.pre('save', async function() {
+          schema.pre('save', async function () {
             let authService = moduleRef.get<AuthService>(AuthService, { strict: false });
 
             console.log('user pre save hook');
@@ -34,12 +33,11 @@ import { ModuleRef } from '@nestjs/core';
             console.log('password ', user.password);
           });
           return schema;
-        }
-      }
-    ])
+        },
+      },
+    ]),
   ],
   providers: [UserRepository, AuthService, UserService],
-  controllers: [AuthController]
+  controllers: [AuthController],
 })
-export class AuthModule {
-}
+export class AuthModule {}

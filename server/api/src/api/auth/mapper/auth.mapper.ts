@@ -4,14 +4,17 @@ import { plainToInstance } from 'class-transformer';
 
 export class AuthMapper {
   static toSignUpRes(user: UserDocument, tokenDetails: TokenDetails): SignupResDto {
-    return plainToInstance(SignupResDto, {
-      name: user.name,
-      email: user.email,
-      token_details: tokenDetails
-    } as SignupResDto, {
-      excludeExtraneousValues: true,
-      enableImplicitConversion: true
-    });
-
+    return plainToInstance(
+      SignupResDto,
+      {
+        name: user.name,
+        email: user.email,
+        token_details: tokenDetails,
+      } as SignupResDto,
+      {
+        excludeExtraneousValues: true,
+        enableImplicitConversion: true,
+      }
+    );
   }
 }

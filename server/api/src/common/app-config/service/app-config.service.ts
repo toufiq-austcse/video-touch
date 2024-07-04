@@ -70,7 +70,7 @@ export class AppConfigService {
       ),
       DEFAULT_THUMBNAIL_URL: this.configService.getOrThrow('DEFAULT_THUMBNAIL_URL'),
       JWT_EXPIRATION_TIME_IN_SEC: +this.configService.getOrThrow('JWT_EXPIRATION_TIME_IN_SEC'),
-      JWT_SECRET: this.configService.getOrThrow('JWT_SECRET')
+      JWT_SECRET: this.configService.getOrThrow('JWT_SECRET'),
     };
   }
 }
