@@ -18,8 +18,8 @@ import { UsersResolver } from '@/src/api/auth/resolvers/users.resolver';
       inject: [AppConfigService],
       useFactory: () => ({
         secret: AppConfigService.appConfig.JWT_SECRET,
-        signOptions: { expiresIn: AppConfigService.appConfig.JWT_EXPIRATION_TIME_IN_SEC }
-      })
+        signOptions: { expiresIn: AppConfigService.appConfig.JWT_EXPIRATION_TIME_IN_SEC },
+      }),
     }),
     MongooseModule.forFeatureAsync([
       {
@@ -27,7 +27,7 @@ import { UsersResolver } from '@/src/api/auth/resolvers/users.resolver';
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = UserSchema;
-          schema.pre('save', async function() {
+          schema.pre('save', async function () {
             let authService = moduleRef.get<AuthService>(AuthService, { strict: false });
 
             console.log('user pre save hook');
@@ -35,12 +35,11 @@ import { UsersResolver } from '@/src/api/auth/resolvers/users.resolver';
             user.password = await authService.getHashedPassword(user.password);
           });
           return schema;
-        }
-      }
-    ])
+        },
+      },
+    ]),
   ],
   providers: [UserRepository, AuthService, UserService, JwtStrategy, LocalStrategy, UsersResolver],
-  controllers: [AuthController]
+  controllers: [AuthController],
 })
-export class AuthModule {
-}
+export class AuthModule {}

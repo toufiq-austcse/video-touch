@@ -9,12 +9,9 @@ import { User } from '@/src/api/auth/models/user.model';
 
 @Resolver(() => User)
 export class UsersResolver {
-
   @Query(() => User, { name: 'user', nullable: true })
   @UseGuards(GqlAuthGuard)
   getUser(@UserInfoDec() userInfo: UserDocument) {
     return UserMapper.toUserResDto(userInfo);
-
   }
-
 }

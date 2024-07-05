@@ -17,7 +17,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
           status: statusCode,
           message: 'error',
           errors: [message],
-          data: null
+          data: null,
         });
       } catch (error) {
         let message = exception.message;
@@ -25,12 +25,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
           status: 500,
           message: 'Failed to process the request',
           error: [message],
-          data: null
+          data: null,
         });
       }
     } else {
       throw exception;
     }
-
   }
 }

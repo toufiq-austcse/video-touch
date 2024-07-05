@@ -7,7 +7,7 @@ export class UserMapper {
     return {
       name,
       email,
-      password
+      password,
     };
   }
 
@@ -19,11 +19,11 @@ export class UserMapper {
         name: userDocument.name,
         email: userDocument.email,
         createdAt: userDocument.createdAt.toISOString(),
-        updatedAt: userDocument.updatedAt.toISOString()
+        updatedAt: userDocument.updatedAt.toISOString(),
       } as User,
       {
         enableImplicitConversion: true,
-        excludeExtraneousValues: true
+        excludeExtraneousValues: true,
       }
     );
   }

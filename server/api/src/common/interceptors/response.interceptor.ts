@@ -12,7 +12,7 @@ export class ResponseInterceptor implements NestInterceptor {
           status: statusCode,
           message: res.message,
           errors: [],
-          data: res.data
+          data: res.data,
         };
       })
     );

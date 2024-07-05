@@ -9,5 +9,4 @@ export const UserInfoDec = createParamDecorator((data: unknown, ctx: ExecutionCo
 
   const gqlContext = GqlExecutionContext.create(ctx);
   return gqlContext.getContext().req.user;
-
 });
