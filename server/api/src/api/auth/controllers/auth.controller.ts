@@ -12,7 +12,7 @@ import {
 import { SignupReqDto } from '@/src/api/auth/dtos/signup-req.dto';
 import { UserService } from '@/src/api/auth/services/user.service';
 import { AuthService } from '@/src/api/auth/services/auth.service';
-import { AuthResDto, UserResDto } from '@/src/api/auth/dtos/auth-res.dto';
+import { AuthResDto } from '@/src/api/auth/dtos/auth-res.dto';
 import { AuthMapper } from '@/src/api/auth/mapper/auth.mapper';
 import {
   ApiBadRequestResponse,
@@ -35,6 +35,7 @@ import {
 } from '@/src/common/dto/base-api-response.dto';
 import { UserMapper } from '@/src/api/auth/mapper/user.mapper';
 import { LocalAuthGuard } from '@/src/api/auth/guards/local-auth.guard';
+import { User } from '@/src/api/auth/models/user.model';
 
 @Controller({ version: '1', path: 'auth' })
 @ApiTags('Auth')
@@ -74,9 +75,9 @@ export class AuthController {
   @ApiSecurity('auth')
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  @ApiOkResponse({ type: SwaggerBaseApiResponse(UserResDto, HttpStatus.OK) })
+  @ApiOkResponse({ type: SwaggerBaseApiResponse(User, HttpStatus.OK) })
   @ApiUnauthorizedResponse({ type: SwaggerBaseApiErrorResponse(HttpStatus.UNAUTHORIZED) })
-  async me(@UserInfoDec() userInfo: UserDocument): Promise<BaseApiResponse<UserResDto>> {
+  async me(@UserInfoDec() userInfo: UserDocument): Promise<BaseApiResponse<User>> {
     let userResDto = UserMapper.toUserResDto(userInfo);
     return {
       message: '',

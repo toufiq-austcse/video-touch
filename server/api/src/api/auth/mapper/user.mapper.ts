@@ -1,29 +1,29 @@
 import { UserDocument } from '@/src/api/auth/schemas/user.schema';
-import { UserResDto } from '@/src/api/auth/dtos/auth-res.dto';
 import { plainToInstance } from 'class-transformer';
+import { User } from '@/src/api/auth/models/user.model';
 
 export class UserMapper {
   static buildUserDocumentForSaving(name: string, email: string, password: string): Omit<UserDocument, '_id'> {
     return {
       name,
       email,
-      password,
+      password
     };
   }
 
-  static toUserResDto(userDocument: UserDocument): UserResDto {
+  static toUserResDto(userDocument: UserDocument): User {
     return plainToInstance(
-      UserResDto,
+      User,
       {
         _id: userDocument._id.toString(),
         name: userDocument.name,
         email: userDocument.email,
         createdAt: userDocument.createdAt.toISOString(),
-        updatedAt: userDocument.updatedAt.toISOString(),
-      } as UserResDto,
+        updatedAt: userDocument.updatedAt.toISOString()
+      } as User,
       {
         enableImplicitConversion: true,
-        excludeExtraneousValues: true,
+        excludeExtraneousValues: true
       }
     );
   }

@@ -29,24 +29,24 @@ export class AuthResDto {
   token: Token;
 }
 
-export class UserResDto {
-  @ApiProperty()
-  @Expose()
-  _id: string;
-
-  @ApiProperty()
-  @Expose()
-  name: string;
-
-  @ApiProperty()
-  @Expose()
-  email: string;
-
-  @ApiProperty()
-  @Expose()
-  createdAt: string;
-
-  @ApiProperty()
-  @Expose()
-  updatedAt: string;
-}
+// export class UserResDto {
+//   @ApiProperty()
+//   @Expose()
+//   _id: string;
+//
+//   @ApiProperty()
+//   @Expose()
+//   name: string;
+//
+//   @ApiProperty()
+//   @Expose()
+//   email: string;
+//
+//   @ApiProperty()
+//   @Expose()
+//   createdAt: string;
+//
+//   @ApiProperty()
+//   @Expose()
+//   updatedAt: string;
+// }
