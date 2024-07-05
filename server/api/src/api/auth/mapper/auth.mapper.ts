@@ -1,19 +1,20 @@
-import { SignupResDto, TokenDetails } from '@/src/api/auth/dtos/signup-res.dto';
+import { AuthResDto, Token } from '@/src/api/auth/dtos/auth-res.dto';
 import { UserDocument } from '@/src/api/auth/schemas/user.schema';
 import { plainToInstance } from 'class-transformer';
 
 export class AuthMapper {
-  static toSignUpRes(user: UserDocument, tokenDetails: TokenDetails): SignupResDto {
+  static toAuthRes(user: UserDocument, token: Token): AuthResDto {
     return plainToInstance(
-      SignupResDto,
+      AuthResDto,
       {
+        _id: user._id.toString(),
         name: user.name,
         email: user.email,
-        token_details: tokenDetails,
-      } as SignupResDto,
+        token: token
+      } as AuthResDto,
       {
         excludeExtraneousValues: true,
-        enableImplicitConversion: true,
+        enableImplicitConversion: true
       }
     );
   }

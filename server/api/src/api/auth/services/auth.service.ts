@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UserDocument } from '@/src/api/auth/schemas/user.schema';
 import { JwtService } from '@nestjs/jwt';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
-import { TokenDetails } from '@/src/api/auth/dtos/signup-res.dto';
+import { Token } from '@/src/api/auth/dtos/auth-res.dto';
 import * as bcrypt from 'bcryptjs';
 
 export interface TokenPayload {
@@ -11,11 +11,12 @@ export interface TokenPayload {
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService) {}
+  constructor(private jwtService: JwtService) {
+  }
 
-  async generateToken(user: UserDocument): Promise<TokenDetails> {
+  async generateToken(user: UserDocument): Promise<Token> {
     const tokenPayload: TokenPayload = {
-      user_id: user._id.toString(),
+      user_id: user._id.toString()
     };
 
     const expires = new Date();
@@ -23,11 +24,16 @@ export class AuthService {
     let accessToken = await this.jwtService.signAsync(tokenPayload);
     return {
       access_token: accessToken,
-      expire_in_sec: expires.getTime(),
+      expires_at: expires.getTime()
     };
   }
 
   async getHashedPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 10);
+  }
+
+  async verifyPassword(givenPassword: string, actualPassword: string) {
+    return bcrypt.compare(givenPassword, actualPassword);
+
   }
 }
