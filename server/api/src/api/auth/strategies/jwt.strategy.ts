@@ -5,16 +5,13 @@ import { UserService } from '@/src/api/auth/services/user.service';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { TokenPayload } from '@/src/api/auth/services/auth.service';
 
-
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(
-    private userService: UserService
-  ) {
+  constructor(private userService: UserService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: AppConfigService.appConfig.JWT_SECRET
+      secretOrKey: AppConfigService.appConfig.JWT_SECRET,
     });
   }
 

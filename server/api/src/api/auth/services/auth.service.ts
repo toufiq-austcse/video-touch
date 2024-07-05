@@ -11,12 +11,11 @@ export interface TokenPayload {
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService) {
-  }
+  constructor(private jwtService: JwtService) {}
 
   async generateToken(user: UserDocument): Promise<Token> {
     const tokenPayload: TokenPayload = {
-      user_id: user._id.toString()
+      user_id: user._id.toString(),
     };
 
     const expires = new Date();
@@ -24,7 +23,7 @@ export class AuthService {
     let accessToken = await this.jwtService.signAsync(tokenPayload);
     return {
       access_token: accessToken,
-      expires_at: expires.getTime()
+      expires_at: expires.getTime(),
     };
   }
 
@@ -34,6 +33,5 @@ export class AuthService {
 
   async verifyPassword(givenPassword: string, actualPassword: string) {
     return bcrypt.compare(givenPassword, actualPassword);
-
   }
 }

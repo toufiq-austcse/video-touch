@@ -7,20 +7,24 @@ export class UserMapper {
     return {
       name,
       email,
-      password
+      password,
     };
   }
 
   static toUserResDto(userDocument: UserDocument): UserResDto {
-    return plainToInstance(UserResDto, {
-      _id: userDocument._id.toString(),
-      name: userDocument.name,
-      email: userDocument.email,
-      createdAt: userDocument.createdAt.toISOString(),
-      updatedAt: userDocument.updatedAt.toISOString()
-    } as UserResDto, {
-      enableImplicitConversion: true,
-      excludeExtraneousValues: true
-    });
+    return plainToInstance(
+      UserResDto,
+      {
+        _id: userDocument._id.toString(),
+        name: userDocument.name,
+        email: userDocument.email,
+        createdAt: userDocument.createdAt.toISOString(),
+        updatedAt: userDocument.updatedAt.toISOString(),
+      } as UserResDto,
+      {
+        enableImplicitConversion: true,
+        excludeExtraneousValues: true,
+      }
+    );
   }
 }

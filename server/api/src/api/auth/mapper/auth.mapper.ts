@@ -10,11 +10,11 @@ export class AuthMapper {
         _id: user._id.toString(),
         name: user.name,
         email: user.email,
-        token: token
+        token: token,
       } as AuthResDto,
       {
         excludeExtraneousValues: true,
-        enableImplicitConversion: true
+        enableImplicitConversion: true,
       }
     );
   }

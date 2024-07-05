@@ -17,8 +17,8 @@ import { LocalStrategy } from '@/src/api/auth/strategies/local.strategy';
       inject: [AppConfigService],
       useFactory: () => ({
         secret: AppConfigService.appConfig.JWT_SECRET,
-        signOptions: { expiresIn: AppConfigService.appConfig.JWT_EXPIRATION_TIME_IN_SEC }
-      })
+        signOptions: { expiresIn: AppConfigService.appConfig.JWT_EXPIRATION_TIME_IN_SEC },
+      }),
     }),
     MongooseModule.forFeatureAsync([
       {
@@ -26,7 +26,7 @@ import { LocalStrategy } from '@/src/api/auth/strategies/local.strategy';
         inject: [ModuleRef],
         useFactory: (moduleRef: ModuleRef) => {
           let schema = UserSchema;
-          schema.pre('save', async function() {
+          schema.pre('save', async function () {
             let authService = moduleRef.get<AuthService>(AuthService, { strict: false });
 
             console.log('user pre save hook');
@@ -34,12 +34,11 @@ import { LocalStrategy } from '@/src/api/auth/strategies/local.strategy';
             user.password = await authService.getHashedPassword(user.password);
           });
           return schema;
-        }
-      }
-    ])
+        },
+      },
+    ]),
   ],
   providers: [UserRepository, AuthService, UserService, JwtStrategy, LocalStrategy],
-  controllers: [AuthController]
+  controllers: [AuthController],
 })
-export class AuthModule {
-}
+export class AuthModule {}

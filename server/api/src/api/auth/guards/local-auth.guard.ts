@@ -12,5 +12,4 @@ export class LocalAuthGuard extends AuthGuard('local') {
     // for example, call super.logIn(request) to establish a session.
     return super.canActivate(context);
   }
-
 }

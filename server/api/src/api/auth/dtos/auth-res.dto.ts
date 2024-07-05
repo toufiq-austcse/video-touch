@@ -49,5 +49,4 @@ export class UserResDto {
   @ApiProperty()
   @Expose()
   updatedAt: string;
-
 }

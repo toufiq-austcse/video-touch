@@ -4,8 +4,7 @@ import { UserMapper } from '@/src/api/auth/mapper/user.mapper';
 
 @Injectable()
 export class UserService {
-  constructor(private repository: UserRepository) {
-  }
+  constructor(private repository: UserRepository) {}
 
   async getUserEmail(email: string) {
     return this.repository.findOne({ email });
@@ -19,5 +18,4 @@ export class UserService {
   getUserById(userId: string) {
     return this.repository.findOne({ _id: userId });
   }
-
 }

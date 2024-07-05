@@ -4,13 +4,11 @@ import { Injectable } from '@nestjs/common';
 import { UserService } from '@/src/api/auth/services/user.service';
 import { AuthService } from '@/src/api/auth/services/auth.service';
 
-
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private userService: UserService, private authService: AuthService) {
     super({
-      usernameField: 'email'
-
+      usernameField: 'email',
     });
   }
 
@@ -25,6 +23,5 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       return null;
     }
     return user;
-
   }
 }
