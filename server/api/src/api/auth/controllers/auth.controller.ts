@@ -7,7 +7,7 @@ import {
   Post,
   UnprocessableEntityException,
   UseGuards,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
 import { SignupReqDto } from '@/src/api/auth/dtos/signup-req.dto';
 import { UserService } from '@/src/api/auth/services/user.service';
@@ -21,7 +21,7 @@ import {
   ApiSecurity,
   ApiTags,
   ApiUnauthorizedResponse,
-  ApiUnprocessableEntityResponse,
+  ApiUnprocessableEntityResponse
 } from '@nestjs/swagger';
 import { LoginReqDto } from '@/src/api/auth/dtos/login-req.dto';
 import { JwtAuthGuard } from '@/src/api/auth/guards/jwt-auth.guard';
@@ -31,16 +31,17 @@ import { ResponseInterceptor } from '@/src/common/interceptors/response.intercep
 import {
   BaseApiResponse,
   SwaggerBaseApiErrorResponse,
-  SwaggerBaseApiResponse,
+  SwaggerBaseApiResponse
 } from '@/src/common/dto/base-api-response.dto';
 import { UserMapper } from '@/src/api/auth/mapper/user.mapper';
 import { LocalAuthGuard } from '@/src/api/auth/guards/local-auth.guard';
 
-@Controller('auth')
+@Controller({ version: '1', path: 'auth' })
 @ApiTags('Auth')
 @UseInterceptors(ResponseInterceptor)
 export class AuthController {
-  constructor(private userService: UserService, private authService: AuthService) {}
+  constructor(private userService: UserService, private authService: AuthService) {
+  }
 
   @Post('signup')
   @ApiCreatedResponse({ type: SwaggerBaseApiResponse(AuthResDto, HttpStatus.CREATED) })
@@ -67,7 +68,7 @@ export class AuthController {
     let data = AuthMapper.toAuthRes(user, token);
     return {
       message: '',
-      data,
+      data
     };
   }
 
@@ -80,7 +81,7 @@ export class AuthController {
     let userResDto = UserMapper.toUserResDto(userInfo);
     return {
       message: '',
-      data: userResDto,
+      data: userResDto
     };
   }
 }
