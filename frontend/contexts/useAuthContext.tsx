@@ -1,6 +1,6 @@
-import React, { useContext, useEffect } from "react";
-import { AuthRes, UserRes } from "@/contexts/types/auth-res";
-import axios, { AxiosError } from "axios";
+import React, { useContext, useEffect } from 'react';
+import { AuthRes, UserRes } from '@/contexts/types/auth-res';
+import axios, { AxiosError } from 'axios';
 
 type AuthContextType = {
   currentUser: UserRes | null;
@@ -8,7 +8,7 @@ type AuthContextType = {
   getCurrentUser: () => void;
   userLogin: (
     email: string,
-    password: string,
+    password: string
   ) => Promise<{
     data: AuthRes | null;
     error: string | null;
@@ -16,7 +16,7 @@ type AuthContextType = {
   userSignup: (
     name: string,
     email: string,
-    password: string,
+    password: string
   ) => Promise<{
     data: AuthRes | null;
     error: string | null;
@@ -32,7 +32,7 @@ export const useAuthContext = () => {
   return useContext(AuthContext);
 };
 export const AuthContextProvider = ({ children }: AuthProviderProps) => {
-  const [loading, setLoading] = React.useState<boolean>(true);
+  const [initialLoading, setInitialLoading] = React.useState<boolean>(true);
   const [currentUser, setCurrentUser] = React.useState<UserRes | null>(null);
   const [authToken, setAuthToken] = React.useState<string | null>(null);
 
@@ -41,29 +41,29 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const getCurrentUser = async () => {
-    let token = localStorage.getItem("token");
+    let token = localStorage.getItem('token');
     if (token) {
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       let url = `${process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL}/v1/auth/me`;
       try {
         let response = await axios.get(url);
         setCurrentUser(response.data.data);
         setAuthToken(token);
       } catch (err) {
-        console.log("err getCurrentUser ", err);
+        console.log('err getCurrentUser ', err);
         localStorage.clear();
         location.reload();
       } finally {
-        setLoading(false);
+        setInitialLoading(false);
       }
     } else {
-      setLoading(false);
+      setInitialLoading(false);
     }
   };
 
   const userLogin = async (
     email: string,
-    password: string,
+    password: string
   ): Promise<{
     data: AuthRes | null;
     error: string | null;
@@ -72,17 +72,17 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
       let url = `${process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL}/v1/auth/login`;
       const response = await axios.post(url, {
         email: email,
-        password: password,
+        password: password
       });
 
       return {
         data: response.data.data,
-        error: null,
+        error: null
       };
     } catch (err) {
       if (axios.isAxiosError(err)) {
         let errorResponse: any = (err as AxiosError).response?.data;
-        return { data: null, error: errorResponse.errors.join(",") };
+        return { data: null, error: errorResponse.errors.join(',') };
       }
       let message = (err as any).message;
       return { data: null, error: message };
@@ -92,7 +92,7 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
   const userSignup = async (
     name: string,
     email: string,
-    password: string,
+    password: string
   ): Promise<{
     data: AuthRes | null;
     error: string | null;
@@ -102,17 +102,17 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
       const response = await axios.post(url, {
         name: name,
         email: email,
-        password: password,
+        password: password
       });
 
       return {
         data: response.data.data,
-        error: null,
+        error: null
       };
     } catch (err) {
       if (axios.isAxiosError(err)) {
         let errorResponse: any = (err as AxiosError).response?.data;
-        return { data: null, error: errorResponse.errors.join(",") };
+        return { data: null, error: errorResponse.errors.join(',') };
       }
       let message = (err as any).message;
       return { data: null, error: message };
@@ -124,11 +124,11 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
     authToken,
     getCurrentUser,
     userLogin,
-    userSignup,
+    userSignup
   };
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {!initialLoading && children}
     </AuthContext.Provider>
   );
 };
