@@ -7,31 +7,34 @@ import { StatusLogResponse } from '@/src/api/assets/models/status-logs.model';
 import { CreateAssetFromUploadInputDto, CreateAssetInputDto } from '@/src/api/assets/dtos/create-asset-input.dto';
 import { Constants, Utils } from '@toufiq-austcse/video-touch-common';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
+import { UserDocument } from '@/src/api/auth/schemas/user.schema';
 
 export class AssetMapper {
-  static buildAssetDocumentForSaving(createVideoInput: CreateAssetInputDto): Omit<AssetDocument, '_id'> {
+  static buildAssetDocumentForSaving(createVideoInput: CreateAssetInputDto, userDocument: UserDocument): Omit<AssetDocument, '_id'> {
     let title = createVideoInput.title;
     if (!title) {
       title = this.parsedTitle(createVideoInput.source_url);
     }
     return {
+      user_id: userDocument._id,
       title: title,
       description: createVideoInput.description,
       source_url: createVideoInput.source_url,
-      tags: createVideoInput.tags,
+      tags: createVideoInput.tags
     };
   }
 
-  static buildAssetDocumentFromUploadReq(uploadAssetReqDto: CreateAssetFromUploadInputDto): Omit<AssetDocument, '_id'> {
+  static buildAssetDocumentFromUploadReq(uploadAssetReqDto: CreateAssetFromUploadInputDto, userDocument: UserDocument): Omit<AssetDocument, '_id'> {
     let title = uploadAssetReqDto.title;
     if (!title) {
       title = this.parsedTitle(uploadAssetReqDto.file_name);
     }
     return {
+      user_id: userDocument._id,
       title: title,
       description: uploadAssetReqDto.description,
       source_url: null,
-      tags: uploadAssetReqDto.tags,
+      tags: uploadAssetReqDto.tags
     };
   }
 
@@ -48,7 +51,7 @@ export class AssetMapper {
     }
     return {
       assets: assets,
-      page_info: paginatedAssetResponse.pageInfo,
+      page_info: paginatedAssetResponse.pageInfo
     };
   }
 
@@ -72,7 +75,7 @@ export class AssetMapper {
         tags: asset.tags,
         created_at: asset.createdAt,
         updated_at: asset.updatedAt,
-        _id: asset._id.toString(),
+        _id: asset._id.toString()
       } as Asset,
       { excludeExtraneousValues: true, enableImplicitConversion: true }
     );
@@ -88,11 +91,11 @@ export class AssetMapper {
           {
             ...log,
             created_at: log.createdAt,
-            updated_at: log.updatedAt,
+            updated_at: log.updatedAt
           } as StatusLogResponse,
           {
             excludeExtraneousValues: true,
-            enableImplicitConversion: true,
+            enableImplicitConversion: true
           }
         )
       );
