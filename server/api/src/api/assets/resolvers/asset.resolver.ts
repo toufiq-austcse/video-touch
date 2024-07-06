@@ -14,12 +14,14 @@ import { UserDocument } from '@/src/api/auth/schemas/user.schema';
 
 @Resolver(() => Asset)
 export class AssetResolver {
-  constructor(private assetService: AssetService) {
-  }
+  constructor(private assetService: AssetService) {}
 
   @Mutation(() => CreateAssetResponse, { name: 'CreateAsset' })
   @UseGuards(GqlAuthGuard)
-  async createAsset(@Args('createAssetInput') createAssetInputDto: CreateAssetInputDto, @UserInfoDec() user: UserDocument): Promise<Asset> {
+  async createAsset(
+    @Args('createAssetInput') createAssetInputDto: CreateAssetInputDto,
+    @UserInfoDec() user: UserDocument
+  ): Promise<Asset> {
     let createdAsset = await this.assetService.create(createAssetInputDto, user);
     let statusLogs = AssetMapper.toStatusLogsResponse(createdAsset.status_logs as [StatusDocument]);
     return AssetMapper.toAssetResponse(createdAsset, statusLogs);
@@ -57,14 +59,20 @@ export class AssetResolver {
 
   @Query(() => PaginatedAssetResponse, { name: 'ListAsset' })
   @UseGuards(GqlAuthGuard)
-  async listAssets(@Args('listAssetInputDto') listAssetInputDto: ListAssetInputDto, @UserInfoDec() user: UserDocument): Promise<PaginatedAssetResponse> {
+  async listAssets(
+    @Args('listAssetInputDto') listAssetInputDto: ListAssetInputDto,
+    @UserInfoDec() user: UserDocument
+  ): Promise<PaginatedAssetResponse> {
     let paginatedResult = await this.assetService.listVideos(listAssetInputDto, user);
     return AssetMapper.toPaginatedAssetResponse(paginatedResult);
   }
 
   @Query(() => Asset, { name: 'GetAsset' })
   @UseGuards(GqlAuthGuard)
-  async getAsset(@Args('getAssetInputDto') getAssetInputDto: GetAssetInputDto, @UserInfoDec() user: UserDocument): Promise<Asset> {
+  async getAsset(
+    @Args('getAssetInputDto') getAssetInputDto: GetAssetInputDto,
+    @UserInfoDec() user: UserDocument
+  ): Promise<Asset> {
     let asset = await this.assetService.getAsset(getAssetInputDto, user);
     if (!asset) {
       throw new NotFoundException('Asset not found');

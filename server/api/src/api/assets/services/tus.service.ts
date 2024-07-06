@@ -19,9 +19,12 @@ export class TusService {
         if (upload.size > AppConfigService.appConfig.MAX_VIDEO_SIZE_IN_BYTES) {
           throw { status_code: HttpStatus.PAYLOAD_TOO_LARGE, body: 'Too large file' };
         }
-        let createdAsset = await this.assetService.createAssetFromUploadReq({
-          file_name: upload.metadata['filename']
-        }, null);
+        let createdAsset = await this.assetService.createAssetFromUploadReq(
+          {
+            file_name: upload.metadata['filename'],
+          },
+          null
+        );
         upload.id = `${createdAsset._id.toString()}.mp4`;
         upload.metadata['db_id'] = createdAsset._id.toString();
         return res;
@@ -39,8 +42,8 @@ export class TusService {
       },
       path: '/upload/files',
       datastore: new FileStore({
-        directory: Utils.getTempLocalUploadDirectory(AppConfigService.appConfig.TEMP_UPLOAD_DIRECTORY)
-      })
+        directory: Utils.getTempLocalUploadDirectory(AppConfigService.appConfig.TEMP_UPLOAD_DIRECTORY),
+      }),
     });
   }
 
