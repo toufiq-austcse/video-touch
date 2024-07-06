@@ -7,7 +7,7 @@ import {
   Post,
   UnprocessableEntityException,
   UseGuards,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
 import { SignupReqDto } from '@/src/api/auth/dtos/signup-req.dto';
 import { UserService } from '@/src/api/auth/services/user.service';
@@ -21,7 +21,7 @@ import {
   ApiSecurity,
   ApiTags,
   ApiUnauthorizedResponse,
-  ApiUnprocessableEntityResponse,
+  ApiUnprocessableEntityResponse
 } from '@nestjs/swagger';
 import { LoginReqDto } from '@/src/api/auth/dtos/login-req.dto';
 import { JwtAuthGuard } from '@/src/api/auth/guards/jwt-auth.guard';
@@ -31,7 +31,7 @@ import { ResponseInterceptor } from '@/src/common/interceptors/response.intercep
 import {
   BaseApiResponse,
   SwaggerBaseApiErrorResponse,
-  SwaggerBaseApiResponse,
+  SwaggerBaseApiResponse
 } from '@/src/common/dto/base-api-response.dto';
 import { UserMapper } from '@/src/api/auth/mapper/user.mapper';
 import { LocalAuthGuard } from '@/src/api/auth/guards/local-auth.guard';
@@ -41,20 +41,25 @@ import { User } from '@/src/api/auth/models/user.model';
 @ApiTags('Auth')
 @UseInterceptors(ResponseInterceptor)
 export class AuthController {
-  constructor(private userService: UserService, private authService: AuthService) {}
+  constructor(private userService: UserService, private authService: AuthService) {
+  }
 
   @Post('signup')
   @ApiCreatedResponse({ type: SwaggerBaseApiResponse(AuthResDto, HttpStatus.CREATED) })
   @ApiBadRequestResponse({ type: SwaggerBaseApiErrorResponse(HttpStatus.BAD_REQUEST) })
   @ApiUnprocessableEntityResponse({ type: SwaggerBaseApiErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY) })
-  async signup(@Body() body: SignupReqDto): Promise<AuthResDto> {
+  async signup(@Body() body: SignupReqDto): Promise<BaseApiResponse<AuthResDto>> {
     let existingUser = await this.userService.getUserEmail(body.email);
     if (existingUser) {
       throw new UnprocessableEntityException('User already exists with this email');
     }
     let newUser = await this.userService.createUser(body.name, body.email, body.password);
     let token = await this.authService.generateToken(newUser);
-    return AuthMapper.toAuthRes(newUser, token);
+    let data = AuthMapper.toAuthRes(newUser, token);
+    return {
+      message: '',
+      data
+    };
   }
 
   @Post('login')
@@ -68,7 +73,7 @@ export class AuthController {
     let data = AuthMapper.toAuthRes(user, token);
     return {
       message: '',
-      data,
+      data
     };
   }
 
@@ -81,7 +86,7 @@ export class AuthController {
     let userResDto = UserMapper.toUserResDto(userInfo);
     return {
       message: '',
-      data: userResDto,
+      data: userResDto
     };
   }
 }

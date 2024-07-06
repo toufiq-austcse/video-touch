@@ -1,50 +1,62 @@
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import React from "react";
-import Link from "next/link";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '@/components/ui/button';
+import React from 'react';
+import Link from 'next/link';
+import { NextPage } from 'next';
+import { useAuthContext } from '@/contexts/useAuthContext';
+import PublicRoute from '@/components/public-route';
+import ErrorAlert from '@/components/ui/error-alert';
 
 const formSchema = z.object({
-  email: z.string().email({
-    message: "Please enter a valid email address",
+  email: z.string({
+    required_error: 'Please enter email'
+  }).email({
+    message: 'Please enter a valid email address'
   }),
-  password: z.string(),
+  password: z.string({
+    required_error: 'Please enter password'
+  })
 });
 
-export default function Login() {
+const Login: NextPage = () => {
+  const [error, setError] = React.useState<string | null>(null);
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+    resolver: zodResolver(formSchema)
   });
+  const { userLogin } = useAuthContext();
+
+  const onFormSubmit = async (values: z.infer<typeof formSchema>) => {
+    let { data, error } = await userLogin(values.email, values.password);
+    if (data) {
+      localStorage.setItem('token', data.token.access_token);
+      location.reload();
+    } else {
+      setError(error);
+    }
+
+
+  };
   return (
     <div className="flex m-5">
       <div className="m-auto h-1/4 w-1/4">
+        {error && <ErrorAlert error={error} />}
         <h1 className="text-4xl flex justify-center">Login</h1>
         <p className="flex justify-center">
-          {" "}
-          Don't have an account yet?{" "}
+
+          Don't have an account yet?
           <Link
-            href={"signup"}
+            href={'signup'}
             className="mx-1 underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
           >
             Signup
           </Link>
         </p>
-        <Form {...form}>
-          <form id="login-form">
+        <Form {...form} >
+          <form id="login-form" onSubmit={form.handleSubmit(onFormSubmit)}>
             <FormField
               control={form.control}
               name="email"
@@ -77,7 +89,7 @@ export default function Login() {
               )}
             />
             <div className="flex flex-row-reverse">
-              <Button type="submit" size="sm" form="link-form" className="my-2">
+              <Button type="submit" size="sm" className="my-2">
                 Login
               </Button>
             </div>
@@ -86,4 +98,5 @@ export default function Login() {
       </div>
     </div>
   );
-}
+};
+export default PublicRoute({ Component: Login });

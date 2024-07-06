@@ -1,7 +1,22 @@
-import Link from "next/link";
-import Image from "next/image";
+import Link from 'next/link';
+import { useAuthContext } from '@/contexts/useAuthContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { LogOut } from 'lucide-react';
 
 const Navbar = () => {
+  const { currentUser } = useAuthContext();
+
+  const onLogOutClick = () => {
+    localStorage.clear();
+    location.reload();
+  };
   return (
     <nav className="bg-gray-800">
       <div className="max-w-full px-5 sm:px-6 lg:px-20">
@@ -59,12 +74,27 @@ const Navbar = () => {
 
             <div className="relative ml-3 ">
               <div>
-                <Link
-                  className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white"
-                  href={"login"}
-                >
-                  Login
-                </Link>
+                {currentUser ? <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <h1
+                        className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white underline hover:cursor-pointer">{currentUser.name}</h1>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56">
+                      <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span onClick={onLogOutClick}>Log out</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  : <Link
+                    className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                    href={'login'}
+                  >
+                    Login
+                  </Link>}
+
               </div>
 
               {/*<div*/}
