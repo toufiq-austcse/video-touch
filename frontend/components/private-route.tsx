@@ -1,6 +1,6 @@
-import { useAuthContext } from '@/contexts/useAuthContext';
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useAuthContext } from "@/contexts/useAuthContext";
+import React, { useEffect } from "react";
+import { useRouter } from "next/router";
 
 type PrivateRouteProps = {
   Component: React.ComponentType<any>;
@@ -14,7 +14,7 @@ const PrivateRoute = ({ Component }: PrivateRouteProps) => {
 
     useEffect(() => {
       if (!currentUser) {
-        router.push('/login');
+        router.push("/login");
         return;
       }
     }, []);

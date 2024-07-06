@@ -1,19 +1,19 @@
-import { useAuthContext } from '@/contexts/useAuthContext';
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useAuthContext } from "@/contexts/useAuthContext";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 type PublicRoutePros = {
   Component: React.ComponentType<any>;
-}
+};
 const PublicRoute = ({ Component }: PublicRoutePros) => {
   const Auth = (props: { props: any }) => {
     const { currentUser } = useAuthContext();
-    console.log('currentUser -', currentUser);
+    console.log("currentUser -", currentUser);
     const router = useRouter();
 
     useEffect(() => {
       if (currentUser) {
-        router.push('/');
+        router.push("/");
         return;
       }
     }, []);
@@ -22,7 +22,6 @@ const PublicRoute = ({ Component }: PublicRoutePros) => {
   };
 
   return Auth;
-
 };
 
 export default PublicRoute;

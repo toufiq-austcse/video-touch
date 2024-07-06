@@ -4,30 +4,30 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
-import React from 'react';
-import Link from 'next/link';
-import { useAuthContext } from '@/contexts/useAuthContext';
-import { NextPage } from 'next';
-import PublicRoute from '@/components/public-route';
-import ErrorAlert from '@/components/ui/error-alert';
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/ui/button";
+import React from "react";
+import Link from "next/link";
+import { useAuthContext } from "@/contexts/useAuthContext";
+import { NextPage } from "next";
+import PublicRoute from "@/components/public-route";
+import ErrorAlert from "@/components/ui/error-alert";
 
 const formSchema = z.object({
   name: z.string({
-    required_error: 'Name is required'
+    required_error: "Name is required",
   }),
   email: z.string().email({
-    message: 'Please enter a valid email address'
+    message: "Please enter a valid email address",
   }),
   password: z.string({
-    required_error: 'Password is required'
-  })
+    required_error: "Password is required",
+  }),
 });
 
 const Signup: NextPage = () => {
@@ -35,18 +35,21 @@ const Signup: NextPage = () => {
   const [error, setError] = React.useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema)
+    resolver: zodResolver(formSchema),
   });
 
   const onFormSubmit = async (values: z.infer<typeof formSchema>) => {
-    let { data, error } = await userSignup(values.name, values.email, values.password);
+    let { data, error } = await userSignup(
+      values.name,
+      values.email,
+      values.password,
+    );
     if (data) {
-      localStorage.setItem('token', data.token.access_token);
+      localStorage.setItem("token", data.token.access_token);
       location.reload();
     } else {
       setError(error);
     }
-
   };
 
   return (
@@ -57,7 +60,7 @@ const Signup: NextPage = () => {
         <p className="flex justify-center">
           Already have an account
           <Link
-            href={'login'}
+            href={"login"}
             className="mx-1 underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
           >
             Login
@@ -110,7 +113,12 @@ const Signup: NextPage = () => {
               )}
             />
             <div className="flex flex-row-reverse">
-              <Button type="submit" size="sm" form="signup-form" className="my-2">
+              <Button
+                type="submit"
+                size="sm"
+                form="signup-form"
+                className="my-2"
+              >
                 Signup
               </Button>
             </div>
