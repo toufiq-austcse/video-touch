@@ -64,9 +64,18 @@ type File {
   updated_at: DateTime!
 }
 
+type User {
+  _id: String!
+  name: String!
+  email: String!
+  createdAt: String!
+  updatedAt: String!
+}
+
 type Query {
   ListAsset(listAssetInputDto: ListAssetInputDto!): PaginatedAssetResponse!
   GetAsset(getAssetInputDto: GetAssetInputDto!): Asset!
+  user: User
 }
 
 input ListAssetInputDto {

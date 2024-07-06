@@ -16,6 +16,7 @@ import { FileMapper } from '@/src/api/assets/mapper/file.mapper';
 import { Constants, Models, Utils } from '@toufiq-austcse/video-touch-common';
 import { HeightWidthMap } from '@/src/api/assets/models/file.model';
 import { FileDocument } from '@/src/api/assets/schemas/files.schema';
+import { UserDocument } from '@/src/api/auth/schemas/user.schema';
 
 @Injectable()
 export class AssetService {
@@ -26,27 +27,29 @@ export class AssetService {
     private jobManagerService: JobManagerService
   ) {}
 
-  async create(createVideoInput: CreateAssetInputDto) {
-    let assetDocument = AssetMapper.buildAssetDocumentForSaving(createVideoInput);
+  async create(createVideoInput: CreateAssetInputDto, userDocument: UserDocument) {
+    let assetDocument = AssetMapper.buildAssetDocumentForSaving(createVideoInput, userDocument);
     return this.repository.create(assetDocument);
   }
 
-  async createAssetFromUploadReq(uploadAssetReqDto: CreateAssetFromUploadInputDto) {
-    let assetDocument = AssetMapper.buildAssetDocumentFromUploadReq(uploadAssetReqDto);
+  async createAssetFromUploadReq(uploadAssetReqDto: CreateAssetFromUploadInputDto, userDocument: UserDocument) {
+    let assetDocument = AssetMapper.buildAssetDocumentFromUploadReq(uploadAssetReqDto, userDocument);
     return this.repository.create(assetDocument);
   }
 
-  async listVideos(listVideoInputDto: ListAssetInputDto) {
+  async listVideos(listVideoInputDto: ListAssetInputDto, user: UserDocument) {
     return this.repository.getPaginatedVideos(
       listVideoInputDto.first,
       listVideoInputDto.after,
-      listVideoInputDto.before
+      listVideoInputDto.before,
+      user
     );
   }
 
-  async getAsset(getVideoInputDto: GetAssetInputDto) {
+  async getAsset(getVideoInputDto: GetAssetInputDto, userDocument: UserDocument) {
     return this.repository.findOne({
       _id: getVideoInputDto._id,
+      user_id: userDocument._id,
     });
   }
 

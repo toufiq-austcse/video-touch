@@ -69,6 +69,8 @@ export class AppConfigService {
         'RABBIT_MQ_THUMBNAIL_GENERATION_ROUTING_KEY'
       ),
       DEFAULT_THUMBNAIL_URL: this.configService.getOrThrow('DEFAULT_THUMBNAIL_URL'),
+      JWT_EXPIRATION_TIME_IN_SEC: +this.configService.getOrThrow('JWT_EXPIRATION_TIME_IN_SEC'),
+      JWT_SECRET: this.configService.getOrThrow('JWT_SECRET'),
     };
   }
 }

@@ -48,4 +48,6 @@ export interface EnvironmentVariables {
 
   RABBIT_MQ_THUMBNAIL_GENERATION_ROUTING_KEY: string;
   DEFAULT_THUMBNAIL_URL: string;
+  JWT_EXPIRATION_TIME_IN_SEC: number;
+  JWT_SECRET: string;
 }

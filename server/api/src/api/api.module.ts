@@ -9,6 +9,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { join } from 'path';
 import { RabbitMQModule } from '@/src/common/rabbit-mq/rabbit-mq.module';
 import { AwsModule } from '@/src/common/aws/aws.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AwsModule } from '@/src/common/aws/aws.module';
     IndexModule,
     AssetsModule,
     AwsModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

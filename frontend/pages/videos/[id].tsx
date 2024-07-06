@@ -9,6 +9,8 @@ import { bytesToMegaBytes, secondsToHHMMSS } from "@/lib/utils";
 
 import dynamic from "next/dynamic";
 import VideoTitleComponent from "@/components/ui/video-title-component";
+import { NextPage } from "next";
+import PrivateRoute from "@/components/private-route";
 
 const PlyrHlsPlayer = dynamic(() => import("@/components/ui/video-player"), {
   ssr: false,
@@ -20,7 +22,7 @@ const VideoDetailsComponent = dynamic(
     ssr: false,
   },
 );
-export default function VideoDetailsPage() {
+const VideoDetailsPage: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
 
@@ -105,4 +107,5 @@ export default function VideoDetailsPage() {
       </div>
     </div>
   );
-}
+};
+export default PrivateRoute({ Component: VideoDetailsPage });

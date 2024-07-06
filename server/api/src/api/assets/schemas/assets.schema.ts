@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { AbstractDocument } from '@/src/common/database/schemas/abstract.schema';
 import { StatusDocument, StatusSchema } from '@/src/api/assets/schemas/status.schema';
+import { Types } from 'mongoose';
 
 export const ASSET_COLLECTION_NAME = 'assets';
 
@@ -9,6 +10,9 @@ export const ASSET_COLLECTION_NAME = 'assets';
   collection: ASSET_COLLECTION_NAME,
 })
 export class AssetDocument extends AbstractDocument {
+  @Prop({ required: true, index: true })
+  user_id: Types.ObjectId;
+
   @Prop({
     required: true,
   })

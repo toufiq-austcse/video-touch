@@ -23,6 +23,8 @@ import { LIST_ASSETS } from "@/api/graphql/queries/query";
 import UploadNew from "@/components/ui/upload-new";
 import { VIDEO_STATUS } from "@/lib/constant";
 import { secondsToHHMMSS } from "@/lib/utils";
+import { NextPage } from "next";
+import PrivateRoute from "@/components/private-route";
 
 export type Video = {
   _id: string;
@@ -154,7 +156,7 @@ export const columns: ColumnDef<Video>[] = [
   },
 ];
 
-export default function HomePage() {
+const HomePage: NextPage = () => {
   let pageSize = Number(process.env.NEXT_PUBLIC_VIDEO_LIST_PAGE_SIZE) || 4;
   let [pageIndex, setPageIndex] = React.useState(0);
 
@@ -222,4 +224,5 @@ export default function HomePage() {
       )}
     </div>
   );
-}
+};
+export default PrivateRoute({ Component: HomePage });

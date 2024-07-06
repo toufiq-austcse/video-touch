@@ -1,10 +1,25 @@
 import Link from "next/link";
-import Image from "next/image";
+import { useAuthContext } from "@/contexts/useAuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { LogOut } from "lucide-react";
 
 const Navbar = () => {
+  const { currentUser } = useAuthContext();
+
+  const onLogOutClick = () => {
+    localStorage.clear();
+    location.reload();
+  };
   return (
     <nav className="bg-gray-800">
-      <div className="max-w-7xl px-2 sm:px-6 lg:px-8">
+      <div className="max-w-full px-5 sm:px-6 lg:px-20">
         <div className="relative flex h-16 items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
             {/*<button type="button"*/}
@@ -57,18 +72,33 @@ const Navbar = () => {
             {/*  </svg>*/}
             {/*</button>*/}
 
-            <div className="relative ml-3">
-              {/*<div>*/}
-              {/*  <button type="button"*/}
-              {/*          className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"*/}
-              {/*          id="user-menu-button" aria-expanded="false" aria-haspopup="true">*/}
-              {/*    <span className="absolute -inset-1.5"></span>*/}
-              {/*    <span className="sr-only">Open user menu</span>*/}
-              {/*    <img className="h-8 w-8 rounded-full"*/}
-              {/*         src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"*/}
-              {/*         alt="" />*/}
-              {/*  </button>*/}
-              {/*</div>*/}
+            <div className="relative ml-3 ">
+              <div>
+                {currentUser ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <h1 className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white underline hover:cursor-pointer">
+                        {currentUser.name}
+                      </h1>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56">
+                      <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span onClick={onLogOutClick}>Log out</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Link
+                    className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                    href={"login"}
+                  >
+                    Login
+                  </Link>
+                )}
+              </div>
 
               {/*<div*/}
               {/*  className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"*/}

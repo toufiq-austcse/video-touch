@@ -4,6 +4,7 @@ import { ASSET_COLLECTION_NAME, AssetDocument } from '../schemas/assets.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { BasePaginatedResponse } from '@/src/common/database/models/abstract.model';
+import { UserDocument } from '@/src/api/auth/schemas/user.schema';
 
 @Injectable()
 export class AssetRepository extends BaseRepository<AssetDocument> {
@@ -14,10 +15,12 @@ export class AssetRepository extends BaseRepository<AssetDocument> {
   async getPaginatedVideos(
     first: number,
     afterCursor: string,
-    beforeCursor: string
+    beforeCursor: string,
+    user: UserDocument
   ): Promise<BasePaginatedResponse<AssetDocument>> {
     let docs: AssetDocument[];
-    let filter: FilterQuery<AssetDocument> = { is_deleted: { $ne: true } };
+    let filter: FilterQuery<AssetDocument> = { user_id: user._id, is_deleted: { $ne: true } };
+    let total = await this.videoModel.countDocuments(filter);
     let sort: any = { createdAt: -1 };
     if (afterCursor) {
       filter = { ...filter, _id: { $lt: afterCursor } };
@@ -28,7 +31,6 @@ export class AssetRepository extends BaseRepository<AssetDocument> {
       sort = { _id: 1, ...sort };
     }
 
-    let total = await this.videoModel.countDocuments({ is_deleted: { $ne: true } });
     docs = await this.videoModel.find(filter).sort(sort).limit(first).lean();
 
     if (beforeCursor) {
