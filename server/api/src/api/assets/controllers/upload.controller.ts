@@ -5,8 +5,7 @@ import { JwtAuthGuard } from '@/src/api/auth/guards/jwt-auth.guard';
 
 @Controller('upload')
 export class UploadController {
-  constructor(private tusService: TusService) {
-  }
+  constructor(private tusService: TusService) {}
 
   @Post('files')
   @UseGuards(JwtAuthGuard)

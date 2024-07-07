@@ -15,14 +15,13 @@ export class TusService {
   constructor(private assetService: AssetService) {
     this.tusServer = new Server({
       onUploadCreate: async (req, res, upload) => {
-
         console.log(upload.size, AppConfigService.appConfig.MAX_VIDEO_SIZE_IN_BYTES);
         if (upload.size > AppConfigService.appConfig.MAX_VIDEO_SIZE_IN_BYTES) {
           throw { status_code: HttpStatus.PAYLOAD_TOO_LARGE, body: 'Too large file' };
         }
         let createdAsset = await this.assetService.createAssetFromUploadReq(
           {
-            file_name: upload.metadata['filename']
+            file_name: upload.metadata['filename'],
           },
           req['user']
         );
@@ -43,8 +42,8 @@ export class TusService {
       },
       path: '/upload/files',
       datastore: new FileStore({
-        directory: Utils.getTempLocalUploadDirectory(AppConfigService.appConfig.TEMP_UPLOAD_DIRECTORY)
-      })
+        directory: Utils.getTempLocalUploadDirectory(AppConfigService.appConfig.TEMP_UPLOAD_DIRECTORY),
+      }),
     });
   }
 
