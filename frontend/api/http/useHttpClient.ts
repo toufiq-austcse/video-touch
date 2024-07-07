@@ -6,6 +6,7 @@ export function useHttpClient() {
   const [loading, setLoading] = React.useState(false);
 
   const uploadFile = async (file: any) => {
+    let token = localStorage.getItem('token');
     console.log('uploadFile', file);
     setLoading(true);
     try {
@@ -17,7 +18,8 @@ export function useHttpClient() {
 
       const response = await axios.post(url, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${token}`
         }
       });
 
