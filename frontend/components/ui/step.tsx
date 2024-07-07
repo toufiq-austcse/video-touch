@@ -1,16 +1,16 @@
 const Step = ({
-  title,
-  isFinal = false,
-  createdAt,
-}: {
+                title,
+                isFinal = false,
+                createdAt
+              }: {
   title: string;
   createdAt: Date;
   isFinal?: boolean;
 }) => {
   return (
-    <div>
+    <div className="min-w-fit">
       <div>
-        <div className={"flex"}>
+        <div className={'flex'}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -25,17 +25,17 @@ const Step = ({
           </svg>
 
           {!isFinal && (
-            <div className={"py-2.5 pl-4 pr-4"}>
+            <div className={'py-2.5 pl-4 pr-4'}>
               <div
-                className={"p-0 border-t-2 border-indigo-500 min-w-32"}
+                className={'p-0 border-t-2 border-indigo-500 min-w-32'}
               ></div>
             </div>
           )}
         </div>
       </div>
-      <p className={"font-bold"}>{title}</p>
-      <p className={"font-light"}>{new Date(createdAt).toDateString()}</p>
-      <p className={"font-light"}>{new Date(createdAt).toLocaleTimeString()}</p>
+      <p className={'font-bold'}>{title}</p>
+      <p className={'font-light'}>{new Date(createdAt).toDateString()}</p>
+      <p className={'font-light'}>{new Date(createdAt).toLocaleTimeString()}</p>
     </div>
   );
 };

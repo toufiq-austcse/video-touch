@@ -20,7 +20,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <div className={"min-h-screen flex flex-col"}>
         <Navbar />
         <ApolloProvider client={client}>
-          <div className="m-4">
+          <div className="m-4 max-w-full px-5 sm:px-6 lg:px-20">
             <Component {...pageProps} />
           </div>
         </ApolloProvider>
