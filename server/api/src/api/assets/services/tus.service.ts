@@ -23,7 +23,7 @@ export class TusService {
           {
             file_name: upload.metadata['filename'],
           },
-          null
+          req['user']
         );
         upload.id = `${createdAsset._id.toString()}.mp4`;
         upload.metadata['db_id'] = createdAsset._id.toString();

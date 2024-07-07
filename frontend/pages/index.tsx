@@ -20,11 +20,15 @@ import Link from "next/link";
 import AppTable from "@/components/ui/app-table";
 import { useQuery } from "@apollo/client";
 import { LIST_ASSETS } from "@/api/graphql/queries/query";
-import UploadNew from "@/components/ui/upload-new";
 import { VIDEO_STATUS } from "@/lib/constant";
 import { secondsToHHMMSS } from "@/lib/utils";
 import { NextPage } from "next";
 import PrivateRoute from "@/components/private-route";
+import dynamic from "next/dynamic";
+
+const UploadNew = dynamic(() => import("@/components/ui/upload-new"), {
+  ssr: false,
+});
 
 export type Video = {
   _id: string;

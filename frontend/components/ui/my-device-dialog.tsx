@@ -25,6 +25,9 @@ const uppy = new Uppy({
   onAfterResponse: (request, response) => {
     console.log("onAfterResponse", response);
   },
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },
 });
 
 const MyDeviceDialog = ({

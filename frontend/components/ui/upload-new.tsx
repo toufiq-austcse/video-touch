@@ -9,10 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import LinkImportDialog from "@/components/ui/link-import-dialog";
 import { useMutation } from "@apollo/client";
-import {
-  CREATE_ASSET_FROM_UPLOAD_MUTATION,
-  CREATE_ASSET_MUTATION,
-} from "@/api/graphql/queries/query";
+import { CREATE_ASSET_MUTATION } from "@/api/graphql/queries/query";
 import MyDeviceDialog from "@/components/ui/my-device-dialog";
 
 const UploadNew = ({ refetch }: { refetch: () => void }) => {
