@@ -6,17 +6,17 @@
 - [Features](#features)
 - [Technologies](#technologies---libraries)
 - [Backend Architecture](#the-domain-and-bounded-context---service-boundary)
-- [Database Design](#structure-of-project)
 - [How to Run](#how-to-run)
   - [Docker-Compose](#docker-compose)
   - [Build](#build)
   - [Run](#run)
   - [Test](#test)
 - [Documentation Apis](#documentation-apis)
-- [Dasboard](#dashboard)
+- [Frontend](#frontend)
 
 <a id="goal"></a>
 ### The Goals Of This Project
+---
 *  Implementing video processing with the help of asynchornus job queue
 *  Generating video thumbnail
 *  Using RabbitMQ as a Job Queue
@@ -30,6 +30,7 @@
 
 <a id="features"></a>
 ### Features
+---
 * User Login/Registration
 * Video Upload
 * Video Transcoding in several resolutions(720p,540p,480p,360p)
@@ -38,6 +39,7 @@
 
 <a id="technologies"></a>
 ### Technologies
+---
 * [NestJS](https://nestjs.com/) - A progressive Node.js framework
 * [MongoDB](https://www.mongodb.com/) - As Database
 * [RabbitMQ](https://www.rabbitmq.com/) - As Job Queue and Event Driven Communications
@@ -51,14 +53,34 @@
 
 <a id="backend-architectire"></a>
 ### Backend Architecture
+---
 
-<a id="database-design"></a>
-### Database Design
+<img src ="images/video_touch_architecture.png">
 
 <a id="how-to-run"></a>
 ### How To Run
+---
 
-<a id="dashboard"></a>
-### Dashboard
+<a id="frontend"></a>
+### Frontend
+---
+<details>
+<summary>Click here to show the screenshots of the project</summary>
+    <p> SignUp Page </p>
+    <img src ="images/signup.png">
+   <p> Login Page </p>
+    <img src ="images/login.png">
+   <p> Dashboard </p>
+    <img src ="images/dashboard.png">
+    <p> Video Details Page </p>
+    <img src ="images/video_details.png">
+    <p> Import Video From Link </p>
+    <img src ="images/import_from_link.png">
+    <p> Upload Video</p>
+    <img src ="images/upload_video.png">
+    <p> Edit Video Details </p>
+    <img src ="images/edit_video_details.png">
+  
 
+</details>
 
