@@ -19,7 +19,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: server build and push to registry
+      - name: worker build and push to registry
         uses: docker/build-push-action@v3
         with:
           context: ./server/workers/process-video-worker
