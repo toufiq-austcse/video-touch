@@ -4,6 +4,9 @@
 **/package-lock.json
 **/yarn.lock
 **/pnpm-lock.yaml
+**/.docker-conf
+**/.mongo
+**/.bin
 
 # next.js
 **/.next
