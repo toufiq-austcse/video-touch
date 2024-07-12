@@ -3,13 +3,12 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
 
 @Controller()
 export class IndexController {
-  constructor() {
-  }
+  constructor() {}
 
   @Get()
   async index() {
     return {
-      app: `${AppConfigService.appConfig.APP_NAME} is running...`
+      app: `${AppConfigService.appConfig.APP_NAME} is running...`,
     };
   }
 }
