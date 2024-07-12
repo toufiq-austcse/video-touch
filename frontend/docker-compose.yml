@@ -3,7 +3,8 @@ services:
     video-touch-web:
         image: 578965/video-touch-web
         container_name: video-touch-web
-        env_file: .env
+        environment:
+            - NEXT_PUBLIC_VIDEO_TOUCH_API_URL=https://video-touch-api.toufiq.dev
         ports:
         - 3009:3000
         deploy:

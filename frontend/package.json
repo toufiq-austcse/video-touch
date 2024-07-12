@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start -p 3000",
+    "start": "next start",
     "format": "prettier --ignore-path .gitignore --write \"**/*.+(jsx|tsx|json)\"",
     "lint": "next lint",
     "codegen": "graphql-codegen --config codegen.ts"
