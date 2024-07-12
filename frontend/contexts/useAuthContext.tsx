@@ -83,6 +83,7 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
     data: AuthRes | null;
     error: string | null;
   }> => {
+    console.log("userLogin ", process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL);
     try {
       let url = `${process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL}/v1/auth/login`;
       const response = await axios.post(url, {

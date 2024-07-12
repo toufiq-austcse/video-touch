@@ -10,6 +10,7 @@ export class AppConfigService {
     let port = this.configService.get('API_PORT', 3000, { infer: true });
     AppConfigService.appConfig = {
       API_PORT: port,
+      APP_NAME: this.configService.get('APP_NAME', 'Video Touch'),
       SWAGGER_SERVER_BASE_URL: this.configService.get('SWAGGER_SERVER_BASE_URL', `http://localhost:${port}`),
       SWAGGER_SERVER_BASE_URL_DESCRIPTION: this.configService.get(
         'SWAGGER_SERVER_BASE_URL_DESCRIPTION',

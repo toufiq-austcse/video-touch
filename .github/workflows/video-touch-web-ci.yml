@@ -1,10 +1,10 @@
-name: Build and publish Validate Video Worker docker image
+name: Build and publish Web docker image
 on:
   push:
     branches:
       - master
     paths:
-      - server/workers/validate-video-worker/**
+      - frontend/**
 jobs:
   setup-build-publish:
     name: Setup, Build, and Publish Docker Image
@@ -19,10 +19,11 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: worker build and push to registry
+      - name: web build and push to registry
         uses: docker/build-push-action@v3
         with:
-          context: ./server/workers/validate-video-worker
-          file: ./server/workers/validate-video-worker/Dockerfile
+          context: ./frontend
+          file: ./frontend/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/validate-video-worker:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/video-touch-web:latest
+

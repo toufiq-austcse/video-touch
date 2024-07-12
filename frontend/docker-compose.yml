@@ -1,0 +1,13 @@
+version: "3.7"
+services:
+  video-touch-web:
+    image: 578965/video-touch-web
+    container_name: video-touch-web
+    ports:
+      - "3009:3000"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+
