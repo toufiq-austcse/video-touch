@@ -12,12 +12,14 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
         console.log('RABBIT_MQ_URL ', AppConfigService.appConfig.RABBIT_MQ_URL);
         return {
           uri: AppConfigService.appConfig.RABBIT_MQ_URL,
-          connectionInitOptions: { wait: false },
+          connectionInitOptions: { wait: true },
+          exchanges: [{ name: AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE, type: 'topic' }]
         };
-      },
-    }),
+      }
+    })
   ],
   providers: [RabbitMqService],
-  exports: [RabbitMqService],
+  exports: [RabbitMqService]
 })
-export class RabbitMQModule {}
+export class RabbitMQModule {
+}
