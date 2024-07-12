@@ -1,4 +1,4 @@
-name: Build and publish API server docker image
+name: Build and publish Web docker image
 on:
   push:
     branches:
