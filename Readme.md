@@ -7,10 +7,6 @@
 - [Technologies](#technologies---libraries)
 - [Backend Architecture](#the-domain-and-bounded-context---service-boundary)
 - [How to Run](#how-to-run)
-  - [Docker-Compose](#docker-compose)
-  - [Build](#build)
-  - [Run](#run)
-  - [Test](#test)
 - [Documentation Apis](#documentation-apis)
 - [Frontend](#frontend)
 
@@ -60,6 +56,47 @@
 <a id="how-to-run"></a>
 ### How To Run
 ---
+To run this project locally, follow these steps:
+1. Clone this repository
+```
+git clone git@github.com:toufiq-austcse/video-touch.git
+```
+2. Run server app
+  *   You will need AWS credentials, S3 Bucket and Cloudfront distribution
+  *   From project directory run the following commands:
+      ```
+      cd server
+      cp example.env .env
+      ```
+  *   Put your aws credentials, s3 bucket name and cloudfront cdn url in the following env's value
+      ```
+      AWS_ACCESS_KEY_ID=
+      AWS_REGION=
+      AWS_SECRET_ACCESS_KEY=
+      AWS_S3_BUCKET_NAME=
+      CDN_BASE_URL=
+      ```
+  *  Create a seperate diretory for videos in your s3 bucket and put directory url in the following env value. Example value `https://test-bucket.s3.ap-southeast-1.amazonaws.com/videos`
+
+       ```
+       VIDEO_BASE_URL=
+      ```
+  * Put your JWT secret key and token expiren value in seconds in the following env's value
+       ```
+      JWT_SECRET=
+      JWT_EXPIRATION_TIME_IN_SEC=
+       ```     
+  * Run the follwong command
+       ```
+          docker compose up -d
+       ```
+3. Run the Frontend app
+  *   From project directory run the following commands:
+      ```
+      cd frontend
+      docker compose up -d
+      ```
+
 
 <a id="frontend"></a>
 ### Frontend
@@ -80,7 +117,7 @@
     <img src ="images/upload_video.png">
     <p> Edit Video Details </p>
     <img src ="images/edit_video_details.png">
-  
+
 
 </details>
 
