@@ -4,7 +4,7 @@ on:
     branches:
       - master
     paths:
-      - server/api/**
+      - frontend/**
 jobs:
   setup-build-publish:
     name: Setup, Build, and Publish Docker Image
@@ -22,8 +22,8 @@ jobs:
       - name: server build and push to registry
         uses: docker/build-push-action@v3
         with:
-          context: ./server/api
-          file: ./server/api/Dockerfile
+          context: ./frontend
+          file: ./frontend/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/video-touch-api:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/video-touch-web:latest
 
