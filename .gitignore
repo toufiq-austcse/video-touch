@@ -12,6 +12,6 @@
 **/.next
 **/out
 
-**/.env
+**/server/.env
 **/temp_videos
 **/uploads
