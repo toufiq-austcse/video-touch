@@ -1,5 +1,6 @@
 export interface EnvironmentVariables {
   API_PORT: number;
+  APP_NAME: string;
 
   SWAGGER_TITLE: string;
   SWAGGER_DESCRIPTION: string;

@@ -10,6 +10,7 @@ export class AppConfigService {
     let port = this.configService.get('API_PORT', 3000, { infer: true });
     AppConfigService.appConfig = {
       API_PORT: port,
+      APP_NAME: this.configService.get('APP_NAME', 'Video Touch'),
       SWAGGER_SERVER_BASE_URL: this.configService.get('SWAGGER_SERVER_BASE_URL', `http://localhost:${port}`),
       SWAGGER_SERVER_BASE_URL_DESCRIPTION: this.configService.get(
         'SWAGGER_SERVER_BASE_URL_DESCRIPTION',
@@ -70,7 +71,7 @@ export class AppConfigService {
       ),
       DEFAULT_THUMBNAIL_URL: this.configService.getOrThrow('DEFAULT_THUMBNAIL_URL'),
       JWT_EXPIRATION_TIME_IN_SEC: +this.configService.getOrThrow('JWT_EXPIRATION_TIME_IN_SEC'),
-      JWT_SECRET: this.configService.getOrThrow('JWT_SECRET'),
+      JWT_SECRET: this.configService.getOrThrow('JWT_SECRET')
     };
   }
 }

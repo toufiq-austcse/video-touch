@@ -12,7 +12,7 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
         console.log('RABBIT_MQ_URL ', AppConfigService.appConfig.RABBIT_MQ_URL);
         return {
           uri: AppConfigService.appConfig.RABBIT_MQ_URL,
-          connectionInitOptions: { wait: false },
+          connectionInitOptions: { wait: true },
           prefetchCount: AppConfigService.appConfig.RABBIT_MQ_UPLOAD_VIDEO_PREFETCH_COUNT
         };
       }
