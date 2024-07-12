@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+    video-touch-web:
+        image: 578965/video-touch-web
+        container_name: video-touch-web
+        env_file: .env
+        environment:
+        - PORT=$FRONTEND_PORT
+        ports:
+        - $FRONTEND_PORT:$FRONTEND_PORT
+        deploy:
+          restart_policy:
+              condition: on-failure
+              delay: 5s
+              max_attempts: 3
+
