@@ -21,7 +21,7 @@
 *  Using AWS s3 as storage
 *  Stream videos with CDN (AWS Cloudfront)
 *  Building a simple Dashboard with Next.js and shadcn/ui
-*  Using Github Actions for implenting CI
+*  Using Github Actions for implementing CI
 *  Using Docker-Compose for our deployment mechanism.
 
 <a id="features"></a>
