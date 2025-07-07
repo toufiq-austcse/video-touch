@@ -12,6 +12,8 @@ import { AuthModule } from './auth/auth.module';
 import { BullModule } from '@nestjs/bullmq';
 import { RabbitMQModule } from '@/src/common/rabbit-mq/rabbit-mq.module';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { ExpressAdapter } from '@bull-board/express';
 
 @Module({
   imports: [
@@ -26,6 +28,11 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
           port: AppConfigService.appConfig.REDIS_PORT,
         },
       }),
+    }),
+    BullBoardModule.forRoot({
+
+      route: '/queues',
+      adapter: ExpressAdapter, // Or FastifyAdapter from `@bull-board/fastify`
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       cors: {

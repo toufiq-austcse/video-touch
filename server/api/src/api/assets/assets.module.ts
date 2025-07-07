@@ -24,6 +24,8 @@ import { AssetFilesResolver } from '@/src/api/assets/resolvers/asset-files.resol
 import { thumbnailByAssetLoader } from '@/src/api/assets/data-loaders/thumbnail-by-asset.loader';
 import { FilesByAssetLoader } from '@/src/api/assets/data-loaders/asset-files.loader';
 import { BullModule } from '@nestjs/bullmq';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 
 @Module({
   imports: [
@@ -106,6 +108,34 @@ import { BullModule } from '@nestjs/bullmq';
         }),
       }
     ),
+    BullBoardModule.forFeature({
+      name: 'process_video_360p',
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: 'process_video_480p',
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: 'process_video_540p',
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: 'process_video_720p',
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: 'validate-video',
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: 'download-video',
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: 'thumbnail-generation',
+      adapter: BullMQAdapter,
+    }),
     MongooseModule.forFeatureAsync([
       {
         name: ASSET_COLLECTION_NAME,
