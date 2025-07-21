@@ -31,8 +31,6 @@ import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { CronjobController } from '@/src/api/assets/controllers/cronjob.controller';
 import { JobVerificationService } from '@/src/api/assets/services/job-verification.service';
-import { BullBoardModule } from '@bull-board/nestjs';
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 
 @Module({
   imports: [
