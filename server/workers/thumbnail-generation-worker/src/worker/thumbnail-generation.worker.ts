@@ -5,6 +5,7 @@ import { S3ClientService } from '@/src/common/aws/s3/s3-client.service';
 import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
 import { Job } from 'bullmq';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
+import console from 'node:console';
 
 @Processor(process.env.BULL_THUMBNAIL_GENERATION_JOB_QUEUE)
 export class ThumbnailGenerationWorker extends WorkerHost {
@@ -17,11 +18,13 @@ export class ThumbnailGenerationWorker extends WorkerHost {
 
   process(job: Job): Promise<any> {
     let msg: Models.ThumbnailGenerationJobModel = job.data;
+    let isLastAttempt = this.isLastAttempt(job);
+
     console.log('ThumbnailGenerationWorker process', msg);
-    return this.handle(msg);
+    return this.handle(msg, isLastAttempt);
   }
 
-  public async handle(msg: Models.ThumbnailGenerationJobModel) {
+  public async handle(msg: Models.ThumbnailGenerationJobModel, isLastAttempt: boolean) {
     console.log('ThumbnailGenerationJobHandler', msg);
     try {
       this.publishUpdateFileStatusEvent(msg.file_id, 0, Constants.FILE_STATUS.PROCESSING, 'Processing started');
@@ -54,8 +57,22 @@ export class ThumbnailGenerationWorker extends WorkerHost {
       console.log('event published');
     } catch (e: any) {
       console.log('error in thumbnail generation job handler', e);
-      this.publishUpdateFileStatusEvent(msg.file_id, 0, Constants.FILE_STATUS.FAILED, e.message);
+      if (isLastAttempt) {
+        this.publishUpdateFileStatusEvent(msg.file_id, 0, Constants.FILE_STATUS.FAILED, e.message);
+      }
+      throw new Error('Error in thumbnail generation job handler: ' + e.message);
     }
+  }
+
+  isLastAttempt(job: Job): boolean {
+    console.log(`Job ${job.id} attempts made: ${job.attemptsMade}, max attempts: ${job.opts.attempts}`);
+
+    // Check if the job has been retried more than the maximum allowed attempts
+    if (job.attemptsMade + 1 >= job.opts.attempts) {
+      console.log(`Job ${job.id} has reached the maximum retry limit.`);
+      return true; // This is the last attempt
+    }
+    return false; // There are more attempts left
   }
 
   async generateThumbnnail(mp4FilePath: string, thumbnailOutPutPath: string): Promise<string> {

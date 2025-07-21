@@ -7,8 +7,7 @@ COPY package.json \
   ./
 
 RUN yarn --production
-RUN curl -sf https://gobinaries.com/tj/node-prune | sh
-RUN node-prune
+RUN wget -O - https://gobinaries.com/tj/node-prune | sh
 
 # lint and formatting configs are commented out
 # uncomment if you want to add them into the build process

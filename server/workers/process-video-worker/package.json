@@ -27,7 +27,7 @@
     "@nestjs/config": "^3.2.2",
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
-    "video-touch-common": "^1.0.1",
+    "video-touch-common": "1.0.1",
     "amqplib": "^0.10.4",
     "bullmq": "^5.54.3",
     "reflect-metadata": "^0.1.13",

@@ -90,6 +90,7 @@ input GetAssetInputDto {
 
 type Mutation {
   CreateAsset(createAssetInput: CreateAssetInputDto!): CreateAssetResponse!
+  RecreateAsset(recreatedCreateAssetInputDto: RecreatedCreateAssetInputDto!): CreateAssetResponse!
   UpdateAsset(_id: String!, updateAssetInputDto: UpdateAssetInputDto!): Asset!
   DeleteAsset(_id: String!): String!
 }
@@ -99,6 +100,10 @@ input CreateAssetInputDto {
   description: String
   source_url: String!
   tags: [String!]
+}
+
+input RecreatedCreateAssetInputDto {
+  _id: String
 }
 
 input UpdateAssetInputDto {

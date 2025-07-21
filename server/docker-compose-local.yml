@@ -1,8 +1,21 @@
 version: "3.7"
 services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - 27017:27017
+    volumes:
+      - .docker-conf/mongodb/data:/data/db
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
   redis:
     image: redis:latest
     container_name: redis
+    restart: always
     command: >
       redis-server 
       --replicaof no one
@@ -133,74 +146,7 @@ services:
       - BULL_PROCESS_VIDEO_JOB_QUEUE=$BULL_360P_PROCESS_VIDEO_JOB_QUEUE
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpuset: "0-3"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-
-
-  process-video-worker-480p:
-    build:
-      context: workers/process-video-worker
-      dockerfile: Dockerfile
-    container_name: process-video-worker-480p
-    env_file: .env
-    depends_on:
-      - video-touch-api
-      - rabbitmq
-      - redis
-    environment:
-      - PROCESS_VIDEO_WORKER_PORT=$PROCESS_VIDEO_WORKER_PORT
-      - BULL_PROCESS_VIDEO_JOB_QUEUE=$BULL_480P_PROCESS_VIDEO_JOB_QUEUE
-    volumes:
-      - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpuset: "4-7"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-
-  process-video-worker-720p:
-    build:
-      context: workers/process-video-worker
-      dockerfile: Dockerfile
-    container_name: process-video-worker-720p
-    env_file: .env
-    depends_on:
-      - video-touch-api
-      - rabbitmq
-      - redis
-    environment:
-      - PROCESS_VIDEO_WORKER_PORT=$PROCESS_VIDEO_WORKER_PORT
-      - BULL_PROCESS_VIDEO_JOB_QUEUE=$BULL_720P_PROCESS_VIDEO_JOB_QUEUE
-    volumes:
-      - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpuset: "8-11"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-
-  process-video-worker-1080p:
-    build:
-      context: workers/process-video-worker
-      dockerfile: Dockerfile
-    container_name: process-video-worker-1080p
-    env_file: .env
-    depends_on:
-      - video-touch-api
-      - rabbitmq
-      - redis
-    environment:
-      - PROCESS_VIDEO_WORKER_PORT=$PROCESS_VIDEO_WORKER_PORT
-      - BULL_PROCESS_VIDEO_JOB_QUEUE=$BULL_1080P_PROCESS_VIDEO_JOB_QUEUE
-    volumes:
-      - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpuset: "8-11"
+    cpuset: "0-1"
     deploy:
       restart_policy:
         condition: on-failure

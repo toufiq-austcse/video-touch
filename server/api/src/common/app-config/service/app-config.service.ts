@@ -60,9 +60,16 @@ export class AppConfigService {
       BULL_480P_PROCESS_VIDEO_JOB_QUEUE: this.configService.getOrThrow('BULL_480P_PROCESS_VIDEO_JOB_QUEUE'),
       BULL_540P_PROCESS_VIDEO_JOB_QUEUE: this.configService.getOrThrow('BULL_540P_PROCESS_VIDEO_JOB_QUEUE'),
       BULL_720P_PROCESS_VIDEO_JOB_QUEUE: this.configService.getOrThrow('BULL_720P_PROCESS_VIDEO_JOB_QUEUE'),
+      BULL_1080P_PROCESS_VIDEO_JOB_QUEUE: this.configService.getOrThrow('BULL_1080P_PROCESS_VIDEO_JOB_QUEUE'),
       BULL_THUMBNAIL_GENERATION_JOB_QUEUE: this.configService.getOrThrow('BULL_THUMBNAIL_GENERATION_JOB_QUEUE'),
       REDIS_HOST: this.configService.getOrThrow('REDIS_HOST'),
       REDIS_PORT: this.configService.getOrThrow('REDIS_PORT'),
+      MIN_AVAILABLE_DISK_SPACE_REQUIRED_IN_BYTES: +this.configService.get(
+        'MIN_AVAILABLE_DISK_SPACE_REQUIRED_IN_BYTES',
+        2147483648
+      ),
+      RETRY_JOB_ATTEMPT_COUNT: +this.configService.get('RETRY_JOB_ATTEMPT_COUNT', 3),
+      RETRY_JOB_BACKOFF_IN_MINUTE: +this.configService.get('RETRY_JOB_BACKOFF_IN_MINUTE', 10),
     };
   }
 }

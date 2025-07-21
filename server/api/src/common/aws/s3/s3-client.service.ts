@@ -73,4 +73,24 @@ export class S3ClientService implements OnModuleInit {
     console.log('manifest uploaded:', res);
     return res;
   }
+
+  async generateSignedUrlToGetObject(
+    bucket: string,
+    key: string,
+    expiresIn: number = 3600 // Default to 1 hour
+  ): Promise<string> {
+    const params = {
+      Bucket: bucket,
+      Key: key,
+      Expires: expiresIn,
+    };
+
+    try {
+      const url = await this.s3.getSignedUrlPromise('getObject', params);
+      return url;
+    } catch (error) {
+      console.error('Error generating signed URL:', error);
+      throw new Error(`Failed to generate signed URL for ${key}`);
+    }
+  }
 }

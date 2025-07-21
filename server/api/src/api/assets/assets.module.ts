@@ -8,6 +8,7 @@ import { AssetMapper } from '@/src/api/assets/mapper/asset.mapper';
 import { ModuleRef } from '@nestjs/core';
 import { VideoDownloadService } from '@/src/api/assets/services/video-download.service';
 import { JobManagerService } from '@/src/api/assets/services/job-manager.service';
+import { CleanupService } from '@/src/api/assets/services/cleanup.service';
 import { FILE_COLLECTION_NAME, FileSchema } from '@/src/api/assets/schemas/files.schema';
 import { StatusMapper } from '@/src/api/assets/mapper/status.mapper';
 import { FileRepository } from '@/src/api/assets/repositories/file.repository';
@@ -24,11 +25,18 @@ import { AssetFilesResolver } from '@/src/api/assets/resolvers/asset-files.resol
 import { thumbnailByAssetLoader } from '@/src/api/assets/data-loaders/thumbnail-by-asset.loader';
 import { FilesByAssetLoader } from '@/src/api/assets/data-loaders/asset-files.loader';
 import { BullModule } from '@nestjs/bullmq';
+import { AssetController } from '@/src/api/assets/controllers/asset.controller';
+import { AuthModule } from '@/src/api/auth/auth.module';
+import { BullBoardModule } from '@bull-board/nestjs';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { CronjobController } from '@/src/api/assets/controllers/cronjob.controller';
+import { JobVerificationService } from '@/src/api/assets/services/job-verification.service';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 
 @Module({
   imports: [
+    AuthModule,
     BullModule.registerQueueAsync(
       {
         name: 'process_video_360p',
@@ -37,7 +45,6 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
           name: AppConfigService.appConfig.BULL_360P_PROCESS_VIDEO_JOB_QUEUE,
           defaultJobOptions: {
             removeOnComplete: true,
-            removeOnFail: true,
           },
         }),
       },
@@ -48,7 +55,6 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
           name: AppConfigService.appConfig.BULL_480P_PROCESS_VIDEO_JOB_QUEUE,
           defaultJobOptions: {
             removeOnComplete: true,
-            removeOnFail: true,
           },
         }),
       },
@@ -59,7 +65,6 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
           name: AppConfigService.appConfig.BULL_540P_PROCESS_VIDEO_JOB_QUEUE,
           defaultJobOptions: {
             removeOnComplete: true,
-            removeOnFail: true,
           },
         }),
       },
@@ -70,7 +75,16 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
           name: AppConfigService.appConfig.BULL_720P_PROCESS_VIDEO_JOB_QUEUE,
           defaultJobOptions: {
             removeOnComplete: true,
-            removeOnFail: true,
+          },
+        }),
+      },
+      {
+        name: 'process_video_1080p',
+        inject: [AppConfigService],
+        useFactory: () => ({
+          name: AppConfigService.appConfig.BULL_1080P_PROCESS_VIDEO_JOB_QUEUE,
+          defaultJobOptions: {
+            removeOnComplete: true,
           },
         }),
       },
@@ -81,7 +95,6 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
           name: AppConfigService.appConfig.BULL_VALIDATE_JOB_QUEUE,
           defaultJobOptions: {
             removeOnComplete: true,
-            removeOnFail: true,
           },
         }),
       },
@@ -92,7 +105,6 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
           name: AppConfigService.appConfig.BULL_DOWNLOAD_JOB_QUEUE,
           defaultJobOptions: {
             removeOnComplete: true,
-            removeOnFail: true,
           },
         }),
       },
@@ -101,6 +113,16 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
         inject: [AppConfigService],
         useFactory: () => ({
           name: AppConfigService.appConfig.BULL_THUMBNAIL_GENERATION_JOB_QUEUE,
+          defaultJobOptions: {
+            removeOnComplete: true,
+          },
+        }),
+      },
+      {
+        name: 'upload-video',
+        inject: [AppConfigService],
+        useFactory: () => ({
+          name: AppConfigService.appConfig.BULL_UPLOAD_JOB_QUEUE,
           defaultJobOptions: {
             removeOnComplete: true,
             removeOnFail: true,
@@ -125,6 +147,10 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
       adapter: BullMQAdapter,
     }),
     BullBoardModule.forFeature({
+      name: 'process_video_1080p',
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
       name: 'validate-video',
       adapter: BullMQAdapter,
     }),
@@ -134,6 +160,10 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
     }),
     BullBoardModule.forFeature({
       name: 'thumbnail-generation',
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: 'upload-video',
       adapter: BullMQAdapter,
     }),
     MongooseModule.forFeatureAsync([
@@ -199,6 +229,11 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 
             return;
           });
+          schema.post('save', async function (doc) {
+            let fileService: FileService = moduleRef.get<FileService>(FileService, { strict: false });
+            console.log('file post save hook');
+            await fileService.afterSave(doc);
+          });
 
           return schema;
         },
@@ -212,7 +247,7 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
       }),
     }),
   ],
-  controllers: [UploadController],
+  controllers: [UploadController, AssetController, CronjobController],
   providers: [
     AssetRepository,
     FileRepository,
@@ -229,6 +264,8 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
     TusService,
     thumbnailByAssetLoader,
     FilesByAssetLoader,
+    CleanupService,
+    JobVerificationService,
   ],
 })
 export class AssetsModule {}

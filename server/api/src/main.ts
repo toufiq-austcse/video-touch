@@ -13,6 +13,7 @@ async function bootstrap() {
   });
   let PORT = +process.env.API_PORT || 3000;
   app.enableVersioning({ type: VersioningType.URI });
+  app.setGlobalPrefix('api');
   await setupSwagger(app, PORT);
   app.enableCors();
   app.useGlobalFilters(new HttpExceptionFilter());

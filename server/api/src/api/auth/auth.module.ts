@@ -41,5 +41,6 @@ import { UsersResolver } from '@/src/api/auth/resolvers/users.resolver';
   ],
   providers: [UserRepository, AuthService, UserService, JwtStrategy, LocalStrategy, UsersResolver],
   controllers: [AuthController],
+  exports: [UserService],
 })
 export class AuthModule {}

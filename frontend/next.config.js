@@ -3,7 +3,7 @@ const withImages = require("next-images");
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   images: {
-    domains: [process.env.NEXT_CDN_DOMAIN],
+    domains: [process.env.NEXT_PUBLIC_CDN_DOMAIN, "eogwqo2k9i.gpcdn.net"],
   },
 };
 

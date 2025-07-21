@@ -45,7 +45,7 @@ const VideoTitleComponent = ({
   return enableEditTitle ? (
     <div className="flex gap-4">
       <Input
-        value={tempTitle}
+        value={decodeURIComponent(tempTitle)}
         onChange={(e) => setTempTitle(e.target.value)}
         onKeyDown={(e) => onKeyDownInTitle(e)}
       ></Input>
@@ -69,7 +69,7 @@ const VideoTitleComponent = ({
   ) : (
     <div>
       <p className="text-2xl hover:cursor-pointer" onClick={onTitleClick}>
-        {title}
+        {decodeURIComponent(title)}
       </p>
     </div>
   );

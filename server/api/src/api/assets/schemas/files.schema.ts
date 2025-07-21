@@ -33,6 +33,9 @@ export class FileDocument extends AbstractDocument {
 
   @Prop({ required: false, default: [], type: [StatusSchema] })
   status_logs: [Omit<StatusDocument, '_id'>];
+
+  @Prop({ required: false })
+  job_id?: string;
 }
 
 export const FileSchema = SchemaFactory.createForClass(FileDocument);

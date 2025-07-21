@@ -7,7 +7,7 @@ import { Job, Queue } from 'bullmq';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
 
-@Processor(process.env.BULL_PROCESS_VIDEO_JOB_QUEUE)
+@Processor(process.env.BULL_PROCESS_VIDEO_JOB_QUEUE, { lockDuration: 1000 * 60 * 60 * 1 }) // 2 hours lock duration
 export class ProcessVideoWorker extends WorkerHost {
   constructor(
     private transcodingService: TranscodingService,
@@ -22,13 +22,24 @@ export class ProcessVideoWorker extends WorkerHost {
   async process(job: Job): Promise<any> {
     let msg: Models.VideoProcessingJobModel = job.data as Models.VideoProcessingJobModel;
     console.log('VideoProcessingJobHandler', msg);
+    let isLastAttempt = this.isLastAttempt(job);
 
     let { height, width } = msg;
-    await this.processVideo(msg, height, width);
-    return new Promise(null);
+    await this.processVideo(msg, height, width, isLastAttempt);
   }
 
-  async processVideo(msg: Models.VideoProcessingJobModel, height: number, width: number) {
+  isLastAttempt(job: Job): boolean {
+    console.log(`Job ${job.id} attempts made: ${job.attemptsMade}, max attempts: ${job.opts.attempts}`);
+
+    // Check if the job has been retried more than the maximum allowed attempts
+    if (job.attemptsMade + 1 >= job.opts.attempts) {
+      console.log(`Job ${job.id} has reached the maximum retry limit.`);
+      return true; // This is the last attempt
+    }
+    return false; // There are more attempts left
+  }
+
+  async processVideo(msg: Models.VideoProcessingJobModel, height: number, width: number, isLastAttempt: boolean) {
     try {
       this.publishUpdateFileStatusEvent(
         msg.file_id.toString(),
@@ -44,7 +55,10 @@ export class ProcessVideoWorker extends WorkerHost {
     } catch (e: any) {
       console.log(`error while processing ${height}p`, e);
 
-      this.publishUpdateFileStatusEvent(msg.file_id.toString(), e.message, 0, Constants.FILE_STATUS.FAILED);
+      if (isLastAttempt) {
+        this.publishUpdateFileStatusEvent(msg.file_id.toString(), e.message, 0, Constants.FILE_STATUS.FAILED);
+      }
+      throw new Error(`Error while processing video at ${height}p: ${e.message}`);
     }
   }
 

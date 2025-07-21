@@ -19,7 +19,13 @@ export class VideoUploaderJobHandler extends WorkerHost {
   async process(job: Job): Promise<any> {
     let msg: Models.VideoUploadJobModel = job.data as Models.VideoUploadJobModel;
     console.log(`uploading ${msg.height}p video`, msg.asset_id.toString());
-    await this.upload(msg);
+    let isLastAttempt = this.isLastAttempt(job);
+
+    if (msg.type === Constants.FILE_TYPE.SOURCE) {
+      return this.uploadSourceFile(msg, isLastAttempt);
+    } else {
+      return this.uploadManifestFiles(msg, isLastAttempt);
+    }
   }
 
   async syncDirToS3(localDir: string, s3Dir: string) {
@@ -32,14 +38,35 @@ export class VideoUploaderJobHandler extends WorkerHost {
     return terminal(command);
   }
 
-  async upload(msg: Models.VideoUploadJobModel) {
+  async syncFileToS3(localFile: string, s3File: string) {
+    console.log('syncing file to s3', localFile, s3File);
+
+    let command = `aws s3 cp ${localFile} ${s3File}`;
+    if (AppConfigService.appConfig.AWS_PROFILE_NAME) {
+      command += ` --profile ${AppConfigService.appConfig.AWS_PROFILE_NAME}`;
+    }
+    return terminal(command);
+  }
+
+  isLastAttempt(job: Job): boolean {
+    console.log(`Job ${job.id} attempts made: ${job.attemptsMade}, max attempts: ${job.opts.attempts}`);
+
+    // Check if the job has been retried more than the maximum allowed attempts
+    if (job.attemptsMade + 1 >= job.opts.attempts) {
+      console.log(`Job ${job.id} has reached the maximum retry limit.`);
+      return true; // This is the last attempt
+    }
+    return false; // There are more attempts left
+  }
+
+  async uploadManifestFiles(msg: Models.VideoUploadJobModel, isLastAttempt: boolean) {
     try {
       let localFilePath = Utils.getLocalResolutionPath(
         msg.asset_id.toString(),
         msg.height,
         AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
       );
-      let s3VideoPath = Utils.getS3VideoPath(
+      let s3VideoPath = Utils.getS3VideoPathByHeight(
         msg.asset_id.toString(),
         msg.height,
         AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
@@ -55,13 +82,46 @@ export class VideoUploaderJobHandler extends WorkerHost {
       this.publishUpdateFileStatusEvent(msg.file_id.toString(), 'File uploaded', dirSize, Constants.FILE_STATUS.READY);
     } catch (err: any) {
       console.log('error in uploading ', msg.height, err);
+      if (isLastAttempt) {
+        this.publishUpdateFileStatusEvent(
+          msg.file_id.toString(),
+          'File uploading failed',
+          0,
+          Constants.FILE_STATUS.FAILED,
+        );
+      }
+      throw new Error(`Error in uploading video at ${msg.height}p: ${err.message}`);
+    }
+  }
 
-      this.publishUpdateFileStatusEvent(
-        msg.file_id.toString(),
-        'File uploading failed',
-        0,
-        Constants.FILE_STATUS.FAILED,
+  async uploadSourceFile(msg: Models.VideoUploadJobModel, isLatAttempt: boolean) {
+    try {
+      let localFilePath = `${Utils.getLocalVideoRootPath(
+        msg.asset_id.toString(),
+        AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
+      )}/${msg.asset_id}.mp4`;
+
+      let s3SourceFileVideoPath = Utils.getS3SourceFileVideoPath(
+        msg.asset_id.toString(),
+        msg.name,
+        AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
       );
+      let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
+      console.log(`source file uploaded:`, res);
+
+      this.publishUpdateFileStatusEvent(msg.file_id.toString(), 'Source file uploaded', 0, Constants.FILE_STATUS.READY);
+    } catch (err: any) {
+      console.log('error in uploading source file', err);
+
+      if (isLatAttempt) {
+        this.publishUpdateFileStatusEvent(
+          msg.file_id.toString(),
+          'Source file uploading failed',
+          0,
+          Constants.FILE_STATUS.FAILED,
+        );
+      }
+      throw new Error(`Error in uploading source file: ${err.message}`);
     }
   }
 

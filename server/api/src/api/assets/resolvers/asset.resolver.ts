@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Asset, CreateAssetResponse, PaginatedAssetResponse } from '../models/asset.model';
-import { CreateAssetInputDto } from '../dtos/create-asset-input.dto';
+import { CreateAssetInputDto, RecreateAssetInputDto } from '../dtos/create-asset-input.dto';
 import { AssetService } from '../services/asset.service';
 import { AssetMapper } from '@/src/api/assets/mapper/asset.mapper';
 import { ListAssetInputDto } from '@/src/api/assets/dtos/list-asset-input.dto';
@@ -11,10 +11,14 @@ import { StatusDocument } from '@/src/api/assets/schemas/status.schema';
 import { GqlAuthGuard } from '@/src/api/auth/guards/gql-auth.guard';
 import { UserInfoDec } from '@/src/common/decorators/user-info.decorator';
 import { UserDocument } from '@/src/api/auth/schemas/user.schema';
+import { FileService } from '@/src/api/assets/services/file.service';
 
 @Resolver(() => Asset)
 export class AssetResolver {
-  constructor(private assetService: AssetService) {}
+  constructor(
+    private assetService: AssetService,
+    private fileService: FileService
+  ) {}
 
   @Mutation(() => CreateAssetResponse, { name: 'CreateAsset' })
   @UseGuards(GqlAuthGuard)
@@ -23,6 +27,31 @@ export class AssetResolver {
     @UserInfoDec() user: UserDocument
   ): Promise<Asset> {
     let createdAsset = await this.assetService.create(createAssetInputDto, user);
+    let statusLogs = AssetMapper.toStatusLogsResponse(createdAsset.status_logs as [StatusDocument]);
+    return AssetMapper.toAssetResponse(createdAsset, statusLogs);
+  }
+
+  @Mutation(() => CreateAssetResponse, { name: 'RecreateAsset' })
+  @UseGuards(GqlAuthGuard)
+  async recreateAsset(
+    @Args('recreateAssetInputDto') recreateAssetInputDto: RecreateAssetInputDto,
+    @UserInfoDec() user: UserDocument
+  ): Promise<Asset> {
+    let currentAsset = await this.assetService.getAsset({ _id: recreateAssetInputDto._id.toString() }, user);
+    if (!currentAsset) {
+      throw new NotFoundException('Asset not found');
+    }
+    let sourceFileUrl = await this.fileService.getSourceFileUrlToReProcess(currentAsset);
+
+    let createdAsset = await this.assetService.create(
+      {
+        title: currentAsset.title,
+        description: currentAsset.description,
+        source_url: sourceFileUrl,
+        tags: currentAsset.tags,
+      },
+      user
+    );
     let statusLogs = AssetMapper.toStatusLogsResponse(createdAsset.status_logs as [StatusDocument]);
     return AssetMapper.toAssetResponse(createdAsset, statusLogs);
   }

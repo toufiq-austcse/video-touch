@@ -44,7 +44,7 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
     let token = localStorage.getItem("token");
     if (token) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      let url = `${process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL}/v1/auth/me`;
+      let url = `${process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL}/api/v1/auth/me`;
       try {
         let response = await axios.get(url);
         setCurrentUser(response.data.data);
@@ -85,7 +85,7 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
   }> => {
     console.log("userLogin ", process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL);
     try {
-      let url = `${process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL}/v1/auth/login`;
+      let url = `${process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL}/api/v1/auth/login`;
       const response = await axios.post(url, {
         email: email,
         password: password,
@@ -109,7 +109,7 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
     error: string | null;
   }> => {
     try {
-      let url = `${process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL}/v1/auth/signup`;
+      let url = `${process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL}/api/v1/auth/signup`;
       const response = await axios.post(url, {
         name: name,
         email: email,

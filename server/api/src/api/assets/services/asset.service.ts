@@ -5,19 +5,16 @@ import { AssetRepository } from '@/src/api/assets/repositories/asset.repository'
 import { ListAssetInputDto } from '@/src/api/assets/dtos/list-asset-input.dto';
 import { GetAssetInputDto } from '@/src/api/assets/dtos/get-asset-input.dto';
 import { UpdateAssetInputDto } from '@/src/api/assets/dtos/update-asset-input.dto';
-import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import mongoose from 'mongoose';
-import fs from 'fs';
 import { FileRepository } from '@/src/api/assets/repositories/file.repository';
 import { AssetMapper } from '@/src/api/assets/mapper/asset.mapper';
 import { JobManagerService } from '@/src/api/assets/services/job-manager.service';
 import { FileMapper } from '@/src/api/assets/mapper/file.mapper';
-import { Constants, Models, Utils } from 'video-touch-common';
+import { Constants, Utils } from 'video-touch-common';
 import { HeightWidthMap } from '@/src/api/assets/models/file.model';
 import { FileDocument } from '@/src/api/assets/schemas/files.schema';
 import { UserDocument } from '@/src/api/auth/schemas/user.schema';
-import { Queue } from 'bullmq';
-import { InjectQueue } from '@nestjs/bullmq';
+import { CleanupService } from '@/src/api/assets/services/cleanup.service';
 
 @Injectable()
 export class AssetService {
@@ -25,13 +22,7 @@ export class AssetService {
     private repository: AssetRepository,
     private fileRepository: FileRepository,
     private jobManagerService: JobManagerService,
-    @InjectQueue('process_video_360p') private videoProcessQueue360p: Queue,
-    @InjectQueue('process_video_480p') private videoProcessQueue480p: Queue,
-    @InjectQueue('process_video_540p') private videoProcessQueue540p: Queue,
-    @InjectQueue('process_video_720p') private videoProcessQueue720p: Queue,
-    @InjectQueue('validate-video') private validateVideoQueue: Queue,
-    @InjectQueue('thumbnail-generation') private thumbnailGenerationQueue: Queue,
-    @InjectQueue('download-video') private downloadVideoQueue: Queue
+    private cleanUpService: CleanupService
   ) {}
 
   async create(createVideoInput: CreateAssetInputDto, userDocument: UserDocument) {
@@ -102,48 +93,6 @@ export class AssetService {
     );
   }
 
-  async pushDownloadVideoJob(videoDocument: AssetDocument) {
-    await this.updateAssetStatus(
-      videoDocument._id.toString(),
-      Constants.VIDEO_STATUS.DOWNLOADING,
-      'Downloading assets'
-    );
-    let downloadVideoJob = this.buildDownloadVideoJob(videoDocument);
-    console.log('pubsh download video job to ', AppConfigService.appConfig.BULL_DOWNLOAD_JOB_QUEUE);
-    return this.downloadVideoQueue.add(AppConfigService.appConfig.BULL_DOWNLOAD_JOB_QUEUE, downloadVideoJob, {
-      jobId: videoDocument._id.toString(),
-      removeOnComplete: true,
-      removeOnFail: true,
-    });
-  }
-
-  async pushValidateVideoJob(assetId: string) {
-    let validateVideoJob = this.buildValidateVideoJob(assetId);
-    return this.validateVideoQueue.add(AppConfigService.appConfig.BULL_VALIDATE_JOB_QUEUE, validateVideoJob);
-  }
-
-  private buildDownloadVideoJob(videoDocument: AssetDocument): Models.VideoDownloadJobModel {
-    return {
-      asset_id: videoDocument._id.toString(),
-      source_url: videoDocument.source_url,
-    };
-  }
-
-  private buildValidateVideoJob(assetId: string): Models.VideoValidationJobModel {
-    return {
-      asset_id: assetId,
-    };
-  }
-
-  deleteLocalAssetFile(_id: string) {
-    console.log('deleting local asset file ', _id);
-    let localPath = Utils.getLocalVideoRootPath(_id, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
-    console.log('local path ', localPath);
-    if (fs.existsSync(localPath)) {
-      fs.rmSync(localPath, { recursive: true, force: true });
-    }
-  }
-
   async checkForDeleteLocalAssetFile(assetId: string) {
     console.log('checking for ', assetId);
     let files = await this.fileRepository.find({
@@ -153,25 +102,15 @@ export class AssetService {
 
     console.log('length ', files.length, filesWithReadyStatus.length);
     if (files.length === filesWithReadyStatus.length) {
-      this.deleteLocalAssetFile(assetId);
+      this.cleanUpService.deleteLocalAssetFile(assetId);
     }
   }
 
   async checkForAssetFailedStatus(assetId: string) {
     try {
-      let notFailedFilesCount = await this.fileRepository.count({
-        asset_id: mongoose.Types.ObjectId(assetId),
-        latest_status: {
-          $ne: Constants.FILE_STATUS.FAILED,
-        },
-      });
-
-      if (notFailedFilesCount > 0) {
-        return;
-      }
-
       let files = await this.fileRepository.find({
         asset_id: mongoose.Types.ObjectId(assetId),
+        type: Constants.FILE_TYPE.PLAYLIST,
       });
 
       let failedFiles = files.filter((file) => file.latest_status === Constants.FILE_STATUS.FAILED);
@@ -190,74 +129,79 @@ export class AssetService {
     });
 
     if (updatedAsset.latest_status === Constants.VIDEO_STATUS.FAILED) {
-      this.deleteLocalAssetFile(updatedAsset._id.toString());
+      this.cleanUpService.deleteLocalAssetFile(updatedAsset._id.toString());
     }
     if (
       updatedAsset.latest_status === Constants.VIDEO_STATUS.DOWNLOADED ||
       updatedAsset.latest_status === Constants.VIDEO_STATUS.UPLOADED
     ) {
       console.log('pushing validate assets job 1 ...');
-      this.pushValidateVideoJob(updatedAsset._id.toString())
+      this.jobManagerService
+        .pushValidateVideoJob(updatedAsset._id.toString())
         .then(() => {
           console.log('pushed validate assets job');
         })
         .catch((err) => {
           console.log('error pushing validate assets job', err);
+          this.updateAssetStatus(
+            updatedAsset._id.toString(),
+            Constants.VIDEO_STATUS.FAILED,
+            `Error pushing validate job. ${err.toString()}`
+          );
         });
     }
     if (updatedAsset.latest_status === Constants.VIDEO_STATUS.VALIDATED) {
       let heightWidthMapByHeight = this.jobManagerService.getAllHeightWidthMapByHeight(updatedAsset.height);
-      let files = await this.insertFilesData(updatedAsset._id.toString(), heightWidthMapByHeight);
-      let jobModels = this.jobManagerService.getJobData(updatedAsset._id.toString(), files);
+      await this.insertManifestFilesData(updatedAsset._id.toString(), heightWidthMapByHeight);
+      await this.createThumbnailFile(updatedAsset._id.toString(), updatedAsset.height, updatedAsset.width);
+      await this.createSourceFile(
+        updatedAsset._id.toString(),
+        updatedAsset.height,
+        updatedAsset.width,
+        updatedAsset.size
+      );
       await this.updateAssetStatus(updatedAsset._id.toString(), Constants.VIDEO_STATUS.PROCESSING, 'Video processing');
-      this.publishVideoProcessingJob(updatedAsset._id.toString(), jobModels);
-      await this.initThumbnailGeneration(updatedAsset._id.toString(), updatedAsset.height, updatedAsset.width);
     }
   }
 
   async afterSave(doc: AssetDocument) {
-    if (doc.source_url) {
-      this.pushDownloadVideoJob(doc)
-        .then(() => {
-          console.log('pushed download assets job');
-        })
-        .catch((err) => {
-          console.log('error pushing download assets job', err);
-        });
+    if (!doc.source_url) {
+      console.log('source_url is not present, skipping download assets job');
+      await this.updateAssetStatus(doc._id.toString(), Constants.VIDEO_STATUS.FAILED, 'source_url not present');
+      return;
+    }
+    try {
+      let job = await this.jobManagerService.pushDownloadVideoJob(doc);
+      console.log('pushed download assets job', job.id);
+      await this.updateAssetStatus(doc._id.toString(), Constants.VIDEO_STATUS.DOWNLOADING, 'Downloading assets');
+      await this.repository.findOneAndUpdate(
+        {
+          _id: mongoose.Types.ObjectId(doc._id.toString()),
+        },
+        {
+          job_id: job.id,
+        }
+      );
+    } catch (e) {
+      console.log('error pushing download assets job', e);
+      await this.updateAssetStatus(
+        doc._id.toString(),
+        Constants.VIDEO_STATUS.FAILED,
+        `Error pushing download job. ${e.toString()}`
+      );
     }
   }
 
-  async publishVideoProcessingJob(assetId: string, jobMetadata: Models.JobMetadataModel[]) {
-    for (let data of jobMetadata) {
-      let jobModel: Models.VideoProcessingJobModel = {
-        asset_id: assetId,
-        file_id: data.file_id.toString(),
-        height: data.height,
-        width: data.width,
-      };
-      console.log('publishing video processing job for ', data.processRoutingKey, jobModel);
-      if (jobModel.height === 360) {
-        await this.videoProcessQueue360p.add(data.processRoutingKey, jobModel);
-      } else if (jobModel.height === 480) {
-        await this.videoProcessQueue480p.add(data.processRoutingKey, jobModel);
-      } else if (jobModel.height === 540) {
-        await this.videoProcessQueue540p.add(data.processRoutingKey, jobModel);
-      } else if (jobModel.height === 720) {
-        await this.videoProcessQueue720p.add(data.processRoutingKey, jobModel);
-      }
-    }
-  }
-
-  private async insertFilesData(assetId: string, heightWidthMaps: HeightWidthMap[]) {
+  async insertManifestFilesData(assetId: string, heightWidthMaps: HeightWidthMap[]) {
     let files: FileDocument[] = [];
     for (let data of heightWidthMaps) {
-      let newFiles = await this.createFileAfterValidation(assetId, data.height, data.width);
+      let newFiles = await this.createPlaylistFileAfterValidation(assetId, data.height, data.width);
       files.push(newFiles);
     }
     return files;
   }
 
-  async createFileAfterValidation(assetId: string, height: number, width: number) {
+  async createPlaylistFileAfterValidation(assetId: string, height: number, width: number) {
     let name = Utils.getFileName(height);
     let doc = FileMapper.mapForSave(
       assetId,
@@ -307,18 +251,7 @@ export class AssetService {
     );
   }
 
-  private publishThumbnailGenerationJob(assetId: string, fileId: string) {
-    let thumbnailGenerationJob: Models.ThumbnailGenerationJobModel = {
-      asset_id: assetId,
-      file_id: fileId,
-    };
-    return this.thumbnailGenerationQueue.add(
-      AppConfigService.appConfig.BULL_THUMBNAIL_GENERATION_JOB_QUEUE,
-      thumbnailGenerationJob
-    );
-  }
-
-  private async initThumbnailGeneration(assetId: string, height: number, width: number) {
+  async createThumbnailFile(assetId: string, height: number, width: number) {
     let thumbnailName = Utils.getThumbnailFileName();
     let fileToBeSaved = FileMapper.mapForSave(
       assetId,
@@ -329,7 +262,21 @@ export class AssetService {
       Constants.FILE_STATUS.QUEUED,
       'Thumbnail queued for processing'
     );
-    let thumbnailFile = await this.fileRepository.create(fileToBeSaved);
-    this.publishThumbnailGenerationJob(assetId, thumbnailFile._id.toString());
+    return this.fileRepository.create(fileToBeSaved);
+  }
+
+  async createSourceFile(assetId: string, height: number, width: number, size: number) {
+    let sourceFileName = 'download.mp4';
+    let fileToBeSaved = FileMapper.mapForSave(
+      assetId,
+      sourceFileName,
+      Constants.FILE_TYPE.SOURCE,
+      height,
+      width,
+      Constants.FILE_STATUS.QUEUED,
+      'Source file queued for uploading',
+      size
+    );
+    return this.fileRepository.create(fileToBeSaved);
   }
 }

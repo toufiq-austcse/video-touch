@@ -30,7 +30,6 @@ import { ExpressAdapter } from '@bull-board/express';
       }),
     }),
     BullBoardModule.forRoot({
-
       route: '/queues',
       adapter: ExpressAdapter, // Or FastifyAdapter from `@bull-board/fastify`
     }),

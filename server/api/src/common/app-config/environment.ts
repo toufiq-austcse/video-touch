@@ -35,6 +35,7 @@ export interface EnvironmentVariables {
   BULL_480P_PROCESS_VIDEO_JOB_QUEUE: string;
   BULL_540P_PROCESS_VIDEO_JOB_QUEUE: string;
   BULL_720P_PROCESS_VIDEO_JOB_QUEUE: string;
+  BULL_1080P_PROCESS_VIDEO_JOB_QUEUE: string;
   BULL_THUMBNAIL_GENERATION_JOB_QUEUE: string;
 
   AWS_ACCESS_KEY_ID: string;
@@ -53,4 +54,7 @@ export interface EnvironmentVariables {
   JWT_SECRET: string;
   REDIS_HOST: string;
   REDIS_PORT: number;
+  MIN_AVAILABLE_DISK_SPACE_REQUIRED_IN_BYTES: number;
+  RETRY_JOB_ATTEMPT_COUNT: number;
+  RETRY_JOB_BACKOFF_IN_MINUTE: number;
 }

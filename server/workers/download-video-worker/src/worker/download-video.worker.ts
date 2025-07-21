@@ -24,6 +24,8 @@ export class DownloadVideoJobHandler extends WorkerHost implements OnModuleInit 
   async process(job: Job): Promise<any> {
     console.log('DownloadVideoJobHandler', job.data);
     let msg: Models.VideoDownloadJobModel = job.data as Models.VideoDownloadJobModel;
+    let isLastAttempt = this.isLastAttempt(job);
+
     try {
       let destinationPath = Utils.getLocalVideoMp4Path(
         msg.asset_id.toString(),
@@ -32,11 +34,26 @@ export class DownloadVideoJobHandler extends WorkerHost implements OnModuleInit 
       await this.download(msg, destinationPath);
 
       this.publishUpdateAssetEvent(msg.asset_id, Constants.VIDEO_STATUS.DOWNLOADED, 'Video downloaded');
+      return Promise.resolve(null);
     } catch (e: any) {
       console.log('error in video download job handler', e);
-      this.publishUpdateAssetEvent(msg.asset_id, Constants.VIDEO_STATUS.FAILED, e.message);
+
+      if (isLastAttempt) {
+        this.publishUpdateAssetEvent(msg.asset_id, Constants.VIDEO_STATUS.FAILED, e.message);
+      }
+      throw e;
     }
-    return Promise.resolve(null);
+  }
+
+  isLastAttempt(job: Job): boolean {
+    console.log(`Job ${job.id} attempts made: ${job.attemptsMade}, max attempts: ${job.opts.attempts}`);
+
+    // Check if the job has been retried more than the maximum allowed attempts
+    if (job.attemptsMade+1 >= job.opts.attempts) {
+      console.log(`Job ${job.id} has reached the maximum retry limit.`);
+      return true; // This is the last attempt
+    }
+    return false; // There are more attempts left
   }
 
   async download(msg: Models.VideoDownloadJobModel, destinationPath: string) {

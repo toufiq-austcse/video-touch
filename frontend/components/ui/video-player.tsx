@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import Plyr from "plyr";
 import Hls from "hls.js";
+import crypto from "crypto";
 
 const PlyrHlsPlayer = ({
   source,
@@ -12,6 +13,32 @@ const PlyrHlsPlayer = ({
   const videoRef = useRef(null);
   const hlsRef = useRef(null);
 
+  const generateSecureUrl = (
+    fullUrl: string,
+    ttlInSec: number,
+    secret: string,
+  ): string => {
+    // Parse the URL to extract baseUrl and path
+    const url = new URL(fullUrl);
+    const baseUrl = `${url.protocol}//${url.host}`;
+    const path = url.pathname;
+
+    const expires = Math.floor(Date.now() / 1000) + ttlInSec;
+
+    // Token generation
+    const tokenString = `${expires}${path} ${secret}`;
+    console.log("Token String:", tokenString);
+    const tokenHash = crypto.createHash("md5").update(tokenString).digest();
+    const token = Buffer.from(tokenHash)
+      .toString("base64")
+      .replace(/\n/g, "")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=/g, "");
+
+    return `${baseUrl}${path}?md5=${token}&expires=${expires}`;
+  };
+
   useEffect(() => {
     const defaultOptions = {
       quality: undefined,
@@ -22,7 +49,29 @@ const PlyrHlsPlayer = ({
       // @ts-ignore
       videoRef.current.src = source;
     } else {
-      const hls = new Hls();
+      const hls = new Hls({
+        pLoader: class CustomLoader extends Hls.DefaultConfig.loader {
+          constructor(config: any) {
+            super(config);
+            const originalLoad = this.load.bind(this);
+            this.load = function (context, config, callbacks) {
+              if (
+                context &&
+                context.url &&
+                context.url.match(/\.m3u8($|\?)/i)
+              ) {
+                // Use the generateSecuredUrl function we defined above
+                context.url = generateSecureUrl(
+                  context.url,
+                  3600 * 5,
+                  process.env.NEXT_PUBLIC_GOTIPATH_SECRET as any,
+                );
+              }
+              return originalLoad(context, config, callbacks);
+            };
+          }
+        } as any,
+      });
       // @ts-ignore
       hlsRef.current = hls;
       hls.loadSource(source);

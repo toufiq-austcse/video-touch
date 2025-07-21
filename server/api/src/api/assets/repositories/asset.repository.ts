@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { BaseRepository } from '@/src/common/database/repository/base.repository';
 import { ASSET_COLLECTION_NAME, AssetDocument } from '../schemas/assets.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model } from 'mongoose';
+import { FilterQuery, Model, UpdateQuery } from 'mongoose';
 import { BasePaginatedResponse } from '@/src/common/database/models/abstract.model';
 import { UserDocument } from '@/src/api/auth/schemas/user.schema';
 
@@ -10,6 +10,10 @@ import { UserDocument } from '@/src/api/auth/schemas/user.schema';
 export class AssetRepository extends BaseRepository<AssetDocument> {
   constructor(@InjectModel(ASSET_COLLECTION_NAME) private videoModel: Model<AssetDocument>) {
     super(videoModel);
+  }
+
+  async updateMany(filter: FilterQuery<AssetDocument>, update: UpdateQuery<AssetDocument>): Promise<any> {
+    return this.videoModel.updateMany(filter, update);
   }
 
   async getPaginatedVideos(
