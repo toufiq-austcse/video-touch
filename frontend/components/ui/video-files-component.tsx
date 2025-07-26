@@ -29,9 +29,11 @@ const VideoFilesComponent: React.FC<VideoFilesComponentProps> = ({
   // Create a thumbnail file object if thumbnail_url exists
   const thumbnailFile: FileDetails | null =
     videoDetails.files.find((file) => file.type === "thumbnail") || null;
-    
+
   // Calculate total size of other files (thumbnail and source)
-  const otherFilesSize = (thumbnailFile ? thumbnailFile.size : 0) + (sourceFile ? sourceFile.size : 0);
+  const otherFilesSize =
+    (thumbnailFile ? thumbnailFile.size : 0) +
+    (sourceFile ? sourceFile.size : 0);
 
   return (
     <>
@@ -144,7 +146,7 @@ const VideoFilesComponent: React.FC<VideoFilesComponentProps> = ({
                   No other files available
                 </div>
               )}
-              
+
               {/* Total size section for Others */}
               {(thumbnailFile || sourceFile) && (
                 <>

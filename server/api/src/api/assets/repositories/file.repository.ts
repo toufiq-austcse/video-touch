@@ -38,12 +38,10 @@ export class FileRepository extends BaseRepository<FileDocument> {
    */
   async findFilesByStatuses(statuses: string[]): Promise<FileDocument[]> {
     return this.fileDocumentModel
-      .find(
-        {
-          latest_status: { $in: statuses },
-          job_id: { $exists: true, $ne: null },
-        }
-      )
+      .find({
+        latest_status: { $in: statuses },
+        job_id: { $exists: true, $ne: null },
+      })
       .lean();
   }
 }

@@ -94,10 +94,10 @@ const Signup: NextPage = () => {
                     <FormItem>
                       <FormLabel>Name</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="Enter your name" 
+                        <Input
+                          placeholder="Enter your name"
                           {...field}
-                          className="w-full" 
+                          className="w-full"
                         />
                       </FormControl>
                       <FormMessage />
@@ -111,10 +111,10 @@ const Signup: NextPage = () => {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="Enter your email" 
+                        <Input
+                          placeholder="Enter your email"
                           {...field}
-                          className="w-full" 
+                          className="w-full"
                         />
                       </FormControl>
                       <FormMessage />
