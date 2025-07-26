@@ -1,11 +1,10 @@
-import { TranscodingService } from '@/src/worker/transcoding.service';
-import { ManifestService } from '@/src/worker/manifest.service';
-import { Constants, Models } from 'video-touch-common';
-import { InjectQueue, Processor, WorkerHost } from '@nestjs/bullmq';
-import * as console from 'node:console';
-import { Job, Queue } from 'bullmq';
-import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
-import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
+import {TranscodingService} from '@/src/worker/transcoding.service';
+import {ManifestService} from '@/src/worker/manifest.service';
+import {Constants, Models} from 'video-touch-common';
+import {InjectQueue, Processor, WorkerHost} from '@nestjs/bullmq';
+import {Job, Queue} from 'bullmq';
+import {AppConfigService} from '@/src/common/app-config/service/app-config.service';
+import {RabbitMqService} from '@/src/common/rabbit-mq/service/rabbitmq.service';
 
 @Processor(process.env.BULL_PROCESS_VIDEO_JOB_QUEUE, { lockDuration: 1000 * 60 * 60 * 1 }) // 2 hours lock duration
 export class ProcessVideoWorker extends WorkerHost {
@@ -13,7 +12,7 @@ export class ProcessVideoWorker extends WorkerHost {
     private transcodingService: TranscodingService,
     private manifestService: ManifestService,
     private rabbitMqService: RabbitMqService,
-    @InjectQueue('upload-video') private uploadQueue: Queue,
+    @InjectQueue('upload-video') private uploadQueue: Queue
   ) {
     super();
     console.log('ProcessVideoWorker initialized');
@@ -45,13 +44,19 @@ export class ProcessVideoWorker extends WorkerHost {
         msg.file_id.toString(),
         'Video transcoding started',
         0,
-        Constants.FILE_STATUS.PROCESSING,
+        Constants.FILE_STATUS.PROCESSING
       );
-      let res = await this.transcodingService.transcodeVideoByResolution(msg.asset_id.toString(), height, width);
-      console.log(`video ${height}p transcode:`, res);
-      this.manifestService.appendManifest(msg.asset_id.toString(), height);
+      if (msg.type === Constants.FILE_TYPE.PLAYLIST) {
+        let res = await this.transcodingService.transcodeVideoByResolution(msg.asset_id.toString(), height, width);
+        console.log(`video ${height}p transcode:`, res);
+        this.manifestService.appendManifest(msg.asset_id.toString(), height);
 
-      this.publishVideoUploadJob(msg.file_id.toString(), msg.asset_id, height, width);
+        await this.publishVideoUploadJob(msg.file_id.toString(), msg.name, msg.asset_id, height, width, msg.type);
+      }
+      if (msg.type === Constants.FILE_TYPE.DOWNLOAD) {
+        let res = await this.transcodingService.createMp4FromM3u8ByResolution(msg.asset_id.toString(), height);
+        console.log(`video ${height}p download:`, res);
+      }
     } catch (e: any) {
       console.log(`error while processing ${height}p`, e);
 
@@ -62,12 +67,14 @@ export class ProcessVideoWorker extends WorkerHost {
     }
   }
 
-  publishVideoUploadJob(fileId: string, assetId: string, height: number, width: number) {
+  publishVideoUploadJob(fileId: string, name: string, assetId: string, height: number, width: number, type: string) {
     let jobModel: Models.VideoUploadJobModel = {
       asset_id: assetId,
       file_id: fileId,
       height: height,
       width: width,
+      type: type,
+      name: name
     };
     return this.uploadQueue.add('sadi', jobModel);
   }
@@ -78,7 +85,7 @@ export class ProcessVideoWorker extends WorkerHost {
       this.rabbitMqService.publish(
         AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
         AppConfigService.appConfig.RABBIT_MQ_UPDATE_FILE_STATUS_ROUTING_KEY,
-        updateFileStatusEvent,
+        updateFileStatusEvent
       );
     } catch (e) {
       console.log('error while publishing update file status event', e);
@@ -89,13 +96,13 @@ export class ProcessVideoWorker extends WorkerHost {
     fileId: string,
     details: string,
     dirSize: number,
-    status: string,
+    status: string
   ): Models.UpdateFileStatusEventModel {
     return {
       file_id: fileId,
       details: details,
       dir_size: dirSize,
-      status: status,
+      status: status
     };
   }
 }

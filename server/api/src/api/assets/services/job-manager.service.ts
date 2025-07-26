@@ -127,6 +127,7 @@ export class JobManagerService {
       height: file.height,
       width: file.width,
       type: file.type,
+      name: file.name,
     };
   }
 

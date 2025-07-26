@@ -65,19 +65,19 @@ export class FileService {
       updatedFile.latest_status === Constants.FILE_STATUS.READY ||
       updatedFile.latest_status === Constants.FILE_STATUS.FAILED
     ) {
-      console.log('file status is ready or failed, deleting local file');
-      this.deleteLocalFile(assetId.toString(), updatedFile.height.toString());
+      //console.log('file status is ready or failed, deleting local file');
+      // this.deleteLocalFile(assetId.toString(), updatedFile.height.toString());
     }
 
     if (updatedFile.latest_status == Constants.FILE_STATUS.READY) {
-      this.assetService
-        .checkForDeleteLocalAssetFile(assetId.toString())
-        .then((data) => {
-          console.log('checked local video file');
-        })
-        .catch((err) => {
-          console.log('error while checking local file ', err);
-        });
+      // this.assetService
+      //   .checkForDeleteLocalAssetFile(assetId.toString())
+      //   .then((data) => {
+      //     console.log('checked local video file');
+      //   })
+      //   .catch((err) => {
+      //     console.log('error while checking local file ', err);
+      //   });
 
       this.assetService
         .checkForAssetReadyStatus(assetId.toString())
@@ -96,6 +96,7 @@ export class FileService {
           console.log('error while updating master file version', err);
         });
     }
+
     if (updatedFile.latest_status === Constants.FILE_STATUS.FAILED) {
       this.assetService
         .checkForAssetFailedStatus(assetId.toString())
