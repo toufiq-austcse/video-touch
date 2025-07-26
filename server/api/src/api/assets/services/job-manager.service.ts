@@ -3,7 +3,7 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
 import { HeightWidthMap } from '@/src/api/assets/models/file.model';
 import { FileDocument } from '@/src/api/assets/schemas/files.schema';
 import { Constants, Models } from 'video-touch-common';
-import { JobMetadataModel } from 'video-touch-common/dist/models';
+import { JobMetadataModel, VideoProcessingJobModel } from 'video-touch-common/dist/models';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { v4 as uuidv4 } from 'uuid';
@@ -120,13 +120,13 @@ export class JobManagerService {
     return jobModels;
   }
 
-  getJobData(file: FileDocument): Models.JobMetadataModel {
+  getJobData(file: FileDocument): Models.VideoProcessingJobModel {
     return {
       asset_id: file.asset_id.toString(),
       file_id: file._id.toString(),
       height: file.height,
       width: file.width,
-      processRoutingKey: this.getHeightWiseQueueName(file.height),
+      type: file.type,
     };
   }
 
@@ -138,10 +138,10 @@ export class JobManagerService {
     return this.getHeightWidthMap().find((data) => data.height === height);
   }
 
-  async publishVideoProcessingJob(jobModel: JobMetadataModel) {
-    console.log('publishing video processing job for ', jobModel.processRoutingKey, jobModel);
+  async publishVideoProcessingJob(jobModel: VideoProcessingJobModel) {
+    console.log('publishing video processing job for ', jobModel);
     if (jobModel.height === 360) {
-      return this.videoProcessQueue360p.add(jobModel.processRoutingKey, jobModel, {
+      return this.videoProcessQueue360p.add(AppConfigService.appConfig.BULL_360P_PROCESS_VIDEO_JOB_QUEUE, jobModel, {
         jobId: uuidv4(),
         attempts: AppConfigService.appConfig.RETRY_JOB_ATTEMPT_COUNT,
         backoff: {
@@ -150,7 +150,7 @@ export class JobManagerService {
         },
       });
     } else if (jobModel.height === 480) {
-      return this.videoProcessQueue480p.add(jobModel.processRoutingKey, jobModel, {
+      return this.videoProcessQueue480p.add(AppConfigService.appConfig.BULL_480P_PROCESS_VIDEO_JOB_QUEUE, jobModel, {
         jobId: uuidv4(),
         attempts: AppConfigService.appConfig.RETRY_JOB_ATTEMPT_COUNT,
         backoff: {
@@ -159,7 +159,7 @@ export class JobManagerService {
         },
       });
     } else if (jobModel.height === 540) {
-      return this.videoProcessQueue540p.add(jobModel.processRoutingKey, jobModel, {
+      return this.videoProcessQueue540p.add(AppConfigService.appConfig.BULL_540P_PROCESS_VIDEO_JOB_QUEUE, jobModel, {
         jobId: uuidv4(),
         attempts: AppConfigService.appConfig.RETRY_JOB_ATTEMPT_COUNT,
         backoff: {
@@ -168,7 +168,7 @@ export class JobManagerService {
         },
       });
     } else if (jobModel.height === 720) {
-      return this.videoProcessQueue720p.add(jobModel.processRoutingKey, jobModel, {
+      return this.videoProcessQueue720p.add(AppConfigService.appConfig.BULL_720P_PROCESS_VIDEO_JOB_QUEUE, jobModel, {
         jobId: uuidv4(),
         attempts: AppConfigService.appConfig.RETRY_JOB_ATTEMPT_COUNT,
         backoff: {
@@ -177,7 +177,7 @@ export class JobManagerService {
         },
       });
     } else if (jobModel.height === 1080) {
-      return this.videoProcessQueue1080p.add(jobModel.processRoutingKey, jobModel, {
+      return this.videoProcessQueue1080p.add(AppConfigService.appConfig.BULL_1080P_PROCESS_VIDEO_JOB_QUEUE, jobModel, {
         jobId: uuidv4(),
         attempts: AppConfigService.appConfig.RETRY_JOB_ATTEMPT_COUNT,
         backoff: {
