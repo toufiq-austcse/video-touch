@@ -271,7 +271,7 @@ export class AssetService {
   }
 
   async createSourceFile(assetId: string, height: number, width: number, size: number) {
-    let sourceFileName = 'download.mp4';
+    let sourceFileName = 'source.mp4';
     let fileToBeSaved = FileMapper.mapForSave(
       assetId,
       sourceFileName,
