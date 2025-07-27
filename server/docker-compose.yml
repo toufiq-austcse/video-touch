@@ -174,7 +174,7 @@ services:
       - BULL_PROCESS_VIDEO_JOB_QUEUE=$BULL_1080P_PROCESS_VIDEO_JOB_QUEUE
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpuset: "8-11"
+    cpuset: "12-15"
     deploy:
       restart_policy:
         condition: on-failure
