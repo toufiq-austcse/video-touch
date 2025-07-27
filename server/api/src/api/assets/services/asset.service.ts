@@ -165,12 +165,7 @@ export class AssetService {
         updatedAsset.width,
         updatedAsset.size
       );
-      await this.createDownloadedFile(
-        updatedAsset._id.toString(),
-        manifestFiles,
-        updatedAsset.height,
-        updatedAsset.width
-      );
+      await this.createDownloadedFile(updatedAsset._id.toString(), manifestFiles);
       await this.updateAssetStatus(updatedAsset._id.toString(), Constants.VIDEO_STATUS.PROCESSING, 'Video processing');
     }
   }
@@ -291,12 +286,13 @@ export class AssetService {
     return this.fileRepository.create(fileToBeSaved);
   }
 
-  async createDownloadedFile(assetId: string, files: FileDocument[], height: number, width: number) {
+  async createDownloadedFile(assetId: string, files: FileDocument[]) {
     if (!files || files.length === 0) {
       return null;
     }
     //find the larges resolution file
-    let largestFile = files.sort((a, b) => b.height - a.height)[0];
+    //  let largestFile = files.sort((a, b) => b.height - a.height)[0];
+    let largestFile = files.find((file) => file.height === 360);
 
     let name = 'downloaded.mp4';
     let fileToBeSaved = FileMapper.mapForSave(

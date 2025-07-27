@@ -29,6 +29,8 @@ const VideoFilesComponent: React.FC<VideoFilesComponentProps> = ({
   // Create a thumbnail file object if thumbnail_url exists
   const thumbnailFile: FileDetails | null =
     videoDetails.files.find((file) => file.type === "thumbnail") || null;
+  const downloadFile: FileDetails | null =
+    videoDetails.files.find((file) => file.type === "download") || null;
 
   // Calculate total size of other files (thumbnail and source)
   const otherFilesSize =
@@ -137,6 +139,26 @@ const VideoFilesComponent: React.FC<VideoFilesComponentProps> = ({
                   </div>
                   <div className="text-sm text-muted-foreground">
                     {bytesToMegaBytes(sourceFile.size)} MB
+                  </div>
+                </div>
+              )}
+              {/* Download File Section */}
+              {downloadFile && (
+                <div className="flex items-center justify-between p-3 border rounded-md">
+                  <div className="flex items-center space-x-3">
+                    <div className="text-lg font-medium">Download</div>
+                    <Badge
+                      variant={
+                        downloadFile.latest_status === "READY"
+                          ? "default"
+                          : "secondary"
+                      }
+                    >
+                      {downloadFile.latest_status}
+                    </Badge>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {bytesToMegaBytes(downloadFile.size)} MB
                   </div>
                 </div>
               )}

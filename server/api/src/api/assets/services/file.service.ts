@@ -78,6 +78,11 @@ export class FileService {
       //   .catch((err) => {
       //     console.log('error while checking local file ', err);
       //   });
+      this.checkDownloadFileGeneration(updatedFile)
+        .then()
+        .catch((err) => {
+          console.log('error while checking download file generation', err);
+        });
 
       this.assetService
         .checkForAssetReadyStatus(assetId.toString())
@@ -104,6 +109,56 @@ export class FileService {
         .catch((err) => {
           console.log('error while checking asset failed status', err);
         });
+    }
+    if (
+      updatedFile.latest_status === Constants.FILE_STATUS.PROCESSING &&
+      updatedFile.type === Constants.FILE_TYPE.DOWNLOAD
+    ) {
+      this.initDownloadFileGeneration(updatedFile)
+        .then()
+        .catch((err) => {
+          console.log('error while initializing download file generation', err);
+        });
+    }
+  }
+
+  async checkDownloadFileGeneration(updatedFile: FileDocument) {
+    let downloadTypeFile = await this.getFileByType(
+      updatedFile.asset_id.toString(),
+      Constants.FILE_TYPE.DOWNLOAD,
+      Constants.FILE_STATUS.QUEUED
+    );
+    if (!downloadTypeFile) {
+      console.log('No download type file found, skipping download file generation');
+      return;
+    }
+    if (downloadTypeFile.height !== updatedFile.height) {
+      console.log('Download file height does not match updated file height, skipping download file generation');
+      return;
+    }
+
+    await this.updateFileStatus(
+      downloadTypeFile._id.toString(),
+      Constants.FILE_STATUS.PROCESSING,
+      'Download file generation started',
+      downloadTypeFile.size
+    );
+  }
+
+  async initDownloadFileGeneration(downloadFile: FileDocument) {
+    console.log('Download file found, proceeding with download file generation');
+    let jobModel = this.jobManagerService.getJobData(downloadFile);
+    let jobData = await this.jobManagerService.publishVideoProcessingJob(jobModel);
+    console.log('job published for download file ', jobData);
+    if (jobData) {
+      await this.repository.findOneAndUpdate(
+        {
+          _id: downloadFile._id,
+        },
+        {
+          job_id: jobData.id,
+        }
+      );
     }
   }
 
@@ -188,11 +243,7 @@ export class FileService {
     }
   }
 
-  async getFileByType(
-    assetId: string,
-    type: string,
-    status: string = Constants.FILE_STATUS.READY
-  ): Promise<FileDocument | null> {
+  async getFileByType(assetId: string, type: string, status: string): Promise<FileDocument | null> {
     return this.repository.findOne({
       asset_id: mongoose.Types.ObjectId(assetId),
       type: type,

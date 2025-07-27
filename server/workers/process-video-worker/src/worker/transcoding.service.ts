@@ -15,7 +15,7 @@ export class TranscodingService {
 
   async createMp4FromM3u8(masterPlaylistPath: string, outputPath: string) {
     // Using ffmpeg to convert local HLS stream to MP4
-    const command = `ffmpeg -allowed_extensions ALL -protocol_whitelist file,crypto,data,pipe,tls,tcp,http,https -i "${masterPlaylistPath}" -c copy -bsf:a aac_adtstoasc -movflags +faststart "${outputPath}"`;
+    const command = `ffmpeg -y -i ${masterPlaylistPath} -c copy ${outputPath}`;
     console.log('starting local m3u8 to mp4 conversion....');
     return terminal(command);
   }
