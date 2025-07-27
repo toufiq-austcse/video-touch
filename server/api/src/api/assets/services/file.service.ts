@@ -61,23 +61,8 @@ export class FileService {
       return;
     }
     let assetId = updatedFile.asset_id;
-    if (
-      updatedFile.latest_status === Constants.FILE_STATUS.READY ||
-      updatedFile.latest_status === Constants.FILE_STATUS.FAILED
-    ) {
-      //console.log('file status is ready or failed, deleting local file');
-      // this.deleteLocalFile(assetId.toString(), updatedFile.height.toString());
-    }
 
     if (updatedFile.latest_status == Constants.FILE_STATUS.READY) {
-      // this.assetService
-      //   .checkForDeleteLocalAssetFile(assetId.toString())
-      //   .then((data) => {
-      //     console.log('checked local video file');
-      //   })
-      //   .catch((err) => {
-      //     console.log('error while checking local file ', err);
-      //   });
       this.checkDownloadFileGeneration(updatedFile)
         .then()
         .catch((err) => {
@@ -110,16 +95,6 @@ export class FileService {
           console.log('error while checking asset failed status', err);
         });
     }
-    if (
-      updatedFile.latest_status === Constants.FILE_STATUS.PROCESSING &&
-      updatedFile.type === Constants.FILE_TYPE.DOWNLOAD
-    ) {
-      this.initDownloadFileGeneration(updatedFile)
-        .then()
-        .catch((err) => {
-          console.log('error while initializing download file generation', err);
-        });
-    }
   }
 
   async checkDownloadFileGeneration(updatedFile: FileDocument) {
@@ -136,19 +111,12 @@ export class FileService {
       console.log('Download file height does not match updated file height, skipping download file generation');
       return;
     }
-
-    await this.updateFileStatus(
-      downloadTypeFile._id.toString(),
-      Constants.FILE_STATUS.PROCESSING,
-      'Download file generation started',
-      downloadTypeFile.size
-    );
+    return this.initDownloadFileGeneration(downloadTypeFile);
   }
 
   async initDownloadFileGeneration(downloadFile: FileDocument) {
     console.log('Download file found, proceeding with download file generation');
-    let jobModel = this.jobManagerService.getJobData(downloadFile);
-    let jobData = await this.jobManagerService.publishVideoProcessingJob(jobModel);
+    let jobData = await this.jobManagerService.publishDownloadFileGenerationJob(downloadFile);
     console.log('job published for download file ', jobData);
     if (jobData) {
       await this.repository.findOneAndUpdate(

@@ -71,6 +71,7 @@ export class AppConfigService {
       RETRY_JOB_ATTEMPT_COUNT: +this.configService.get('RETRY_JOB_ATTEMPT_COUNT', 3),
       RETRY_JOB_BACKOFF_IN_MINUTE: +this.configService.get('RETRY_JOB_BACKOFF_IN_MINUTE', 10),
       GOTIPATH_CDN_SECRET: this.configService.getOrThrow('GOTIPATH_CDN_SECRET'),
+      BULL_DOWNLOAD_FILE_GENERATION_JOB_QUEUE: this.configService.getOrThrow('BULL_DOWNLOAD_FILE_GENERATION_JOB_QUEUE'),
     };
   }
 }

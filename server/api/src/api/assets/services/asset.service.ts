@@ -291,9 +291,7 @@ export class AssetService {
       return null;
     }
     //find the larges resolution file
-    //  let largestFile = files.sort((a, b) => b.height - a.height)[0];
-    let largestFile = files.find((file) => file.height === 360);
-
+    let largestFile = files.sort((a, b) => b.height - a.height)[0];
     let name = 'downloaded.mp4';
     let fileToBeSaved = FileMapper.mapForSave(
       assetId,

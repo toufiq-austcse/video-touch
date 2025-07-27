@@ -21,7 +21,8 @@ export class JobManagerService {
     @InjectQueue('thumbnail-generation') private thumbnailGenerationQueue: Queue,
     @InjectQueue('upload-video') private videoUploadQueue: Queue,
     @InjectQueue('validate-video') private validateVideoQueue: Queue,
-    @InjectQueue('download-video') private downloadVideoQueue: Queue
+    @InjectQueue('download-video') private downloadVideoQueue: Queue,
+    @InjectQueue('download-file-generation') private downloadFileGenerationQueue: Queue
   ) {}
 
   async getThumbnailJobByJobId(jobId: string): Promise<Models.ThumbnailGenerationJobModel | null> {
@@ -188,6 +189,29 @@ export class JobManagerService {
       });
     }
     return null;
+  }
+
+  async publishDownloadFileGenerationJob(file: FileDocument) {
+    let downloadFileGenerationJob: Models.VideoProcessingJobModel = {
+      asset_id: file.asset_id.toString(),
+      file_id: file._id.toString(),
+      height: file.height,
+      width: file.width,
+      type: file.type,
+      name: file.name,
+    };
+    return this.downloadFileGenerationQueue.add(
+      AppConfigService.appConfig.BULL_DOWNLOAD_FILE_GENERATION_JOB_QUEUE,
+      downloadFileGenerationJob,
+      {
+        jobId: uuidv4(),
+        attempts: AppConfigService.appConfig.RETRY_JOB_ATTEMPT_COUNT,
+        backoff: {
+          type: 'fixed',
+          delay: minutesToMilliseconds(AppConfigService.appConfig.RETRY_JOB_BACKOFF_IN_MINUTE),
+        },
+      }
+    );
   }
 
   publishThumbnailGenerationJob(file: FileDocument) {

@@ -127,6 +127,17 @@ import { SignedUrlGeneratorService } from '@/src/api/assets/services/signed-url-
             removeOnFail: true,
           },
         }),
+      },
+      {
+        name: 'download-file-generation',
+        inject: [AppConfigService],
+        useFactory: () => ({
+          name: AppConfigService.appConfig.BULL_DOWNLOAD_FILE_GENERATION_JOB_QUEUE,
+          defaultJobOptions: {
+            removeOnComplete: true,
+            removeOnFail: true,
+          },
+        }),
       }
     ),
     BullBoardModule.forFeature({
@@ -163,6 +174,10 @@ import { SignedUrlGeneratorService } from '@/src/api/assets/services/signed-url-
     }),
     BullBoardModule.forFeature({
       name: 'upload-video',
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: 'download-file-generation',
       adapter: BullMQAdapter,
     }),
     MongooseModule.forFeatureAsync([
