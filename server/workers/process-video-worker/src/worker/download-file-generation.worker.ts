@@ -1,5 +1,4 @@
 import { TranscodingService } from '@/src/worker/transcoding.service';
-import { ManifestService } from '@/src/worker/manifest.service';
 import { Constants, Models } from 'video-touch-common';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
@@ -7,16 +6,15 @@ import { checkIsLastAttempt } from '@/src/common/utils';
 import { UploadService } from '@/src/worker/upload.service';
 import { FileStatusPublisher } from '@/src/worker/file-status.publisher';
 
-@Processor(process.env.BULL_PROCESS_VIDEO_JOB_QUEUE, { lockDuration: 1000 * 60 * 60 * 1 }) // 2 hours lock duration
-export class ProcessVideoWorker extends WorkerHost {
+@Processor(process.env.BULL_DOWNLOAD_FILE_GENERATION_JOB_QUEUE, { lockDuration: 1000 * 60 * 60 * 1 }) // 2 hours lock duration
+export class DownloadFileGenerationWorker extends WorkerHost {
   constructor(
     private transcodingService: TranscodingService,
-    private manifestService: ManifestService,
-    private uploadService: UploadService,
     private fileStatusPublisher: FileStatusPublisher,
+    private uploadService: UploadService,
   ) {
     super();
-    console.log('ProcessVideoWorker initialized');
+    console.log('Download File Generation  initialized');
   }
 
   async process(job: Job): Promise<any> {
@@ -36,25 +34,9 @@ export class ProcessVideoWorker extends WorkerHost {
         0,
         Constants.FILE_STATUS.PROCESSING,
       );
-      if (msg.type === Constants.FILE_TYPE.PLAYLIST) {
-        let res = await this.transcodingService.transcodeVideoByResolution(msg.asset_id.toString(), height, width);
-        console.log(`video ${height}p transcode:`, res);
-        this.manifestService.appendManifest(msg.asset_id.toString(), height);
-
-        await this.uploadService.publishVideoUploadJob(
-          msg.file_id.toString(),
-          msg.name,
-          msg.asset_id,
-          height,
-          width,
-          msg.type,
-        );
-      }
-      if (msg.type === Constants.FILE_TYPE.DOWNLOAD) {
-        let res = await this.transcodingService.createMp4FromM3u8ByResolution(msg.asset_id.toString(), height);
-        console.log(`video ${height}p download:`, res);
-        await this.uploadService.publishVideoUploadJob(msg.file_id, msg.name, msg.asset_id, height, width, msg.type);
-      }
+      let res = await this.transcodingService.createMp4FromM3u8ByResolution(msg.asset_id.toString(), height);
+      console.log(`video ${height}p download:`, res);
+      await this.uploadService.publishVideoUploadJob(msg.file_id, msg.name, msg.asset_id, height, width, msg.type);
     } catch (e: any) {
       console.log(`error while processing ${height}p`, e, isLastAttempt);
 

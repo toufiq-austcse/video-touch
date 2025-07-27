@@ -157,7 +157,7 @@ export class AssetService {
     }
     if (updatedAsset.latest_status === Constants.VIDEO_STATUS.VALIDATED) {
       let heightWidthMapByHeight = this.jobManagerService.getAllHeightWidthMapByHeight(updatedAsset.height);
-      await this.insertManifestFilesData(updatedAsset._id.toString(), heightWidthMapByHeight);
+      let manifestFiles = await this.insertManifestFilesData(updatedAsset._id.toString(), heightWidthMapByHeight);
       await this.createThumbnailFile(updatedAsset._id.toString(), updatedAsset.height, updatedAsset.width);
       await this.createSourceFile(
         updatedAsset._id.toString(),
@@ -165,6 +165,7 @@ export class AssetService {
         updatedAsset.width,
         updatedAsset.size
       );
+      await this.createDownloadedFile(updatedAsset._id.toString(), manifestFiles);
       await this.updateAssetStatus(updatedAsset._id.toString(), Constants.VIDEO_STATUS.PROCESSING, 'Video processing');
     }
   }
@@ -271,7 +272,7 @@ export class AssetService {
   }
 
   async createSourceFile(assetId: string, height: number, width: number, size: number) {
-    let sourceFileName = 'download.mp4';
+    let sourceFileName = 'source.mp4';
     let fileToBeSaved = FileMapper.mapForSave(
       assetId,
       sourceFileName,
@@ -281,6 +282,26 @@ export class AssetService {
       Constants.FILE_STATUS.QUEUED,
       'Source file queued for uploading',
       size
+    );
+    return this.fileRepository.create(fileToBeSaved);
+  }
+
+  async createDownloadedFile(assetId: string, files: FileDocument[]) {
+    if (!files || files.length === 0) {
+      return null;
+    }
+    //find the larges resolution file
+    let largestFile = files.sort((a, b) => b.height - a.height)[0];
+    let name = 'downloaded.mp4';
+    let fileToBeSaved = FileMapper.mapForSave(
+      assetId,
+      name,
+      Constants.FILE_TYPE.DOWNLOAD,
+      largestFile.height,
+      largestFile.width,
+      Constants.FILE_STATUS.QUEUED,
+      'Download file queued for processing',
+      0
     );
     return this.fileRepository.create(fileToBeSaved);
   }

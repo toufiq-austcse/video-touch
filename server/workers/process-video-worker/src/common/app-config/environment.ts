@@ -5,6 +5,7 @@ export interface EnvironmentVariables {
   RABBIT_MQ_URL: string;
   TEMP_VIDEO_DIRECTORY: string;
   BULL_PROCESS_VIDEO_JOB_QUEUE: string;
+  BULL_DOWNLOAD_FILE_GENERATION_JOB_QUEUE: string;
   BULL_UPLOAD_JOB_QUEUE: string;
   REDIS_HOST: string;
   REDIS_PORT: number;

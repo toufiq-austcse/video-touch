@@ -17,5 +17,4 @@ export class AssetFilesResolver {
   async getFilesOfAsset(@Parent() asset: Asset) {
     return this.filesByAssetLoader.load(asset._id.toString());
   }
-
 }

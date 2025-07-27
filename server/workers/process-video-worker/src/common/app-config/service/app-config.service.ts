@@ -19,6 +19,7 @@ export class AppConfigService {
       BULL_UPLOAD_JOB_QUEUE: this.configService.getOrThrow('BULL_UPLOAD_JOB_QUEUE'),
       REDIS_HOST: this.configService.getOrThrow('REDIS_HOST'),
       REDIS_PORT: +this.configService.getOrThrow('REDIS_PORT'),
+      BULL_DOWNLOAD_FILE_GENERATION_JOB_QUEUE: this.configService.getOrThrow('BULL_DOWNLOAD_FILE_GENERATION_JOB_QUEUE'),
     };
   }
 }

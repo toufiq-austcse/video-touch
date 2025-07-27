@@ -66,7 +66,7 @@ export class VideoUploaderJobHandler extends WorkerHost {
         msg.height,
         AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
       );
-      let s3VideoPath = Utils.getS3VideoPathByHeight(
+      let s3VideoPath = Utils.getS3UriVideoPathByHeight(
         msg.asset_id.toString(),
         msg.height,
         AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
@@ -101,7 +101,7 @@ export class VideoUploaderJobHandler extends WorkerHost {
         AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
       )}/${msg.asset_id}.mp4`;
 
-      let s3SourceFileVideoPath = Utils.getS3SourceFileVideoPath(
+      let s3SourceFileVideoPath = Utils.getS3UriSourceFileVideoPath(
         msg.asset_id.toString(),
         msg.name,
         AppConfigService.appConfig.AWS_S3_BUCKET_NAME,

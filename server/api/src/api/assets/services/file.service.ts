@@ -61,22 +61,12 @@ export class FileService {
       return;
     }
     let assetId = updatedFile.asset_id;
-    if (
-      updatedFile.latest_status === Constants.FILE_STATUS.READY ||
-      updatedFile.latest_status === Constants.FILE_STATUS.FAILED
-    ) {
-      console.log('file status is ready or failed, deleting local file');
-      this.deleteLocalFile(assetId.toString(), updatedFile.height.toString());
-    }
 
     if (updatedFile.latest_status == Constants.FILE_STATUS.READY) {
-      this.assetService
-        .checkForDeleteLocalAssetFile(assetId.toString())
-        .then((data) => {
-          console.log('checked local video file');
-        })
+      this.checkDownloadFileGeneration(updatedFile)
+        .then()
         .catch((err) => {
-          console.log('error while checking local file ', err);
+          console.log('error while checking download file generation', err);
         });
 
       this.assetService
@@ -96,6 +86,7 @@ export class FileService {
           console.log('error while updating master file version', err);
         });
     }
+
     if (updatedFile.latest_status === Constants.FILE_STATUS.FAILED) {
       this.assetService
         .checkForAssetFailedStatus(assetId.toString())
@@ -103,6 +94,39 @@ export class FileService {
         .catch((err) => {
           console.log('error while checking asset failed status', err);
         });
+    }
+  }
+
+  async checkDownloadFileGeneration(updatedFile: FileDocument) {
+    let downloadTypeFile = await this.getFileByType(
+      updatedFile.asset_id.toString(),
+      Constants.FILE_TYPE.DOWNLOAD,
+      Constants.FILE_STATUS.QUEUED
+    );
+    if (!downloadTypeFile) {
+      console.log('No download type file found, skipping download file generation');
+      return;
+    }
+    if (downloadTypeFile.height !== updatedFile.height) {
+      console.log('Download file height does not match updated file height, skipping download file generation');
+      return;
+    }
+    return this.initDownloadFileGeneration(downloadTypeFile);
+  }
+
+  async initDownloadFileGeneration(downloadFile: FileDocument) {
+    console.log('Download file found, proceeding with download file generation');
+    let jobData = await this.jobManagerService.publishDownloadFileGenerationJob(downloadFile);
+    console.log('job published for download file ', jobData);
+    if (jobData) {
+      await this.repository.findOneAndUpdate(
+        {
+          _id: downloadFile._id,
+        },
+        {
+          job_id: jobData.id,
+        }
+      );
     }
   }
 
@@ -187,11 +211,7 @@ export class FileService {
     }
   }
 
-  async getFileByType(
-    assetId: string,
-    type: string,
-    status: string = Constants.FILE_STATUS.READY
-  ): Promise<FileDocument | null> {
+  async getFileByType(assetId: string, type: string, status: string): Promise<FileDocument | null> {
     return this.repository.findOne({
       asset_id: mongoose.Types.ObjectId(assetId),
       type: type,
