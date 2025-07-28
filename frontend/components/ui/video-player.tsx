@@ -1,133 +1,136 @@
+
 import React, { useEffect, useRef } from "react";
 import Plyr from "plyr";
 import Hls from "hls.js";
-import crypto from "crypto";
+import "plyr/dist/plyr.css";
 import { PlaylistSignedUrlResponse } from "@/api/graphql/types/video-details";
+import { VODPlaybackRes } from "@/api/types/vod-playback-res";
 
-const PlyrHlsPlayer = ({
-  playlistSignedUrlResponse,
-  thumbnailUrl,
-}: {
-  playlistSignedUrlResponse: PlaylistSignedUrlResponse;
-  thumbnailUrl: string;
-}) => {
-  console.log("source", playlistSignedUrlResponse.main_playlist_url);
-  const videoRef = useRef(null);
-  const hlsRef = useRef(null);
+interface PlyrHlsPlayerProps {
+  playlistSignedUrlResponse?: PlaylistSignedUrlResponse;
+  vodPlaybackRes?: VODPlaybackRes;
+  thumbnailUrl?: string;
+}
+
+const PlyrHlsPlayer: React.FC<PlyrHlsPlayerProps> = ({
+                                                       playlistSignedUrlResponse,
+                                                       vodPlaybackRes,
+                                                       thumbnailUrl,
+                                                     }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const playerRef = useRef<Plyr | null>(null);
 
   useEffect(() => {
-    const defaultOptions = {
-      quality: undefined,
-      i18n: undefined,
-    };
+    if (!videoRef.current) return;
 
-    if (!Hls.isSupported()) {
-      // @ts-ignore
-      videoRef.current.src = source;
-    } else {
-      const hls = new Hls({
-        pLoader: class CustomLoader extends Hls.DefaultConfig.loader {
-          constructor(config: any) {
-            super(config);
-            const originalLoad = this.load.bind(this);
-            this.load = function (context, config, callbacks) {
-              if (
-                context &&
-                context.url &&
-                context.url.match(/\.m3u8($|\?)/i)
-              ) {
-                console.log("context.url", context.url);
-                for (let playlistResponse of Object.keys(
-                  playlistSignedUrlResponse.resolutions_token,
-                )) {
-                  if (context.url.includes(playlistResponse)) {
-                    // Generate a secure URL using the token
-                    const token =
-                      playlistSignedUrlResponse.resolutions_token[
-                        playlistResponse
-                      ];
-                    context.url = `${context.url}?${token}`;
-                  }
-                }
-                // Use the generateSecuredUrl function we defined above
-              }
-              return originalLoad(context, config, callbacks);
-            };
-          }
-        } as any,
-      });
-      // @ts-ignore
-      hlsRef.current = hls;
-      hls.loadSource(playlistSignedUrlResponse.main_playlist_url);
+    // Initialize Plyr
+    playerRef.current = new Plyr(videoRef.current, {
+      controls: [
+        "play-large",
+        "play",
+        "progress",
+        "current-time",
+        "mute",
+        "volume",
+        "captions",
+        "settings",
+        "pip",
+        "airplay",
+        "fullscreen",
+      ],
+      settings: ["quality"],
+      poster: thumbnailUrl,
+    });
 
-      hls.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
-        const availableQualities = hls.levels.map((l) => l.height);
-        availableQualities.unshift(0);
-
-        // @ts-ignore
-        defaultOptions.quality = {
-          default: 0,
-          options: availableQualities,
-          forced: true,
-          onChange: (e: any) => updateQuality(e),
-        };
-
-        // @ts-ignore
-        defaultOptions.i18n = {
-          qualityLabel: {
-            0: "Auto",
-          },
-        };
-
-        hls.on(Hls.Events.LEVEL_SWITCHED, function (event, data) {
-          const span = document.querySelector(
-            ".plyr__menu__container [data-plyr='quality'][value='0'] span",
-          );
-          if (hls.autoLevelEnabled) {
-            // @ts-ignore
-            span.innerHTML = `AUTO (${hls.levels[data.level].height}p)`;
-          } else {
-            // @ts-ignore
-            span.innerHTML = `AUTO`;
-          }
-        });
-
-        // @ts-ignore
-        const player = new Plyr(videoRef.current, defaultOptions);
-        player.poster = thumbnailUrl;
-      });
-
-      // @ts-ignore
-      hls.attachMedia(videoRef.current);
-    }
-
+    // Cleanup function
     return () => {
-      if (hlsRef.current) {
-        // @ts-ignore
-        hlsRef.current.destroy();
+      if (playerRef.current) {
+        playerRef.current.destroy();
       }
     };
-  }, []);
+  }, [thumbnailUrl]);
 
-  function updateQuality(newQuality: any) {
-    if (newQuality === 0) {
-      // @ts-ignore
-      hlsRef.current.currentLevel = -1;
-    } else {
-      // @ts-ignore
-      hlsRef.current.levels.forEach((level, levelIndex) => {
-        if (level.height === newQuality) {
-          // @ts-ignore
-          hlsRef.current.currentLevel = levelIndex;
-        }
-      });
+  useEffect(() => {
+    if (!videoRef.current) return;
+
+    const cdnProvider = process.env.NEXT_PUBLIC_CDN_PROVIDER;
+    const hls = new Hls();
+
+    if (cdnProvider === "cloudfront" && vodPlaybackRes) {
+      // Set cookies for Cloudfront
+      const { signed_cookies, media_sources } = vodPlaybackRes;
+
+      // Assuming the first media source is the HLS stream
+      const hlsUrl = media_sources[0]?.file;
+      console.log('');
+
+      if (!hlsUrl) {
+        console.error("No HLS URL found in vodPlaybackRes");
+        return;
+      }
+
+      // Attach HLS to video element
+      if (Hls.isSupported()) {
+        hls.loadSource(hlsUrl);
+        hls.attachMedia(videoRef.current);
+
+        // Handle quality levels
+        hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+          const availableQualities = hls.levels.map((level) => ({
+            src: level.url,
+            type: "hls",
+            size: level.height,
+          }));
+
+          if (playerRef.current) {
+            playerRef.current.source = {
+              type: "video",
+              sources: availableQualities,
+            };
+          }
+        });
+      }
+    } else if (cdnProvider === "gotipath" && playlistSignedUrlResponse) {
+      // Original Gotipath implementation
+      const { main_playlist_url, resolutions_token } = playlistSignedUrlResponse;
+
+      if (Hls.isSupported()) {
+        hls.loadSource(main_playlist_url);
+        hls.attachMedia(videoRef.current);
+
+        // Handle quality levels for Gotipath
+        hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+          const availableQualities = Object.entries(resolutions_token).map(
+            ([quality, token]) => ({
+              src: token,
+              type: "hls",
+              size: parseInt(quality),
+            })
+          );
+
+          if (playerRef.current) {
+            playerRef.current.source = {
+              type: "video",
+              sources: availableQualities,
+            };
+          }
+        });
+      }
     }
-  }
+
+    // Cleanup function
+    return () => {
+      hls.destroy();
+    };
+  }, [playlistSignedUrlResponse, vodPlaybackRes]);
 
   return (
-    <div className="h-fit">
-      <video ref={videoRef}></video>
-    </div>
+    <video
+      ref={videoRef}
+      className="plyr-react plyr"
+      crossOrigin="anonymous"
+      playsInline
+    />
   );
 };
 
