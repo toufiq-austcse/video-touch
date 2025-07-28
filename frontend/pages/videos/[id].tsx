@@ -25,6 +25,7 @@ import VideoFilesComponent from "@/components/ui/video-files-component";
 import { NextPage } from "next";
 import PrivateRoute from "@/components/private-route";
 import React, { useEffect } from "react";
+import { useHttpClient } from "@/api/http/useHttpClient";
 
 const PlyrHlsPlayer = dynamic(() => import("@/components/ui/video-player"), {
   ssr: false,
@@ -40,6 +41,8 @@ const VideoDetailsComponent = dynamic(
 const VideoDetailsPage: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
+  const { getVodPlaybackUrl, loading: playbackUrlLoading } = useHttpClient();
+  const [playbackRes, setPlaybackRes] = React.useState<any>(null);
 
   const { data, loading, error } = useQuery(GET_ASSET_QUERY, {
     variables: {
@@ -64,7 +67,18 @@ const VideoDetailsPage: NextPage = () => {
   );
   // State for storing the signed URL
 
-  if (loading || signedUrlLoading) {
+  useEffect(() => {
+    getVodPlaybackUrl("688680be07e02c5a196445a7")
+      .then((data) => {
+        console.log("Vod Playback URL Data:", data);
+        setPlaybackRes(data);
+      })
+      .catch((err) => {
+        console.error("Error fetching Vod Playback URL:", err);
+      });
+  }, []);
+
+  if (loading || signedUrlLoading || playbackUrlLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col items-center space-y-4">
@@ -107,6 +121,7 @@ const VideoDetailsPage: NextPage = () => {
                 {playlistSignedUrlResponse ? (
                   <PlyrHlsPlayer
                     playlistSignedUrlResponse={playlistSignedUrlResponse}
+                    vodPlaybackRes={playbackRes}
                     thumbnailUrl={videoDetails.thumbnail_url}
                   />
                 ) : (

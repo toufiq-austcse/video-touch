@@ -35,6 +35,9 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
   const [initialLoading, setInitialLoading] = React.useState<boolean>(true);
   const [currentUser, setCurrentUser] = React.useState<UserRes | null>(null);
   const [authToken, setAuthToken] = React.useState<string | null>(null);
+  const videoTouchAxios = axios.create({
+    baseURL: process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL,
+  });
 
   useEffect(() => {
     getCurrentUser();
@@ -43,10 +46,11 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
   const getCurrentUser = async () => {
     let token = localStorage.getItem("token");
     if (token) {
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      videoTouchAxios.defaults.headers.common["Authorization"] =
+        `Bearer ${token}`;
       let url = `${process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL}/api/v1/auth/me`;
       try {
-        let response = await axios.get(url);
+        let response = await videoTouchAxios.get(url);
         setCurrentUser(response.data.data);
         setAuthToken(token);
       } catch (err) {
@@ -86,7 +90,7 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
     console.log("userLogin ", process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL);
     try {
       let url = `${process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL}/api/v1/auth/login`;
-      const response = await axios.post(url, {
+      const response = await videoTouchAxios.post(url, {
         email: email,
         password: password,
       });
@@ -110,7 +114,7 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
   }> => {
     try {
       let url = `${process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL}/api/v1/auth/signup`;
-      const response = await axios.post(url, {
+      const response = await videoTouchAxios.post(url, {
         name: name,
         email: email,
         password: password,
