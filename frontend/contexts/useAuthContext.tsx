@@ -46,7 +46,8 @@ export const AuthContextProvider = ({ children }: AuthProviderProps) => {
   const getCurrentUser = async () => {
     let token = localStorage.getItem("token");
     if (token) {
-      videoTouchAxios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      videoTouchAxios.defaults.headers.common["Authorization"] =
+        `Bearer ${token}`;
       let url = `${process.env.NEXT_PUBLIC_VIDEO_TOUCH_API_URL}/api/v1/auth/me`;
       try {
         let response = await videoTouchAxios.get(url);

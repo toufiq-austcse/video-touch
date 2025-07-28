@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from "react";
 import Plyr from "plyr";
 import Hls from "hls.js";
@@ -13,10 +12,10 @@ interface PlyrHlsPlayerProps {
 }
 
 const PlyrHlsPlayer: React.FC<PlyrHlsPlayerProps> = ({
-                                                       playlistSignedUrlResponse,
-                                                       vodPlaybackRes,
-                                                       thumbnailUrl,
-                                                     }) => {
+  playlistSignedUrlResponse,
+  vodPlaybackRes,
+  thumbnailUrl,
+}) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<Plyr | null>(null);
 
@@ -62,7 +61,7 @@ const PlyrHlsPlayer: React.FC<PlyrHlsPlayerProps> = ({
 
       // Assuming the first media source is the HLS stream
       const hlsUrl = media_sources[0]?.file;
-      console.log('');
+      console.log("");
 
       if (!hlsUrl) {
         console.error("No HLS URL found in vodPlaybackRes");
@@ -92,7 +91,8 @@ const PlyrHlsPlayer: React.FC<PlyrHlsPlayerProps> = ({
       }
     } else if (cdnProvider === "gotipath" && playlistSignedUrlResponse) {
       // Original Gotipath implementation
-      const { main_playlist_url, resolutions_token } = playlistSignedUrlResponse;
+      const { main_playlist_url, resolutions_token } =
+        playlistSignedUrlResponse;
 
       if (Hls.isSupported()) {
         hls.loadSource(main_playlist_url);
@@ -105,7 +105,7 @@ const PlyrHlsPlayer: React.FC<PlyrHlsPlayerProps> = ({
               src: token,
               type: "hls",
               size: parseInt(quality),
-            })
+            }),
           );
 
           if (playerRef.current) {
