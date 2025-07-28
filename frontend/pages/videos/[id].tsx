@@ -71,6 +71,7 @@ const VideoDetailsPage: NextPage = () => {
     getVodPlaybackUrl("688680be07e02c5a196445a7")
       .then((data) => {
         console.log("Vod Playback URL Data:", data);
+        setPlaybackRes(data);
       })
       .catch((err) => {
         console.error("Error fetching Vod Playback URL:", err);
