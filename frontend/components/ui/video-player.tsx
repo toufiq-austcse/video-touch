@@ -23,7 +23,7 @@ const PlyrHlsPlayer: React.FC<PlyrHlsPlayerProps> = ({
 
   // Function to set Cloudfront cookies
   const setSignedCookies = (signedCookies: any) => {
-    console.log('Setting signed cookies:', signedCookies);
+    console.log("Setting signed cookies:", signedCookies);
     // Set cookies at domain level
     const domain = "video-touch.10minuteschool.com"; // Replace with your actual domain
     const cookieOptions = {
@@ -126,7 +126,8 @@ const PlyrHlsPlayer: React.FC<PlyrHlsPlayerProps> = ({
       }
     } else if (cdnProvider === "gotipath" && playlistSignedUrlResponse) {
       // Existing Gotipath implementation
-      const { main_playlist_url, resolutions_token } = playlistSignedUrlResponse;
+      const { main_playlist_url, resolutions_token } =
+        playlistSignedUrlResponse;
 
       if (Hls.isSupported()) {
         const hls = new Hls({
@@ -149,7 +150,7 @@ const PlyrHlsPlayer: React.FC<PlyrHlsPlayerProps> = ({
                       const token =
                         playlistSignedUrlResponse.resolutions_token[
                           playlistResponse
-                          ];
+                        ];
                       context.url = `${context.url}?${token}`;
                     }
                   }
