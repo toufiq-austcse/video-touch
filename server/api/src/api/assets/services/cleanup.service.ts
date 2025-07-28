@@ -25,6 +25,10 @@ export class CleanupService {
 
     for (const dir of allDirectories) {
       let asset = assets.find((a) => a._id.toString() === dir.name);
+      if (!asset) {
+        console.warn(`Asset with ID ${dir.name} not found in database, skipping cleanup.`);
+        continue;
+      }
 
       if (
         dir.isDirectory() &&
