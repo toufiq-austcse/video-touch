@@ -68,7 +68,6 @@ const PlyrHlsPlayer: React.FC<PlyrHlsPlayerProps> = ({
         "fullscreen",
       ],
       settings: ["quality"],
-      poster: thumbnailUrl,
     });
 
     return () => {
@@ -115,13 +114,6 @@ const PlyrHlsPlayer: React.FC<PlyrHlsPlayerProps> = ({
             type: "hls",
             size: level.height,
           }));
-
-          if (playerRef.current) {
-            playerRef.current.source = {
-              type: "video",
-              sources: availableQualities,
-            };
-          }
         });
       }
     } else if (cdnProvider === "gotipath" && playlistSignedUrlResponse) {
@@ -143,14 +135,12 @@ const PlyrHlsPlayer: React.FC<PlyrHlsPlayerProps> = ({
                 ) {
                   console.log("context.url", context.url);
                   for (let playlistResponse of Object.keys(
-                    playlistSignedUrlResponse.resolutions_token,
+                    (playlistSignedUrlResponse as any).resolutions_token,
                   )) {
                     if (context.url.includes(playlistResponse)) {
                       // Generate a secure URL using the token
-                      const token =
-                        playlistSignedUrlResponse.resolutions_token[
-                          playlistResponse
-                        ];
+                      const token = (playlistSignedUrlResponse as any)
+                        .resolutions_token[playlistResponse];
                       context.url = `${context.url}?${token}`;
                     }
                   }
