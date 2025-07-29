@@ -37,9 +37,9 @@ export class DownloadVideoJobHandler extends WorkerHost implements OnModuleInit 
       return Promise.resolve(null);
     } catch (e: any) {
       console.log('error in video download job handler', e);
-
       if (isLastAttempt) {
         this.publishUpdateAssetEvent(msg.asset_id, Constants.VIDEO_STATUS.FAILED, e.message);
+        return;
       }
       throw e;
     }
@@ -49,7 +49,7 @@ export class DownloadVideoJobHandler extends WorkerHost implements OnModuleInit 
     console.log(`Job ${job.id} attempts made: ${job.attemptsMade}, max attempts: ${job.opts.attempts}`);
 
     // Check if the job has been retried more than the maximum allowed attempts
-    if (job.attemptsMade+1 >= job.opts.attempts) {
+    if (job.attemptsMade + 1 >= job.opts.attempts) {
       console.log(`Job ${job.id} has reached the maximum retry limit.`);
       return true; // This is the last attempt
     }
