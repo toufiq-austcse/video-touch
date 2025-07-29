@@ -34,7 +34,7 @@ export class DownloadFileGenerationWorker extends WorkerHost {
         0,
         Constants.FILE_STATUS.PROCESSING,
       );
-      let res = await this.transcodingService.createMp4FromM3u8ByResolution(msg.asset_id.toString(), height);
+      let res = await this.transcodingService.createMp4FromM3u8ByResolution(msg.asset_id.toString(), height, msg.name);
       console.log(`video ${height}p download:`, res);
       await this.uploadService.publishVideoUploadJob(msg.file_id, msg.name, msg.asset_id, height, width, msg.type);
     } catch (e: any) {
