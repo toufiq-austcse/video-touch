@@ -51,7 +51,11 @@ export class ProcessVideoWorker extends WorkerHost {
         );
       }
       if (msg.type === Constants.FILE_TYPE.DOWNLOAD) {
-        let res = await this.transcodingService.createMp4FromM3u8ByResolution(msg.asset_id.toString(), height);
+        let res = await this.transcodingService.createMp4FromM3u8ByResolution(
+          msg.asset_id.toString(),
+          height,
+          msg.name,
+        );
         console.log(`video ${height}p download:`, res);
         await this.uploadService.publishVideoUploadJob(msg.file_id, msg.name, msg.asset_id, height, width, msg.type);
       }
