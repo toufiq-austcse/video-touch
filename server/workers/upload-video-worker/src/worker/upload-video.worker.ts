@@ -23,9 +23,12 @@ export class VideoUploaderJobHandler extends WorkerHost {
 
     if (msg.type === Constants.FILE_TYPE.SOURCE) {
       return this.uploadSourceFile(msg, isLastAttempt);
-    } else {
+    } else if (msg.type === Constants.FILE_TYPE.PLAYLIST) {
       return this.uploadManifestFiles(msg, isLastAttempt);
+    } else if (msg.type === Constants.FILE_TYPE.DOWNLOAD) {
+      return this.uploadDownFile(msg, isLastAttempt);
     }
+    return;
   }
 
   async syncDirToS3(localDir: string, s3Dir: string) {
@@ -89,6 +92,7 @@ export class VideoUploaderJobHandler extends WorkerHost {
           0,
           Constants.FILE_STATUS.FAILED,
         );
+        return;
       }
       throw new Error(`Error in uploading video at ${msg.height}p: ${err.message}`);
     }
@@ -120,6 +124,39 @@ export class VideoUploaderJobHandler extends WorkerHost {
           0,
           Constants.FILE_STATUS.FAILED,
         );
+        return;
+      }
+      throw new Error(`Error in uploading source file: ${err.message}`);
+    }
+  }
+
+  async uploadDownFile(msg: Models.VideoUploadJobModel, isLatAttempt: boolean) {
+    try {
+      let localFilePath = `${Utils.getLocalVideoRootPath(
+        msg.asset_id.toString(),
+        AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
+      )}/${msg.name}`;
+
+      let s3SourceFileVideoPath = Utils.getS3UriSourceFileVideoPath(
+        msg.asset_id.toString(),
+        msg.name,
+        AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
+      );
+      let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
+      console.log(`source file uploaded:`, res);
+
+      this.publishUpdateFileStatusEvent(msg.file_id.toString(), 'Source file uploaded', 0, Constants.FILE_STATUS.READY);
+    } catch (err: any) {
+      console.log('error in uploading source file', err);
+
+      if (isLatAttempt) {
+        this.publishUpdateFileStatusEvent(
+          msg.file_id.toString(),
+          'Source file uploading failed',
+          0,
+          Constants.FILE_STATUS.FAILED,
+        );
+        return;
       }
       throw new Error(`Error in uploading source file: ${err.message}`);
     }

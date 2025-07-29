@@ -59,6 +59,7 @@ export class ThumbnailGenerationWorker extends WorkerHost {
       console.log('error in thumbnail generation job handler', e);
       if (isLastAttempt) {
         this.publishUpdateFileStatusEvent(msg.file_id, 0, Constants.FILE_STATUS.FAILED, e.message);
+        return;
       }
       throw new Error('Error in thumbnail generation job handler: ' + e.message);
     }
