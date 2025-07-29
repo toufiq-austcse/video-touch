@@ -37,12 +37,12 @@ export class TranscodingService {
     return result;
   }
 
-  async createMp4FromM3u8ByResolution(videoId: string, height: number) {
+  async createMp4FromM3u8ByResolution(videoId: string, height: number, name: string) {
     let result = null;
     try {
       let masterPlaylistPath = `${Utils.getLocalResolutionPath(videoId, height, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY)}/${height}_out.m3u8`;
       let outputPath =
-        Utils.getLocalVideoRootPath(videoId, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY) + `/download.mp4`;
+        Utils.getLocalVideoRootPath(videoId, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY) + `/${name}`;
       result = await this.createMp4FromM3u8(masterPlaylistPath, outputPath);
     } catch (e: any) {
       throw new Error(e);
