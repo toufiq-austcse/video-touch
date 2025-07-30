@@ -219,18 +219,18 @@ export class FileService {
     });
   }
 
-  async getSourceFileUrlToReProcess(currentAsset: AssetDocument): Promise<string> {
+  async getSourceFileUrl(currentAsset: AssetDocument): Promise<string> {
     let sourceFileUrl = currentAsset.source_url;
 
-    let sourceFile = await this.getFileByType(
+    let backupSourceFile = await this.getFileByType(
       currentAsset._id.toString(),
       Constants.FILE_TYPE.SOURCE,
       FILE_STATUS.READY
     );
-    if (!sourceFile) {
+    if (!backupSourceFile) {
       return sourceFileUrl;
     }
-    let path = Utils.getS3SourceFileVideoPath(currentAsset._id.toString(), sourceFile.name);
+    let path = Utils.getS3SourceFileVideoPath(currentAsset._id.toString(), backupSourceFile.name);
     return this.s3ClientService.generateSignedUrlToGetObject(AppConfigService.appConfig.AWS_S3_BUCKET_NAME, path);
   }
 }

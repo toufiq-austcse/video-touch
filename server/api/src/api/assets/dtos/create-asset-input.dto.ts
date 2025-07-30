@@ -3,10 +3,18 @@ import { IsArray, IsEmail, IsNotEmpty, IsOptional, IsString, IsUrl } from 'class
 
 @InputType()
 export class RecreateAssetInputDto {
-  @Field({ nullable: true })
+  @Field({ nullable: false })
   @IsString()
   @IsNotEmpty()
-  _id?: string;
+  _id: string;
+}
+
+@InputType()
+export class ReprocessAssetInputDto {
+  @Field({ nullable: false })
+  @IsString()
+  @IsNotEmpty()
+  _id: string;
 }
 
 @InputType()
