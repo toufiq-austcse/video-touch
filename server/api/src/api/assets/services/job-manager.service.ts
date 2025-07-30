@@ -258,15 +258,15 @@ export class JobManagerService {
     return this.validateVideoQueue.add(AppConfigService.appConfig.BULL_VALIDATE_JOB_QUEUE, validateVideoJob);
   }
 
-  private buildDownloadVideoJob(videoDocument: AssetDocument): Models.VideoDownloadJobModel {
+  private buildDownloadVideoJob(assetDocument: AssetDocument): Models.VideoDownloadJobModel {
     return {
-      asset_id: videoDocument._id.toString(),
-      source_url: videoDocument.source_url,
+      asset_id: assetDocument._id.toString(),
+      source_url: assetDocument.source_url,
     };
   }
 
   async pushDownloadVideoJob(videoDocument: AssetDocument) {
-    let downloadVideoJob = this.buildDownloadVideoJob(videoDocument);
+    let downloadVideoJob = await this.buildDownloadVideoJob(videoDocument);
     console.log('push download video job to ', AppConfigService.appConfig.BULL_DOWNLOAD_JOB_QUEUE);
     return this.downloadVideoQueue.add(AppConfigService.appConfig.BULL_DOWNLOAD_JOB_QUEUE, downloadVideoJob, {
       jobId: uuidv4(),

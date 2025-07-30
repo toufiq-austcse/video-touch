@@ -168,6 +168,37 @@ export class AssetService {
       await this.createDownloadedFile(updatedAsset._id.toString(), manifestFiles);
       await this.updateAssetStatus(updatedAsset._id.toString(), Constants.VIDEO_STATUS.PROCESSING, 'Video processing');
     }
+    if (updatedAsset.latest_status === 'Re-Process') {
+      console.log('reprocessing asset');
+      try {
+        await this.fileRepository.deleteMany({
+          asset_id: updatedAsset._id,
+        });
+
+        let job = await this.jobManagerService.pushDownloadVideoJob(updatedAsset);
+        console.log('pushed download assets job', job.id);
+        await this.updateAssetStatus(
+          updatedAsset._id.toString(),
+          Constants.VIDEO_STATUS.DOWNLOADING,
+          'Downloading assets'
+        );
+        await this.repository.findOneAndUpdate(
+          {
+            _id: mongoose.Types.ObjectId(updatedAsset._id.toString()),
+          },
+          {
+            job_id: job.id,
+          }
+        );
+      } catch (e) {
+        console.log('error pushing download assets job', e);
+        await this.updateAssetStatus(
+          updatedAsset._id.toString(),
+          Constants.VIDEO_STATUS.FAILED,
+          `Error pushing download job. ${e.toString()}`
+        );
+      }
+    }
   }
 
   async afterSave(doc: AssetDocument) {
@@ -347,5 +378,9 @@ export class AssetService {
       )}?${mainPlaylistToken}`,
       resolutions_token: resolutionsToken,
     };
+  }
+
+  async reprocessAsset(currentAsset: AssetDocument) {
+    return this.updateAssetStatus(currentAsset._id.toString(), 'Re-Process', 'Re-processing Initiated');
   }
 }

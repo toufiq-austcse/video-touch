@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Asset, CreateAssetResponse, PaginatedAssetResponse, PlaylistSignedUrlResponse } from '../models/asset.model';
-import { CreateAssetInputDto, RecreateAssetInputDto } from '../dtos/create-asset-input.dto';
+import { CreateAssetInputDto, RecreateAssetInputDto, ReprocessAssetInputDto } from '../dtos/create-asset-input.dto';
 import { AssetService } from '../services/asset.service';
 import { AssetMapper } from '@/src/api/assets/mapper/asset.mapper';
 import { ListAssetInputDto } from '@/src/api/assets/dtos/list-asset-input.dto';
@@ -38,7 +38,7 @@ export class AssetResolver {
     if (!currentAsset) {
       throw new NotFoundException('Asset not found');
     }
-    let sourceFileUrl = await this.fileService.getSourceFileUrlToReProcess(currentAsset);
+    let sourceFileUrl = await this.fileService.getSourceFileUrl(currentAsset);
 
     let createdAsset = await this.assetService.create(
       {
@@ -51,6 +51,22 @@ export class AssetResolver {
     );
     let statusLogs = AssetMapper.toStatusLogsResponse(createdAsset.status_logs as [StatusDocument]);
     return AssetMapper.toAssetResponse(createdAsset, statusLogs);
+  }
+
+  @Mutation(() => CreateAssetResponse, { name: 'ReprocessAsset' })
+  @UseGuards(GqlAuthGuard)
+  async reprocessAsset(
+    @Args('recreateAssetInputDto') reprocessAssetInputDto: ReprocessAssetInputDto,
+    @UserInfoDec() user: UserDocument
+  ): Promise<Asset> {
+    let currentAsset = await this.assetService.getAsset({ _id: reprocessAssetInputDto._id.toString() }, user);
+    if (!currentAsset) {
+      throw new NotFoundException('Asset not found');
+    }
+    let reProcessedAsset = await this.assetService.reprocessAsset(currentAsset);
+
+    let statusLogs = AssetMapper.toStatusLogsResponse(reProcessedAsset.status_logs as [StatusDocument]);
+    return AssetMapper.toAssetResponse(reProcessedAsset, statusLogs);
   }
 
   @Mutation(() => Asset, { name: 'UpdateAsset' })
