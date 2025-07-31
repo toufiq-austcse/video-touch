@@ -1,12 +1,6 @@
 <h1 align="center" style="border-bottom: none">
-    <a href="https://github.com/toufiq-austcse/video-touch" target="_blank">
-        <svg width="100" height="100" viewBox="0 0 24 24" fill="#6366f1" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 8H2V4C2 3.46957 2.21071 2.96086 2.58579 2.58579C2.96086 2.21071 3.46957 2 4 2H8V4H4V8Z"/>
-            <path d="M20 8H22V4C22 3.46957 21.7893 2.96086 21.4142 2.58579C21.0391 2.21071 20.5304 2 20 2H16V4H20V8Z"/>
-            <path d="M20 20H16V22H20C20.5304 22 21.0391 21.7893 21.4142 21.4142C21.7893 21.0391 22 20.5304 22 20V16H20V20Z"/>
-            <path d="M4 20H8V22H4C3.46957 22 2.96086 21.7893 2.58579 21.4142C2.21071 21.0391 2 20.5304 2 20V16H4V20Z"/>
-            <path d="M9 7L15 12L9 17V7Z"/>
-        </svg>
+    <a href="" target="_blank">
+        <img alt="SigNoz" src="./images/logo.png" width="100" height="100">
     </a>
     <br>Video Touch
 </h1>
