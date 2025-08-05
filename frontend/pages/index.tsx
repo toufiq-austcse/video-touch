@@ -22,6 +22,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import {
   LIST_ASSETS,
   RECREATE_ASSET_MUTATION,
+  REPROCESS_ASSET_MUTATION,
 } from "@/api/graphql/queries/query";
 import { VIDEO_STATUS } from "@/lib/constant";
 import { getPollInterval, secondsToHHMMSS } from "@/lib/utils";
@@ -149,11 +150,27 @@ export const createColumns = (refetch: () => void): ColumnDef<Video>[] => [
       // Move the mutation hook outside and use it properly
       const ActionsCell = () => {
         const [recreateAsset] = useMutation(RECREATE_ASSET_MUTATION);
+        const [reprocessAsset] = useMutation(REPROCESS_ASSET_MUTATION);
+
+        const onReProcessAsNewClick = async (id: string) => {
+          if (confirm("Are you sure you want to re-process this video as new?")) {
+            try {
+              await recreateAsset({
+                variables: { id }, // Add proper variables
+              });
+              // Refetch data to update the list
+              refetch();
+            } catch (error) {
+              alert("Error re-processing video: ");
+              console.error("Error re-processing video:", error);
+            }
+          }
+        };
 
         const onReProcessClick = async (id: string) => {
           if (confirm("Are you sure you want to re-process this video?")) {
             try {
-              await recreateAsset({
+              await reprocessAsset({
                 variables: { id }, // Add proper variables
               });
               // Refetch data to update the list
@@ -181,6 +198,11 @@ export const createColumns = (refetch: () => void): ColumnDef<Video>[] => [
                 Copy Video ID
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onReProcessClick(video._id)}>
+                Re-process
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onReProcessAsNewClick(video._id)}
+              >
                 Re-process As New
               </DropdownMenuItem>
               <DropdownMenuSeparator />

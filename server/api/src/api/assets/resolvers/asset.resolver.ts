@@ -56,7 +56,7 @@ export class AssetResolver {
   @Mutation(() => CreateAssetResponse, { name: 'ReprocessAsset' })
   @UseGuards(GqlAuthGuard)
   async reprocessAsset(
-    @Args('recreateAssetInputDto') reprocessAssetInputDto: ReprocessAssetInputDto,
+    @Args('reprocessAssetInputDto') reprocessAssetInputDto: ReprocessAssetInputDto,
     @UserInfoDec() user: UserDocument
   ): Promise<Asset> {
     let currentAsset = await this.assetService.getAsset({ _id: reprocessAssetInputDto._id.toString() }, user);

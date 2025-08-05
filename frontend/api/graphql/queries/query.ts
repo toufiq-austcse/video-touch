@@ -124,6 +124,14 @@ export const RECREATE_ASSET_MUTATION = gql`
     }
   }
 `;
+export const REPROCESS_ASSET_MUTATION = gql`
+  mutation ($id: String!) {
+    ReprocessAsset(reprocessAssetInputDto: { _id: $id }) {
+      _id
+      title
+    }
+  }
+`
 
 export const GET_ASSET_MASTER_PLAYLIST_SIGNED_URL = gql`
   query ($id: String!) {
