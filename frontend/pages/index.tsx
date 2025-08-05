@@ -153,7 +153,9 @@ export const createColumns = (refetch: () => void): ColumnDef<Video>[] => [
         const [reprocessAsset] = useMutation(REPROCESS_ASSET_MUTATION);
 
         const onReProcessAsNewClick = async (id: string) => {
-          if (confirm("Are you sure you want to re-process this video as new?")) {
+          if (
+            confirm("Are you sure you want to re-process this video as new?")
+          ) {
             try {
               await recreateAsset({
                 variables: { id }, // Add proper variables
