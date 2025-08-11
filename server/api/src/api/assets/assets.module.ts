@@ -32,6 +32,7 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { CronjobController } from '@/src/api/assets/controllers/cronjob.controller';
 import { JobVerificationService } from '@/src/api/assets/services/job-verification.service';
 import { SignedUrlGeneratorService } from '@/src/api/assets/services/signed-url-generator.service';
+import { WebhookModule } from '../webhook/webhook.module';
 
 @Module({
   imports: [
@@ -260,6 +261,7 @@ import { SignedUrlGeneratorService } from '@/src/api/assets/services/signed-url-
         signOptions: { expiresIn: '1h' },
       }),
     }),
+    WebhookModule,
   ],
   controllers: [UploadController, AssetController, CronjobController],
   providers: [

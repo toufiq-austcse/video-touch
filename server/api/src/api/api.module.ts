@@ -14,6 +14,7 @@ import { RabbitMQModule } from '@/src/common/rabbit-mq/rabbit-mq.module';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { BullBoardModule } from '@bull-board/nestjs';
 import { ExpressAdapter } from '@bull-board/express';
+import { WebhookModule } from './webhook/webhook.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { ExpressAdapter } from '@bull-board/express';
     AssetsModule,
     AwsModule,
     AuthModule,
+    WebhookModule,
   ],
   controllers: [],
   providers: [],
