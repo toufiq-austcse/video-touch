@@ -18,6 +18,7 @@ import { CleanupService } from '@/src/api/assets/services/cleanup.service';
 import { S3ClientService } from '@/src/common/aws/s3/s3-client.service';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { SignedUrlGeneratorService } from '@/src/api/assets/services/signed-url-generator.service';
+import { WebhookService } from '../../webhook/services/webhook.service';
 
 @Injectable()
 export class AssetService {
@@ -27,7 +28,8 @@ export class AssetService {
     private jobManagerService: JobManagerService,
     private cleanUpService: CleanupService,
     private s3ClientService: S3ClientService,
-    private signedUrlGeneratorService: SignedUrlGeneratorService
+    private signedUrlGeneratorService: SignedUrlGeneratorService,
+    private webhookService: WebhookService
   ) {}
 
   async create(createVideoInput: CreateAssetInputDto, userDocument: UserDocument) {
@@ -131,6 +133,10 @@ export class AssetService {
   async afterUpdateLatestStatus(oldDoc: AssetDocument) {
     let updatedAsset = await this.repository.findOne({
       _id: mongoose.Types.ObjectId(oldDoc._id.toString()),
+    });
+
+    this.webhookService.publishEvent(updatedAsset).catch((err) => {
+      console.log('error while publishing webhook event ', err);
     });
 
     if (updatedAsset.latest_status === Constants.VIDEO_STATUS.FAILED) {

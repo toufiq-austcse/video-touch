@@ -59,4 +59,7 @@ export interface EnvironmentVariables {
   RETRY_JOB_ATTEMPT_COUNT: number;
   RETRY_JOB_BACKOFF_IN_MINUTE: number;
   GOTIPATH_CDN_SECRET: string;
+
+  WEBHOOK_URL: string;
+  WEBHOOK_TOKEN: string;
 }
