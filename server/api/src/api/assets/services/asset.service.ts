@@ -174,7 +174,7 @@ export class AssetService {
       await this.createDownloadedFile(updatedAsset._id.toString(), manifestFiles);
       await this.updateAssetStatus(updatedAsset._id.toString(), Constants.VIDEO_STATUS.PROCESSING, 'Video processing');
     }
-    if (updatedAsset.latest_status === 'Re-Process') {
+    if (updatedAsset.latest_status === Constants.VIDEO_STATUS.RE_PROCESSING) {
       console.log('reprocessing asset');
       try {
         await this.fileRepository.deleteMany({
@@ -387,6 +387,10 @@ export class AssetService {
   }
 
   async reprocessAsset(currentAsset: AssetDocument) {
-    return this.updateAssetStatus(currentAsset._id.toString(), 'Re-Process', 'Re-processing Initiated');
+    return this.updateAssetStatus(
+      currentAsset._id.toString(),
+      Constants.VIDEO_STATUS.RE_PROCESSING,
+      'Re-processing Initiated'
+    );
   }
 }
