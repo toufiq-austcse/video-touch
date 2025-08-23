@@ -19,6 +19,8 @@ import { S3ClientService } from '@/src/common/aws/s3/s3-client.service';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { SignedUrlGeneratorService } from '@/src/api/assets/services/signed-url-generator.service';
 import { WebhookService } from '../../webhook/services/webhook.service';
+import { getDownloadFileName, getSourceFileName } from '@/src/common/utils';
+import { UrlValidatorService } from './url-validator.service';
 
 @Injectable()
 export class AssetService {
@@ -29,7 +31,8 @@ export class AssetService {
     private cleanUpService: CleanupService,
     private s3ClientService: S3ClientService,
     private signedUrlGeneratorService: SignedUrlGeneratorService,
-    private webhookService: WebhookService
+    private webhookService: WebhookService,
+    private urlValidatorService: UrlValidatorService
   ) {}
 
   async create(createVideoInput: CreateAssetInputDto, userDocument: UserDocument) {
@@ -309,7 +312,7 @@ export class AssetService {
   }
 
   async createSourceFile(assetId: string, height: number, width: number, size: number) {
-    let sourceFileName = 'source.mp4';
+    let sourceFileName = getSourceFileName();
     let fileToBeSaved = FileMapper.mapForSave(
       assetId,
       sourceFileName,
@@ -329,7 +332,7 @@ export class AssetService {
     }
     //find the larges resolution file
     let largestFile = files.sort((a, b) => b.height - a.height)[0];
-    let name = 'download.mp4';
+    let name = getDownloadFileName();
     let fileToBeSaved = FileMapper.mapForSave(
       assetId,
       name,
@@ -386,11 +389,26 @@ export class AssetService {
     };
   }
 
-  async reprocessAsset(currentAsset: AssetDocument) {
+  async reprocessAsset(currentAsset: AssetDocument, sourceFileUrl: string) {
     return this.updateAssetStatus(
       currentAsset._id.toString(),
       Constants.VIDEO_STATUS.RE_PROCESSING,
       'Re-processing Initiated'
     );
+  }
+
+  async getSourceFileUrlToReprocess(asset: AssetDocument, sourceFile: FileDocument): Promise<string> {
+    if (sourceFile) {
+      let sourceFilePath = Utils.getS3SourceFileVideoPath(asset._id.toString(), getSourceFileName());
+      return this.s3ClientService.generateSignedUrlToGetObject(
+        AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
+        sourceFilePath
+      );
+    }
+    if (asset.source_url) {
+      let isSourceUrlValid = await this.urlValidatorService.checkUrlValidity(asset.source_url);
+      return isSourceUrlValid ? asset.source_url : null;
+    }
+    return null;
   }
 }

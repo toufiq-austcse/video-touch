@@ -5,17 +5,23 @@ import { AssetService } from '../services/asset.service';
 import { AssetMapper } from '@/src/api/assets/mapper/asset.mapper';
 import { ListAssetInputDto } from '@/src/api/assets/dtos/list-asset-input.dto';
 import { GetAssetInputDto } from '@/src/api/assets/dtos/get-asset-input.dto';
-import { NotFoundException, UseGuards } from '@nestjs/common';
+import { BadRequestException, NotFoundException, UseGuards } from '@nestjs/common';
 import { UpdateAssetInputDto } from '@/src/api/assets/dtos/update-asset-input.dto';
 import { StatusDocument } from '@/src/api/assets/schemas/status.schema';
 import { GqlAuthGuard } from '@/src/api/auth/guards/gql-auth.guard';
 import { UserInfoDec } from '@/src/common/decorators/user-info.decorator';
 import { UserDocument } from '@/src/api/auth/schemas/user.schema';
 import { FileService } from '@/src/api/assets/services/file.service';
+import { FILE_STATUS, FILE_TYPE } from 'video-touch-common/dist/constants';
+import { AssetRepository } from '../repositories/asset.repository';
 
 @Resolver(() => Asset)
 export class AssetResolver {
-  constructor(private assetService: AssetService, private fileService: FileService) {}
+  constructor(
+    private assetService: AssetService,
+    private fileService: FileService,
+    private assetRepository: AssetRepository
+  ) {}
 
   @Mutation(() => CreateAssetResponse, { name: 'CreateAsset' })
   @UseGuards(GqlAuthGuard)
@@ -38,13 +44,22 @@ export class AssetResolver {
     if (!currentAsset) {
       throw new NotFoundException('Asset not found');
     }
-    let sourceFileUrl = await this.fileService.getSourceFileUrl(currentAsset);
+    let sourceFile = await this.fileService.getFileByType(
+      currentAsset._id.toString(),
+      FILE_TYPE.SOURCE,
+      FILE_STATUS.READY
+    );
+
+    let mainFileUrl = await this.assetService.getSourceFileUrlToReprocess(currentAsset, sourceFile);
+    if (!mainFileUrl) {
+      throw new BadRequestException('Please provide the source file url again');
+    }
 
     let createdAsset = await this.assetService.create(
       {
         title: currentAsset.title,
         description: currentAsset.description,
-        source_url: sourceFileUrl,
+        source_url: mainFileUrl,
         tags: currentAsset.tags,
       },
       user
@@ -63,7 +78,23 @@ export class AssetResolver {
     if (!currentAsset) {
       throw new NotFoundException('Asset not found');
     }
-    let reProcessedAsset = await this.assetService.reprocessAsset(currentAsset);
+    let sourceFile = await this.fileService.getFileByType(
+      currentAsset._id.toString(),
+      FILE_TYPE.SOURCE,
+      FILE_STATUS.READY
+    );
+
+    let mainFileUrl = await this.assetService.getSourceFileUrlToReprocess(currentAsset, sourceFile);
+    if (!mainFileUrl) {
+      throw new BadRequestException('Please provide the source file url again');
+    }
+    await this.assetRepository.findOneAndUpdate(
+      { _id: currentAsset._id },
+      {
+        source_url: mainFileUrl,
+      }
+    );
+    let reProcessedAsset = await this.assetService.reprocessAsset(currentAsset, mainFileUrl);
 
     let statusLogs = AssetMapper.toStatusLogsResponse(reProcessedAsset.status_logs as [StatusDocument]);
     return AssetMapper.toAssetResponse(reProcessedAsset, statusLogs);

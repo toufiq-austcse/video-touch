@@ -17,4 +17,5 @@ export class UpdateAssetInputDto {
   @IsArray()
   @IsOptional()
   tags: string[];
+
 }
