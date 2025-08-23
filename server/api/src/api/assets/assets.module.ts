@@ -33,10 +33,13 @@ import { CronjobController } from '@/src/api/assets/controllers/cronjob.controll
 import { JobVerificationService } from '@/src/api/assets/services/job-verification.service';
 import { SignedUrlGeneratorService } from '@/src/api/assets/services/signed-url-generator.service';
 import { WebhookModule } from '../webhook/webhook.module';
+import { UrlValidatorService } from './services/url-validator.service';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
     AuthModule,
+    HttpModule,
     BullModule.registerQueueAsync(
       {
         name: 'process_video_360p',
@@ -283,6 +286,7 @@ import { WebhookModule } from '../webhook/webhook.module';
     CleanupService,
     JobVerificationService,
     SignedUrlGeneratorService,
+    UrlValidatorService,
   ],
 })
 export class AssetsModule {}
