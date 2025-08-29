@@ -1,9 +1,14 @@
 import { gql } from "@apollo/client";
 
 export const LIST_ASSETS = gql`
-  query ($first: Float, $before: String, $after: String) {
+  query ($first: Float, $before: String, $after: String, $search: String) {
     ListAsset(
-      listAssetInputDto: { first: $first, before: $before, after: $after }
+      listAssetInputDto: {
+        first: $first
+        before: $before
+        after: $after
+        search: $search
+      }
     ) {
       assets {
         _id
@@ -131,7 +136,7 @@ export const REPROCESS_ASSET_MUTATION = gql`
       title
     }
   }
-`
+`;
 
 export const GET_ASSET_MASTER_PLAYLIST_SIGNED_URL = gql`
   query ($id: String!) {

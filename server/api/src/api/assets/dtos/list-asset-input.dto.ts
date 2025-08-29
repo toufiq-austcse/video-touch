@@ -17,4 +17,9 @@ export class ListAssetInputDto {
   @IsNumber()
   @IsOptional()
   first: number = 30;
+
+  @Field({ nullable: true })
+  @IsString()
+  @IsOptional()
+  search: string;
 }
