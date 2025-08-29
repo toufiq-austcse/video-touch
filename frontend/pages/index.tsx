@@ -233,7 +233,7 @@ const HomePage: NextPage = () => {
     },
     fetchPolicy: "network-only",
     pollInterval: getPollInterval(
-      process.env.NEXT_PUBLIC_UPDATE_DATA_INTERVAL_IN_SECONDS as any
+      process.env.NEXT_PUBLIC_UPDATE_DATA_INTERVAL_IN_SECONDS as any,
     ),
   });
 
