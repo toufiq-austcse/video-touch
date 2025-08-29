@@ -50,6 +50,7 @@ export class AssetService {
       listVideoInputDto.first,
       listVideoInputDto.after,
       listVideoInputDto.before,
+      listVideoInputDto.search,
       user
     );
   }
