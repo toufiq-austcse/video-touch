@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,6 +18,8 @@ import { badgeVariants } from "@/components/ui/badge";
 import Image from "next/image";
 import Link from "next/link";
 import AppTable from "@/components/ui/app-table";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useMutation, useQuery } from "@apollo/client";
 import {
   LIST_ASSETS,
@@ -221,15 +223,17 @@ export const createColumns = (refetch: () => void): ColumnDef<Video>[] => [
 const HomePage: NextPage = () => {
   const pageSize = Number(process.env.NEXT_PUBLIC_VIDEO_LIST_PAGE_SIZE) || 4;
   const [pageIndex, setPageIndex] = React.useState(0);
+  const [search, setSearch] = React.useState<string>("");
 
-  const { data, loading, error, fetchMore, refetch } = useQuery(LIST_ASSETS, {
+  let { data, loading, error, fetchMore, refetch } = useQuery(LIST_ASSETS, {
     variables: {
       first: pageSize,
       after: null,
+      search: undefined,
     },
     fetchPolicy: "network-only",
     pollInterval: getPollInterval(
-      process.env.NEXT_PUBLIC_UPDATE_DATA_INTERVAL_IN_SECONDS as any,
+      process.env.NEXT_PUBLIC_UPDATE_DATA_INTERVAL_IN_SECONDS as any
     ),
   });
 
@@ -242,6 +246,7 @@ const HomePage: NextPage = () => {
         variables: {
           first: pageSize,
           after: data.ListAsset.page_info.next_cursor,
+          search: search || undefined,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
           setPageIndex((prev) => prev + 1);
@@ -261,6 +266,7 @@ const HomePage: NextPage = () => {
         variables: {
           first: pageSize,
           before: data.ListAsset.page_info.prev_cursor,
+          search: search || undefined,
         },
         updateQuery: (prev, { fetchMoreResult }) => {
           setPageIndex((prev) => prev - 1);
@@ -272,10 +278,15 @@ const HomePage: NextPage = () => {
       });
     }
   };
+  const onSearchEnter = (searchValue: string) => {
+    setSearch(searchValue);
+    setPageIndex(0);
+    refetch({ first: pageSize, after: null, search: searchValue || undefined });
+  };
 
   return (
     <div>
-      <div className="flex">
+      <div className="flex items-center gap-2">
         <UploadNew refetch={refetch} />
       </div>
 
@@ -290,6 +301,7 @@ const HomePage: NextPage = () => {
           pageSize={pageSize}
           next={nextFunction}
           prev={prevFunction}
+          onSearchEnter={onSearchEnter}
         />
       )}
     </div>
