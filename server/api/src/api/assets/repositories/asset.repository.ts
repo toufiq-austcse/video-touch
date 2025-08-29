@@ -52,13 +52,13 @@ export class AssetRepository extends BaseRepository<AssetDocument> {
     // Add cursor-based filtering
     if (afterCursor) {
       pipeline.push({
-        $match: { _id: { $lt:  mongoose.Types.ObjectId(afterCursor) } },
+        $match: { _id: { $lt: mongoose.Types.ObjectId(afterCursor) } },
       });
     }
 
     if (beforeCursor) {
       pipeline.push({
-        $match: { _id: { $gt:  mongoose.Types.ObjectId(beforeCursor) } },
+        $match: { _id: { $gt: mongoose.Types.ObjectId(beforeCursor) } },
       });
     }
 
