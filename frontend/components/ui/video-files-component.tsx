@@ -4,6 +4,10 @@ import { bytesToMegaBytes } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useLazyQuery } from "@apollo/client";
+import { GET_FILE_URL } from "@/api/graphql/queries/query";
 
 interface VideoFilesComponentProps {
   videoDetails: VideoDetails;
@@ -12,6 +16,9 @@ interface VideoFilesComponentProps {
 const VideoFilesComponent: React.FC<VideoFilesComponentProps> = ({
   videoDetails,
 }) => {
+  // Lazy query for getting file URL
+  const [getFileUrl, { loading: downloadLoading }] = useLazyQuery(GET_FILE_URL);
+
   // Filter files to only include playlist files (not thumbnails)
   const videoFiles =
     videoDetails.files?.filter((file) => file.type === "playlist") || [];
@@ -36,6 +43,24 @@ const VideoFilesComponent: React.FC<VideoFilesComponentProps> = ({
   const otherFilesSize =
     (thumbnailFile ? thumbnailFile.size : 0) +
     (sourceFile ? sourceFile.size : 0);
+
+  const onDownloadButtonClick = async (file: FileDetails) => {
+    try {
+      // Call the GraphQL query to get file URL
+      const { data } = await getFileUrl({
+        variables: { id: file._id },
+      });
+
+      if (data?.GetFileUrl) {
+        window.open(data.GetFileUrl, "_blank");
+      } else {
+        alert("No file URL received from query");
+      }
+    } catch (error) {
+      console.log("error ", error);
+      alert("Error getting file URL:");
+    }
+  };
 
   return (
     <>
@@ -116,8 +141,22 @@ const VideoFilesComponent: React.FC<VideoFilesComponentProps> = ({
                       {thumbnailFile.latest_status}
                     </Badge>
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    {bytesToMegaBytes(thumbnailFile.size)} MB
+                  <div className="flex items-center space-x-3">
+                    <div className="text-sm text-muted-foreground">
+                      {bytesToMegaBytes(thumbnailFile.size)} MB
+                    </div>
+                    {thumbnailFile.latest_status === "READY" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onDownloadButtonClick(thumbnailFile)}
+                        disabled={downloadLoading}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Download className="h-4 w-4" />
+                        <span className="sr-only">Download thumbnail</span>
+                      </Button>
+                    )}
                   </div>
                 </div>
               )}
@@ -137,11 +176,26 @@ const VideoFilesComponent: React.FC<VideoFilesComponentProps> = ({
                       {sourceFile.latest_status}
                     </Badge>
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    {bytesToMegaBytes(sourceFile.size)} MB
+                  <div className="flex items-center space-x-3">
+                    <div className="text-sm text-muted-foreground">
+                      {bytesToMegaBytes(sourceFile.size)} MB
+                    </div>
+                    {sourceFile.latest_status === "READY" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onDownloadButtonClick(sourceFile)}
+                        disabled={downloadLoading}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Download className="h-4 w-4" />
+                        <span className="sr-only">Download source file</span>
+                      </Button>
+                    )}
                   </div>
                 </div>
               )}
+
               {/* Download File Section */}
               {downloadFile && (
                 <div className="flex items-center justify-between p-3 border rounded-md">
@@ -157,26 +211,40 @@ const VideoFilesComponent: React.FC<VideoFilesComponentProps> = ({
                       {downloadFile.latest_status}
                     </Badge>
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    {bytesToMegaBytes(downloadFile.size)} MB
+                  <div className="flex items-center space-x-3">
+                    <div className="text-sm text-muted-foreground">
+                      {bytesToMegaBytes(downloadFile.size)} MB
+                    </div>
+                    {downloadFile.latest_status === "READY" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onDownloadButtonClick(downloadFile)}
+                        disabled={downloadLoading}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Download className="h-4 w-4" />
+                        <span className="sr-only">Download file</span>
+                      </Button>
+                    )}
                   </div>
                 </div>
               )}
 
-              {!thumbnailFile && !sourceFile && (
+              {!thumbnailFile && !sourceFile && !downloadFile && (
                 <div className="text-center py-4 text-muted-foreground">
                   No other files available
                 </div>
               )}
 
               {/* Total size section for Others */}
-              {(thumbnailFile || sourceFile) && (
+              {(thumbnailFile || sourceFile || downloadFile) && (
                 <>
                   <Separator className="my-2" />
                   <div className="flex justify-between items-center p-3">
                     <div className="font-semibold">Total Size</div>
                     <div className="text-sm font-medium">
-                      {bytesToMegaBytes(otherFilesSize)} MB
+                      {bytesToMegaBytes(otherFilesSize)}
                     </div>
                   </div>
                 </>
