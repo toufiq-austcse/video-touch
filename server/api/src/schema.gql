@@ -86,6 +86,7 @@ type Query {
   ListAsset(listAssetInputDto: ListAssetInputDto!): PaginatedAssetResponse!
   GetAsset(getAssetInputDto: GetAssetInputDto!): Asset!
   GetAssetMasterPlaylistSignedUrl(_id: String!): PlaylistSignedUrlResponse!
+  GetFileUrl(id: String!): String!
   user: User
 }
 
@@ -93,6 +94,7 @@ input ListAssetInputDto {
   after: String
   before: String
   first: Float = 30
+  search: String
 }
 
 input GetAssetInputDto {
@@ -102,6 +104,7 @@ input GetAssetInputDto {
 type Mutation {
   CreateAsset(createAssetInput: CreateAssetInputDto!): CreateAssetResponse!
   RecreateAsset(recreateAssetInputDto: RecreateAssetInputDto!): CreateAssetResponse!
+  ReprocessAsset(reprocessAssetInputDto: ReprocessAssetInputDto!): CreateAssetResponse!
   UpdateAsset(_id: String!, updateAssetInputDto: UpdateAssetInputDto!): Asset!
   DeleteAsset(_id: String!): String!
 }
@@ -114,7 +117,11 @@ input CreateAssetInputDto {
 }
 
 input RecreateAssetInputDto {
-  _id: String
+  _id: String!
+}
+
+input ReprocessAssetInputDto {
+  _id: String!
 }
 
 input UpdateAssetInputDto {
