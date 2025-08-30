@@ -35,10 +35,6 @@ import { WebhookModule } from './webhook/webhook.module';
       adapter: ExpressAdapter, // Or FastifyAdapter from `@bull-board/fastify`
     }),
     GraphQLModule.forRoot<any>({
-      cors: {
-        origin: true,
-        credentials: true,
-      },
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       graphiql: true,

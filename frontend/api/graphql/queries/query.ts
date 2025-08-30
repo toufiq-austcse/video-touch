@@ -26,6 +26,7 @@ export const LIST_ASSETS = gql`
     }
   }
 `;
+
 export const GET_ASSET_QUERY = gql`
   query ($id: String!) {
     GetAsset(getAssetInputDto: { _id: $id }) {
@@ -80,6 +81,7 @@ export const CREATE_ASSET_MUTATION = gql`
     }
   }
 `;
+
 export const CREATE_ASSET_FROM_UPLOAD_MUTATION = gql`
   mutation (
     $title: String
@@ -100,6 +102,7 @@ export const CREATE_ASSET_FROM_UPLOAD_MUTATION = gql`
     }
   }
 `;
+
 export const UPDATE_ASSET_MUTATION = gql`
   mutation (
     $id: String!
@@ -121,6 +124,7 @@ export const UPDATE_ASSET_MUTATION = gql`
     }
   }
 `;
+
 export const RECREATE_ASSET_MUTATION = gql`
   mutation ($id: String!) {
     RecreateAsset(recreateAssetInputDto: { _id: $id }) {
@@ -129,6 +133,7 @@ export const RECREATE_ASSET_MUTATION = gql`
     }
   }
 `;
+
 export const REPROCESS_ASSET_MUTATION = gql`
   mutation ($id: String!) {
     ReprocessAsset(reprocessAssetInputDto: { _id: $id }) {
@@ -144,5 +149,11 @@ export const GET_ASSET_MASTER_PLAYLIST_SIGNED_URL = gql`
       main_playlist_url
       resolutions_token
     }
+  }
+`;
+
+export const GET_FILE_URL = gql`
+  query ($id: String!) {
+    GetFileUrl(id: $id)
   }
 `;

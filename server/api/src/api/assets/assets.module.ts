@@ -35,6 +35,7 @@ import { SignedUrlGeneratorService } from '@/src/api/assets/services/signed-url-
 import { WebhookModule } from '../webhook/webhook.module';
 import { UrlValidatorService } from './services/url-validator.service';
 import { HttpModule } from '@nestjs/axios';
+import { FileResolver } from './resolvers/file.resolver';
 
 @Module({
   imports: [
@@ -273,6 +274,7 @@ import { HttpModule } from '@nestjs/axios';
     AssetService,
     AssetResolver,
     AssetFilesResolver,
+    FileResolver,
     AssetMapper,
     VideoDownloadService,
     FileService,
