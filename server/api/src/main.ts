@@ -15,7 +15,6 @@ async function bootstrap() {
   app.enableVersioning({ type: VersioningType.URI });
   app.setGlobalPrefix('api');
   await setupSwagger(app, PORT);
-  app.enableCors();
   app.useGlobalFilters(new HttpExceptionFilter());
 
   morgan.token('remote-addr', (req, res) => {
