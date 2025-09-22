@@ -1,6 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Expose, Transform } from 'class-transformer';
 import { StatusLogResponse } from '@/src/api/assets/models/status-logs.model';
+import GraphQLJSON from 'graphql-type-json';
 
 @ObjectType()
 export class CreateAssetResponse {
@@ -146,4 +147,15 @@ export class PaginatedAssetResponse {
   @Field((type) => PageInfo)
   @Expose()
   page_info: PageInfo;
+}
+
+@ObjectType()
+export class PlaylistSignedUrlResponse {
+  @Field()
+  @Expose()
+  main_playlist_url: string;
+
+  @Field(() => GraphQLJSON)
+  @Expose()
+  resolutions_token: Record<string, string>;
 }

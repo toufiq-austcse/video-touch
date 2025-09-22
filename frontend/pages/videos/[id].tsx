@@ -1,9 +1,19 @@
 import Data from "@/components/ui/data";
 import { useRouter } from "next/router";
 import { useQuery } from "@apollo/client";
-import { GET_ASSET_QUERY } from "@/api/graphql/queries/query";
-import { VideoDetails } from "@/api/graphql/types/video-details";
-import { bytesToMegaBytes, secondsToHHMMSS } from "@/lib/utils";
+import {
+  GET_ASSET_QUERY,
+  GET_ASSET_MASTER_PLAYLIST_SIGNED_URL,
+} from "@/api/graphql/queries/query";
+import {
+  PlaylistSignedUrlResponse,
+  VideoDetails,
+} from "@/api/graphql/types/video-details";
+import {
+  bytesToMegaBytes,
+  getPollInterval,
+  secondsToHHMMSS,
+} from "@/lib/utils";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,8 +24,8 @@ import VideoTitleComponent from "@/components/ui/video-title-component";
 import VideoFilesComponent from "@/components/ui/video-files-component";
 import { NextPage } from "next";
 import PrivateRoute from "@/components/private-route";
-import crypto from "crypto";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
+import { useHttpClient } from "@/api/http/useHttpClient";
 
 const PlyrHlsPlayer = dynamic(() => import("@/components/ui/video-player"), {
   ssr: false,
@@ -31,15 +41,44 @@ const VideoDetailsComponent = dynamic(
 const VideoDetailsPage: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
+  const { getVodPlaybackUrl, loading: playbackUrlLoading } = useHttpClient();
+  const [playbackRes, setPlaybackRes] = React.useState<any>(null);
 
   const { data, loading, error } = useQuery(GET_ASSET_QUERY, {
     variables: {
       id: id,
     },
     fetchPolicy: "network-only", // Force network request on each page load, don't use cache
+    pollInterval: getPollInterval(
+      process.env.NEXT_PUBLIC_UPDATE_DATA_INTERVAL_IN_SECONDS as any,
+    ),
   });
 
-  if (loading) {
+  // Query for getting the signed URL from the server
+  const { data: signedUrlData, loading: signedUrlLoading } = useQuery(
+    GET_ASSET_MASTER_PLAYLIST_SIGNED_URL,
+    {
+      variables: {
+        id: id,
+      },
+      skip: !data?.GetAsset, // Skip this query until the asset data is available
+      fetchPolicy: "network-only", // Force network request on each page load, don't use cache
+    },
+  );
+  // State for storing the signed URL
+
+  useEffect(() => {
+    getVodPlaybackUrl("688680be07e02c5a196445a7")
+      .then((data) => {
+        console.log("Vod Playback URL Data:", data);
+        setPlaybackRes(data);
+      })
+      .catch((err) => {
+        console.error("Error fetching Vod Playback URL:", err);
+      });
+  }, []);
+
+  if (loading || signedUrlLoading || playbackUrlLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col items-center space-y-4">
@@ -65,7 +104,8 @@ const VideoDetailsPage: NextPage = () => {
   }
 
   let videoDetails: VideoDetails = data.GetAsset;
-  const masterPlaylistUrl = videoDetails.master_playlist_url;
+  let playlistSignedUrlResponse: PlaylistSignedUrlResponse =
+    signedUrlData?.GetAssetMasterPlaylistSignedUrl;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -78,9 +118,10 @@ const VideoDetailsPage: NextPage = () => {
             </CardHeader>
             <CardContent>
               <div className="mt-4 rounded-lg overflow-hidden shadow-md">
-                {masterPlaylistUrl ? (
+                {playlistSignedUrlResponse ? (
                   <PlyrHlsPlayer
-                    source={masterPlaylistUrl}
+                    playlistSignedUrlResponse={playlistSignedUrlResponse}
+                    vodPlaybackRes={playbackRes}
                     thumbnailUrl={videoDetails.thumbnail_url}
                   />
                 ) : (
@@ -178,5 +219,4 @@ const VideoDetailsPage: NextPage = () => {
     </div>
   );
 };
-
 export default PrivateRoute({ Component: VideoDetailsPage });

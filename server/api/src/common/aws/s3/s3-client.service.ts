@@ -93,4 +93,54 @@ export class S3ClientService implements OnModuleInit {
       throw new Error(`Failed to generate signed URL for ${key}`);
     }
   }
+
+  async getAllDirectories(path: string, bucket?: string): Promise<string[]> {
+    const bucketName = bucket || AppConfigService.appConfig.AWS_S3_BUCKET_NAME;
+    const params: AWS.S3.ListObjectsV2Request = {
+      Bucket: bucketName,
+      Prefix: path,
+      Delimiter: '/',
+    };
+
+    console.log('params', params);
+    try {
+      const allKeys: string[] = [];
+      let isTruncated = true;
+      let continuationToken: string | undefined;
+
+      // Handle pagination by making multiple requests if necessary
+      while (isTruncated) {
+        if (continuationToken) {
+          params.ContinuationToken = continuationToken;
+        }
+
+        const response = await this.s3.listObjectsV2(params).promise();
+
+        // Process CommonPrefixes which represent directories
+        if (response.CommonPrefixes) {
+          // Extract just the directory names (not full paths)
+          const directories = response.CommonPrefixes.map((prefix) => {
+            // Get the directory name from the prefix
+            const fullPath = prefix.Prefix as string;
+            // Remove the input path prefix to get just the directory name
+            let dirName = fullPath.replace(path, '');
+            // Remove trailing slash if present
+            dirName = dirName.replace(/\/$/, '');
+            return dirName;
+          }).filter((dir) => dir.length > 0); // Filter out empty strings
+
+          allKeys.push(...directories);
+        }
+
+        // Check if there are more results to fetch
+        isTruncated = response.IsTruncated || false;
+        continuationToken = response.NextContinuationToken;
+      }
+
+      return allKeys;
+    } catch (error) {
+      console.error('Error listing objects in S3:', error);
+      throw new Error(`Failed to list objects with prefix ${path} in bucket ${bucketName}`);
+    }
+  }
 }

@@ -1,9 +1,14 @@
 import { gql } from "@apollo/client";
 
 export const LIST_ASSETS = gql`
-  query ($first: Float, $before: String, $after: String) {
+  query ($first: Float, $before: String, $after: String, $search: String) {
     ListAsset(
-      listAssetInputDto: { first: $first, before: $before, after: $after }
+      listAssetInputDto: {
+        first: $first
+        before: $before
+        after: $after
+        search: $search
+      }
     ) {
       assets {
         _id
@@ -21,6 +26,7 @@ export const LIST_ASSETS = gql`
     }
   }
 `;
+
 export const GET_ASSET_QUERY = gql`
   query ($id: String!) {
     GetAsset(getAssetInputDto: { _id: $id }) {
@@ -75,6 +81,7 @@ export const CREATE_ASSET_MUTATION = gql`
     }
   }
 `;
+
 export const CREATE_ASSET_FROM_UPLOAD_MUTATION = gql`
   mutation (
     $title: String
@@ -95,6 +102,7 @@ export const CREATE_ASSET_FROM_UPLOAD_MUTATION = gql`
     }
   }
 `;
+
 export const UPDATE_ASSET_MUTATION = gql`
   mutation (
     $id: String!
@@ -116,11 +124,36 @@ export const UPDATE_ASSET_MUTATION = gql`
     }
   }
 `;
+
 export const RECREATE_ASSET_MUTATION = gql`
   mutation ($id: String!) {
     RecreateAsset(recreateAssetInputDto: { _id: $id }) {
       _id
       title
     }
+  }
+`;
+
+export const REPROCESS_ASSET_MUTATION = gql`
+  mutation ($id: String!) {
+    ReprocessAsset(reprocessAssetInputDto: { _id: $id }) {
+      _id
+      title
+    }
+  }
+`;
+
+export const GET_ASSET_MASTER_PLAYLIST_SIGNED_URL = gql`
+  query ($id: String!) {
+    GetAssetMasterPlaylistSignedUrl(_id: $id) {
+      main_playlist_url
+      resolutions_token
+    }
+  }
+`;
+
+export const GET_FILE_URL = gql`
+  query ($id: String!) {
+    GetFileUrl(id: $id)
   }
 `;

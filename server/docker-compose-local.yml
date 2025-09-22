@@ -146,7 +146,7 @@ services:
       - BULL_PROCESS_VIDEO_JOB_QUEUE=$BULL_360P_PROCESS_VIDEO_JOB_QUEUE
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpuset: "0-1"
+    cpuset: "0-3"
     deploy:
       restart_policy:
         condition: on-failure

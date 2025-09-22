@@ -40,10 +40,10 @@ const Navbar = () => {
           </div>
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <Link className="flex flex-shrink-0 items-center gap-2" href="/">
-              <svg 
-                className="h-8 w-auto text-indigo-500" 
-                viewBox="0 0 24 24" 
-                fill="currentColor" 
+              <svg
+                className="h-8 w-auto text-indigo-500"
+                viewBox="0 0 24 24"
+                fill="currentColor"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path d="M4 8H2V4C2 3.46957 2.21071 2.96086 2.58579 2.58579C2.96086 2.21071 3.46957 2 4 2H8V4H4V8Z" />

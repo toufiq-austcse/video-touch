@@ -15,6 +15,12 @@ import { HeightWidthMap } from '@/src/api/assets/models/file.model';
 import { FileDocument } from '@/src/api/assets/schemas/files.schema';
 import { UserDocument } from '@/src/api/auth/schemas/user.schema';
 import { CleanupService } from '@/src/api/assets/services/cleanup.service';
+import { S3ClientService } from '@/src/common/aws/s3/s3-client.service';
+import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
+import { SignedUrlGeneratorService } from '@/src/api/assets/services/signed-url-generator.service';
+import { WebhookService } from '../../webhook/services/webhook.service';
+import { getDownloadFileName, getSourceFileName } from '@/src/common/utils';
+import { UrlValidatorService } from './url-validator.service';
 
 @Injectable()
 export class AssetService {
@@ -22,7 +28,11 @@ export class AssetService {
     private repository: AssetRepository,
     private fileRepository: FileRepository,
     private jobManagerService: JobManagerService,
-    private cleanUpService: CleanupService
+    private cleanUpService: CleanupService,
+    private s3ClientService: S3ClientService,
+    private signedUrlGeneratorService: SignedUrlGeneratorService,
+    private webhookService: WebhookService,
+    private urlValidatorService: UrlValidatorService
   ) {}
 
   async create(createVideoInput: CreateAssetInputDto, userDocument: UserDocument) {
@@ -40,6 +50,7 @@ export class AssetService {
       listVideoInputDto.first,
       listVideoInputDto.after,
       listVideoInputDto.before,
+      listVideoInputDto.search,
       user
     );
   }
@@ -128,6 +139,10 @@ export class AssetService {
       _id: mongoose.Types.ObjectId(oldDoc._id.toString()),
     });
 
+    this.webhookService.publishEvent(updatedAsset).catch((err) => {
+      console.log('error while publishing webhook event ', err);
+    });
+
     if (updatedAsset.latest_status === Constants.VIDEO_STATUS.FAILED) {
       this.cleanUpService.deleteLocalAssetFile(updatedAsset._id.toString());
     }
@@ -152,7 +167,7 @@ export class AssetService {
     }
     if (updatedAsset.latest_status === Constants.VIDEO_STATUS.VALIDATED) {
       let heightWidthMapByHeight = this.jobManagerService.getAllHeightWidthMapByHeight(updatedAsset.height);
-      await this.insertManifestFilesData(updatedAsset._id.toString(), heightWidthMapByHeight);
+      let manifestFiles = await this.insertManifestFilesData(updatedAsset._id.toString(), heightWidthMapByHeight);
       await this.createThumbnailFile(updatedAsset._id.toString(), updatedAsset.height, updatedAsset.width);
       await this.createSourceFile(
         updatedAsset._id.toString(),
@@ -160,7 +175,39 @@ export class AssetService {
         updatedAsset.width,
         updatedAsset.size
       );
+      await this.createDownloadedFile(updatedAsset._id.toString(), manifestFiles);
       await this.updateAssetStatus(updatedAsset._id.toString(), Constants.VIDEO_STATUS.PROCESSING, 'Video processing');
+    }
+    if (updatedAsset.latest_status === Constants.VIDEO_STATUS.RE_PROCESSING) {
+      console.log('reprocessing asset');
+      try {
+        await this.fileRepository.deleteMany({
+          asset_id: updatedAsset._id,
+        });
+
+        let job = await this.jobManagerService.pushDownloadVideoJob(updatedAsset);
+        console.log('pushed download assets job', job.id);
+        await this.updateAssetStatus(
+          updatedAsset._id.toString(),
+          Constants.VIDEO_STATUS.DOWNLOADING,
+          'Downloading assets'
+        );
+        await this.repository.findOneAndUpdate(
+          {
+            _id: mongoose.Types.ObjectId(updatedAsset._id.toString()),
+          },
+          {
+            job_id: job.id,
+          }
+        );
+      } catch (e) {
+        console.log('error pushing download assets job', e);
+        await this.updateAssetStatus(
+          updatedAsset._id.toString(),
+          Constants.VIDEO_STATUS.FAILED,
+          `Error pushing download job. ${e.toString()}`
+        );
+      }
     }
   }
 
@@ -266,7 +313,7 @@ export class AssetService {
   }
 
   async createSourceFile(assetId: string, height: number, width: number, size: number) {
-    let sourceFileName = 'download.mp4';
+    let sourceFileName = getSourceFileName();
     let fileToBeSaved = FileMapper.mapForSave(
       assetId,
       sourceFileName,
@@ -278,5 +325,91 @@ export class AssetService {
       size
     );
     return this.fileRepository.create(fileToBeSaved);
+  }
+
+  async createDownloadedFile(assetId: string, files: FileDocument[]) {
+    if (!files || files.length === 0) {
+      return null;
+    }
+    //find the larges resolution file
+    let largestFile = files.sort((a, b) => b.height - a.height)[0];
+    let name = getDownloadFileName();
+    let fileToBeSaved = FileMapper.mapForSave(
+      assetId,
+      name,
+      Constants.FILE_TYPE.DOWNLOAD,
+      largestFile.height,
+      largestFile.width,
+      Constants.FILE_STATUS.QUEUED,
+      'Download file queued for processing',
+      0
+    );
+    return this.fileRepository.create(fileToBeSaved);
+  }
+
+  async getMasterPlaylistSignedUrl(asset: AssetDocument): Promise<{
+    main_playlist_url: string;
+    resolutions_token: Record<string, string>;
+  }> {
+    let resolutionsToken: Record<string, string> = {};
+    // Get the path for the master playlist
+    let s3AssetPath = Utils.getS3ManifestPath(asset._id.toString()).replace('main.m3u8', '');
+    let paths = await this.s3ClientService.getAllDirectories(
+      s3AssetPath,
+      AppConfigService.appConfig.AWS_S3_BUCKET_NAME
+    );
+    console.log('s3AssetPath ', s3AssetPath, ' paths ', paths);
+
+    // Generate token for the main playlist
+    const { token, expires } = this.signedUrlGeneratorService.generateSecureUrl(s3AssetPath, 3600);
+
+    // Construct the full URL for the main playlist
+    let mainPlaylistToken = '';
+    if (asset.master_file_name.includes('?v')) {
+      mainPlaylistToken = `v=${asset.master_file_name.split('?v=')[1]}&md5=${token}&expires=${expires}`;
+    } else {
+      mainPlaylistToken = `md5=${token}&expires=${expires}`;
+    }
+
+    // Generate tokens for each resolution path
+    for (let path of paths) {
+      let resolutionPath = `${s3AssetPath}${path}`;
+
+      const { token, expires } = this.signedUrlGeneratorService.generateSecureUrl(`/${resolutionPath}`, 3600);
+
+      // Construct the full URL for each resolution path
+      resolutionsToken[`/${resolutionPath}`] = `md5=${token}&expires=${expires}`;
+    }
+
+    return {
+      main_playlist_url: `${Utils.getMasterPlaylistUrl(
+        asset._id.toString(),
+        AppConfigService.appConfig.CDN_BASE_URL
+      )}?${mainPlaylistToken}`,
+      resolutions_token: resolutionsToken,
+    };
+  }
+
+  async reprocessAsset(currentAsset: AssetDocument, sourceFileUrl: string) {
+    return this.updateAssetStatus(
+      currentAsset._id.toString(),
+      Constants.VIDEO_STATUS.RE_PROCESSING,
+      'Re-processing Initiated'
+    );
+  }
+
+  async getSourceFileUrlToReprocess(asset: AssetDocument, sourceFile: FileDocument): Promise<string> {
+    if (sourceFile) {
+      let sourceFilePath = Utils.getS3SourceFileVideoPath(asset._id.toString(), getSourceFileName());
+      return this.s3ClientService.generateSignedUrlToGetObject(
+        AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
+        sourceFilePath
+      );
+    }
+    if (asset.source_url) {
+      let isSourceUrlValid = await this.urlValidatorService.checkUrlValidity(asset.source_url);
+      return isSourceUrlValid ? asset.source_url : null;
+    }
+    return null;
   }
 }

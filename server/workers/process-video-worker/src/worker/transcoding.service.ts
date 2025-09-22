@@ -13,6 +13,13 @@ export class TranscodingService {
     return terminal(command);
   }
 
+  async createMp4FromM3u8(masterPlaylistPath: string, outputPath: string) {
+    // Using ffmpeg to convert local HLS stream to MP4
+    const command = `ffmpeg -y -i ${masterPlaylistPath} -c copy ${outputPath}`;
+    console.log('starting local m3u8 to mp4 conversion....');
+    return terminal(command);
+  }
+
   async transcodeVideoByResolution(videoId: string, height: number, width: number) {
     let result = null;
     try {
@@ -23,6 +30,20 @@ export class TranscodingService {
         AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
       );
       result = await this.transcodeVideo(inputFilePath, outputFolderPath, height, width);
+    } catch (e: any) {
+      throw new Error(e);
+    }
+
+    return result;
+  }
+
+  async createMp4FromM3u8ByResolution(videoId: string, height: number, name: string) {
+    let result = null;
+    try {
+      let masterPlaylistPath = `${Utils.getLocalResolutionPath(videoId, height, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY)}/${height}_out.m3u8`;
+      let outputPath =
+        Utils.getLocalVideoRootPath(videoId, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY) + `/${name}`;
+      result = await this.createMp4FromM3u8(masterPlaylistPath, outputPath);
     } catch (e: any) {
       throw new Error(e);
     }

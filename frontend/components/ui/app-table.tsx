@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -27,6 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Input } from "./input";
 
 const AppTable = <T,>({
   data,
@@ -36,6 +37,7 @@ const AppTable = <T,>({
   totalPageCount,
   next,
   prev,
+  onSearchEnter,
 }: {
   data: T[];
   columns: ColumnDef<T, any>[];
@@ -44,6 +46,7 @@ const AppTable = <T,>({
   totalPageCount: number;
   next: () => void;
   prev: () => void;
+  onSearchEnter?: (query: string) => void;
 }) => {
   console.log("pageIndex", pageIndex);
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -74,18 +77,49 @@ const AppTable = <T,>({
     },
   });
 
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [isSearchActive, setIsSearchActive] = React.useState(false);
+
+  const handleSearchKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === "Enter") {
+      const query = searchQuery.trim();
+      onSearchEnter?.(query);
+      setIsSearchActive(Boolean(query));
+    }
+  };
+
   return (
     <div>
       <div className="w-full">
-        <div className="flex items-center py-4">
-          {/*<Input*/}
-          {/*  placeholder="Filter emails..."*/}
-          {/*  value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}*/}
-          {/*  onChange={(event) =>*/}
-          {/*    table.getColumn('email')?.setFilterValue(event.target.value)*/}
-          {/*  }*/}
-          {/*  className="max-w-sm"*/}
-          {/*/>*/}
+        <div className="flex items-center gap-2 py-4">
+          <Input
+            placeholder="Search with title or asset id ..."
+            value={searchQuery}
+            onChange={(event) => {
+              const value = event.target.value;
+              setSearchQuery(value);
+            }}
+            onKeyDown={handleSearchKeyDown}
+            className="max-w-sm"
+          />
+          {isSearchActive && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSearchQuery("");
+                setIsSearchActive(false);
+                onSearchEnter?.("");
+              }}
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4 mr-1" />
+              Reset
+            </Button>
+          )}
         </div>
         <div className="rounded-md border">
           <Table>

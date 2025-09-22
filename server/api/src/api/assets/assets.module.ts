@@ -31,10 +31,16 @@ import { BullBoardModule } from '@bull-board/nestjs';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { CronjobController } from '@/src/api/assets/controllers/cronjob.controller';
 import { JobVerificationService } from '@/src/api/assets/services/job-verification.service';
+import { SignedUrlGeneratorService } from '@/src/api/assets/services/signed-url-generator.service';
+import { WebhookModule } from '../webhook/webhook.module';
+import { UrlValidatorService } from './services/url-validator.service';
+import { HttpModule } from '@nestjs/axios';
+import { FileResolver } from './resolvers/file.resolver';
 
 @Module({
   imports: [
     AuthModule,
+    HttpModule,
     BullModule.registerQueueAsync(
       {
         name: 'process_video_360p',
@@ -126,6 +132,17 @@ import { JobVerificationService } from '@/src/api/assets/services/job-verificati
             removeOnFail: true,
           },
         }),
+      },
+      {
+        name: 'download-file-generation',
+        inject: [AppConfigService],
+        useFactory: () => ({
+          name: AppConfigService.appConfig.BULL_DOWNLOAD_FILE_GENERATION_JOB_QUEUE,
+          defaultJobOptions: {
+            removeOnComplete: true,
+            removeOnFail: true,
+          },
+        }),
       }
     ),
     BullBoardModule.forFeature({
@@ -162,6 +179,10 @@ import { JobVerificationService } from '@/src/api/assets/services/job-verificati
     }),
     BullBoardModule.forFeature({
       name: 'upload-video',
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: 'download-file-generation',
       adapter: BullMQAdapter,
     }),
     MongooseModule.forFeatureAsync([
@@ -244,6 +265,7 @@ import { JobVerificationService } from '@/src/api/assets/services/job-verificati
         signOptions: { expiresIn: '1h' },
       }),
     }),
+    WebhookModule,
   ],
   controllers: [UploadController, AssetController, CronjobController],
   providers: [
@@ -252,6 +274,7 @@ import { JobVerificationService } from '@/src/api/assets/services/job-verificati
     AssetService,
     AssetResolver,
     AssetFilesResolver,
+    FileResolver,
     AssetMapper,
     VideoDownloadService,
     FileService,
@@ -264,6 +287,8 @@ import { JobVerificationService } from '@/src/api/assets/services/job-verificati
     FilesByAssetLoader,
     CleanupService,
     JobVerificationService,
+    SignedUrlGeneratorService,
+    UrlValidatorService,
   ],
 })
 export class AssetsModule {}

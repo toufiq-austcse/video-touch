@@ -32,3 +32,9 @@ export interface StatusLog {
   details: string;
   created_at: Date;
 }
+
+export interface PlaylistSignedUrlResponse {
+  main_playlist_url: string;
+  resolutions_token: Record<string, string>;
+  __typename?: string;
+}

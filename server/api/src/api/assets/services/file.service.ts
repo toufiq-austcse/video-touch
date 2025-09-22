@@ -1,23 +1,20 @@
-import { Injectable } from '@nestjs/common';
-import { Constants, Utils } from 'video-touch-common';
 import { FileRepository } from '@/src/api/assets/repositories/file.repository';
-import mongoose from 'mongoose';
+import { AssetDocument } from '@/src/api/assets/schemas/assets.schema';
 import { FileDocument } from '@/src/api/assets/schemas/files.schema';
 import { AssetService } from '@/src/api/assets/services/asset.service';
-import { AssetDocument } from '@/src/api/assets/schemas/assets.schema';
-import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
-import fs from 'fs';
 import { JobManagerService } from '@/src/api/assets/services/job-manager.service';
-import { FILE_STATUS } from 'video-touch-common/dist/constants';
-import { S3ClientService } from '@/src/common/aws/s3/s3-client.service';
+import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
+import { Injectable } from '@nestjs/common';
+import fs from 'fs';
+import mongoose from 'mongoose';
+import { Constants, Utils } from 'video-touch-common';
 
 @Injectable()
 export class FileService {
   constructor(
     private repository: FileRepository,
     private assetService: AssetService,
-    private jobManagerService: JobManagerService,
-    private s3ClientService: S3ClientService
+    private jobManagerService: JobManagerService
   ) {}
 
   async updateFileStatus(fileId: string, status: string, details: string, size?: number) {
@@ -61,22 +58,12 @@ export class FileService {
       return;
     }
     let assetId = updatedFile.asset_id;
-    if (
-      updatedFile.latest_status === Constants.FILE_STATUS.READY ||
-      updatedFile.latest_status === Constants.FILE_STATUS.FAILED
-    ) {
-      console.log('file status is ready or failed, deleting local file');
-      this.deleteLocalFile(assetId.toString(), updatedFile.height.toString());
-    }
 
     if (updatedFile.latest_status == Constants.FILE_STATUS.READY) {
-      this.assetService
-        .checkForDeleteLocalAssetFile(assetId.toString())
-        .then((data) => {
-          console.log('checked local video file');
-        })
+      this.checkDownloadFileGeneration(updatedFile)
+        .then()
         .catch((err) => {
-          console.log('error while checking local file ', err);
+          console.log('error while checking download file generation', err);
         });
 
       this.assetService
@@ -96,6 +83,7 @@ export class FileService {
           console.log('error while updating master file version', err);
         });
     }
+
     if (updatedFile.latest_status === Constants.FILE_STATUS.FAILED) {
       this.assetService
         .checkForAssetFailedStatus(assetId.toString())
@@ -103,6 +91,39 @@ export class FileService {
         .catch((err) => {
           console.log('error while checking asset failed status', err);
         });
+    }
+  }
+
+  async checkDownloadFileGeneration(updatedFile: FileDocument) {
+    let downloadTypeFile = await this.getFileByType(
+      updatedFile.asset_id.toString(),
+      Constants.FILE_TYPE.DOWNLOAD,
+      Constants.FILE_STATUS.QUEUED
+    );
+    if (!downloadTypeFile) {
+      console.log('No download type file found, skipping download file generation');
+      return;
+    }
+    if (downloadTypeFile.height !== updatedFile.height) {
+      console.log('Download file height does not match updated file height, skipping download file generation');
+      return;
+    }
+    return this.initDownloadFileGeneration(downloadTypeFile);
+  }
+
+  async initDownloadFileGeneration(downloadFile: FileDocument) {
+    console.log('Download file found, proceeding with download file generation');
+    let jobData = await this.jobManagerService.publishDownloadFileGenerationJob(downloadFile);
+    console.log('job published for download file ', jobData);
+    if (jobData) {
+      await this.repository.findOneAndUpdate(
+        {
+          _id: downloadFile._id,
+        },
+        {
+          job_id: jobData.id,
+        }
+      );
     }
   }
 
@@ -187,30 +208,11 @@ export class FileService {
     }
   }
 
-  async getFileByType(
-    assetId: string,
-    type: string,
-    status: string = Constants.FILE_STATUS.READY
-  ): Promise<FileDocument | null> {
+  async getFileByType(assetId: string, type: string, status: string): Promise<FileDocument | null> {
     return this.repository.findOne({
       asset_id: mongoose.Types.ObjectId(assetId),
       type: type,
       latest_status: status,
     });
-  }
-
-  async getSourceFileUrlToReProcess(currentAsset: AssetDocument): Promise<string> {
-    let sourceFileUrl = currentAsset.source_url;
-
-    let sourceFile = await this.getFileByType(
-      currentAsset._id.toString(),
-      Constants.FILE_TYPE.SOURCE,
-      FILE_STATUS.READY
-    );
-    if (!sourceFile) {
-      return sourceFileUrl;
-    }
-    let path = Utils.getS3SourceFileVideoPath(currentAsset._id.toString(), sourceFile.name);
-    return this.s3ClientService.generateSignedUrlToGetObject(AppConfigService.appConfig.AWS_S3_BUCKET_NAME, path);
   }
 }

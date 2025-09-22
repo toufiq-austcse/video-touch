@@ -3,6 +3,12 @@ services:
   redis:
     image: redis:latest
     container_name: redis
+    command: >
+      redis-server 
+      --replicaof no one
+      --maxmemory-policy noeviction
+      --appendonly yes
+      --appendfsync everysec
     ports:
       - 6379:6379
     volumes:
@@ -13,31 +19,14 @@ services:
         delay: 5s
         max_attempts: 3
 
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    healthcheck:
-      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
-      interval: 5s
-      timeout: 15s
-      retries: 10
-    ports:
-      - 5672:5672
-      - 15672:15672
-    volumes:
-      - .docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
-      - .docker-conf/rabbitmq/log/:/var/log/rabbitmq
-    environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=admin
-
   video-touch-api:
-    image: 578965/video-touch-api
+    build:
+      context: api
+      dockerfile: Dockerfile
     container_name: video-touch-api
-    env_file: .env
     depends_on:
       - redis
-      - rabbitmq
+    env_file: .env
     environment:
       - PORT=$API_PORT
     ports:
@@ -52,12 +41,13 @@ services:
         max_attempts: 3
 
   download-video-worker:
-    image: 578965/download-video-worker
+    build:
+      context: workers/download-video-worker
+      dockerfile: Dockerfile
     container_name: download-video-worker
     env_file: .env
     depends_on:
       - video-touch-api
-      - rabbitmq
       - redis
     environment:
       - DOWNLOAD_VIDEO_WORKER_PORT=$DOWNLOAD_VIDEO_WORKER_PORT
@@ -69,12 +59,13 @@ services:
         delay: 5s
         max_attempts: 3
   validate-video-worker:
-    image: 578965/validate-video-worker
+    build:
+      context: workers/validate-video-worker
+      dockerfile: Dockerfile
     container_name: validate-video-worker
     env_file: .env
     depends_on:
       - video-touch-api
-      - rabbitmq
       - redis
     environment:
       - VALIDATE_VIDEO_WORKER_PORT=$VALIDATE_VIDEO_WORKER_PORT
@@ -87,12 +78,13 @@ services:
         max_attempts: 3
 
   thumbnail-generation-worker:
-    image: 578965/thumbnail-generation-worker
+    build:
+      context: workers/thumbnail-generation-worker
+      dockerfile: Dockerfile
     container_name: thumbnail-generation-worker
     env_file: .env
     depends_on:
       - video-touch-api
-      - rabbitmq
       - redis
     environment:
       - THUMBNAIL_WORKER_PORT=$THUMBNAIL_WORKER_PORT
@@ -105,19 +97,20 @@ services:
         max_attempts: 3
 
   process-video-worker-360p:
-    image: 578965/process-video-worker
+    build:
+      context: workers/process-video-worker
+      dockerfile: Dockerfile
     container_name: process-video-worker-360p
     env_file: .env
     depends_on:
       - video-touch-api
-      - rabbitmq
       - redis
     environment:
       - PROCESS_VIDEO_WORKER_PORT=$PROCESS_VIDEO_WORKER_PORT
       - BULL_PROCESS_VIDEO_JOB_QUEUE=$BULL_360P_PROCESS_VIDEO_JOB_QUEUE
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpuset: "0-1"
+    cpuset: "0-3"
     deploy:
       restart_policy:
         condition: on-failure
@@ -126,75 +119,77 @@ services:
 
 
   process-video-worker-480p:
-    image: 578965/process-video-worker
+    build:
+      context: workers/process-video-worker
+      dockerfile: Dockerfile
     container_name: process-video-worker-480p
     env_file: .env
     depends_on:
       - video-touch-api
-      - rabbitmq
       - redis
     environment:
       - PROCESS_VIDEO_WORKER_PORT=$PROCESS_VIDEO_WORKER_PORT
       - BULL_PROCESS_VIDEO_JOB_QUEUE=$BULL_480P_PROCESS_VIDEO_JOB_QUEUE
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpuset: "2-3"
+    cpuset: "4-7"
     deploy:
       restart_policy:
         condition: on-failure
         delay: 5s
         max_attempts: 3
-
-
-
-  process-video-worker-540p:
-    image: 578965/process-video-worker
-    container_name: process-video-worker-540p
-    env_file: .env
-    depends_on:
-      - video-touch-api
-      - rabbitmq
-      - redis
-    environment:
-      - PROCESS_VIDEO_WORKER_PORT=$PROCESS_VIDEO_WORKER_PORT
-      - BULL_PROCESS_VIDEO_JOB_QUEUE=$BULL_540P_PROCESS_VIDEO_JOB_QUEUE
-    volumes:
-      - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpuset: "4-5"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-
 
   process-video-worker-720p:
-    image: 578965/process-video-worker
+    build:
+      context: workers/process-video-worker
+      dockerfile: Dockerfile
     container_name: process-video-worker-720p
     env_file: .env
     depends_on:
       - video-touch-api
-      - rabbitmq
       - redis
     environment:
       - PROCESS_VIDEO_WORKER_PORT=$PROCESS_VIDEO_WORKER_PORT
       - BULL_PROCESS_VIDEO_JOB_QUEUE=$BULL_720P_PROCESS_VIDEO_JOB_QUEUE
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    cpuset: "6-7"
+    cpuset: "8-11"
     deploy:
       restart_policy:
         condition: on-failure
         delay: 5s
         max_attempts: 3
 
+  process-video-worker-1080p:
+    build:
+      context: workers/process-video-worker
+      dockerfile: Dockerfile
+    container_name: process-video-worker-1080p
+    env_file: .env
+    depends_on:
+      - video-touch-api
+      - redis
+    environment:
+      - PROCESS_VIDEO_WORKER_PORT=$PROCESS_VIDEO_WORKER_PORT
+      - BULL_PROCESS_VIDEO_JOB_QUEUE=$BULL_1080P_PROCESS_VIDEO_JOB_QUEUE
+    volumes:
+      - ./temp_videos:$TEMP_VIDEO_DIRECTORY
+    cpuset: "12-15"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+
+
   upload-video-worker:
-    image: 578965/upload-video-worker
+    build:
+      context: workers/upload-video-worker
+      dockerfile: Dockerfile
     container_name: upload-video-worker
     env_file: .env
     depends_on:
       - video-touch-api
-      - rabbitmq
       - redis
     environment:
       - UPLOAD_VIDEO_WORKER_PORT=$UPLOAD_VIDEO_WORKER_PORT
