@@ -13,18 +13,32 @@ export class UrlValidatorService {
    */
   async checkUrlValidity(url: string): Promise<boolean> {
     try {
-      // Make HTTP request to check if URL is accessible
+      // Use HEAD request to check URL validity without downloading content
       const response = await firstValueFrom(
-        this.httpService.get(url, {
-          timeout: 10000,
+        this.httpService.head(url, {
+          timeout: 10000, // Increased timeout to 30 seconds
+          maxRedirects: 5, // Allow redirects
         })
       );
 
-      // Return true only if status is 200 (OK)
-      return response.status === HttpStatus.OK;
+      // Return true for successful status codes (2xx range)
+      return response.status >= 200 && response.status < 300;
     } catch (error) {
-      // If any error occurs (network error, timeout, invalid URL, etc.), return false
-      return false;
+      // Fallback to GET request with range header if HEAD fails
+      try {
+        const response = await firstValueFrom(
+          this.httpService.get(url, {
+            timeout: 130000,
+            headers: {
+              Range: 'bytes=0-0', // Request only first byte
+            },
+          })
+        );
+
+        return (response.status >= 200 && response.status < 300) || response.status === 206; // 206 for partial content
+      } catch (fallbackError) {
+        return false;
+      }
     }
   }
 }
