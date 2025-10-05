@@ -1,66 +1,15 @@
 version: "3.7"
 services:
-  mongodb:
-    image: mongo:latest
-    container_name: mongodb
-    ports:
-      - 27017:27017
-    volumes:
-      - .docker-conf/mongodb/data:/data/db
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-  redis:
-    image: redis:latest
-    container_name: redis
-    restart: always
-    command: >
-      redis-server 
-      --replicaof no one
-      --maxmemory-policy noeviction
-      --appendonly yes
-      --appendfsync everysec
-    ports:
-      - 6379:6379
-    volumes:
-      - .docker-conf/redis/data:/data
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    healthcheck:
-      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
-      interval: 5s
-      timeout: 15s
-      retries: 10
-    ports:
-      - 5672:5672
-      - 15672:15672
-    volumes:
-      - .docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
-      - .docker-conf/rabbitmq/log/:/var/log/rabbitmq
-    environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=admin
-
   video-touch-api:
     build:
       context: api
       dockerfile: Dockerfile
     container_name: video-touch-api
     env_file: .env
-    depends_on:
-      - redis
-      - rabbitmq
     environment:
       - PORT=$API_PORT
+      - REDIS_HOST=redis
+      - RABBIT_MQ_URL=amqp://admin:admin@rabbitmq:5672
     ports:
       - $API_PORT:$API_PORT
     volumes:
@@ -80,10 +29,10 @@ services:
     env_file: .env
     depends_on:
       - video-touch-api
-      - rabbitmq
-      - redis
     environment:
       - DOWNLOAD_VIDEO_WORKER_PORT=$DOWNLOAD_VIDEO_WORKER_PORT
+      - REDIS_HOST=redis
+      - RABBIT_MQ_URL=amqp://admin:admin@rabbitmq:5672
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
     deploy:
@@ -99,10 +48,10 @@ services:
     env_file: .env
     depends_on:
       - video-touch-api
-      - rabbitmq
-      - redis
     environment:
       - VALIDATE_VIDEO_WORKER_PORT=$VALIDATE_VIDEO_WORKER_PORT
+      - REDIS_HOST=redis
+      - RABBIT_MQ_URL=amqp://admin:admin@rabbitmq:5672
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
     deploy:
@@ -119,10 +68,10 @@ services:
     env_file: .env
     depends_on:
       - video-touch-api
-      - rabbitmq
-      - redis
     environment:
       - THUMBNAIL_WORKER_PORT=$THUMBNAIL_WORKER_PORT
+      - REDIS_HOST=redis
+      - RABBIT_MQ_URL=amqp://admin:admin@rabbitmq:5672
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
     deploy:
@@ -139,11 +88,11 @@ services:
     env_file: .env
     depends_on:
       - video-touch-api
-      - rabbitmq
-      - redis
     environment:
       - PROCESS_VIDEO_WORKER_PORT=$PROCESS_VIDEO_WORKER_PORT
       - BULL_PROCESS_VIDEO_JOB_QUEUE=$BULL_360P_PROCESS_VIDEO_JOB_QUEUE
+      - REDIS_HOST=redis
+      - RABBIT_MQ_URL=amqp://admin:admin@rabbitmq:5672
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
     cpuset: "0-3"
@@ -162,10 +111,10 @@ services:
     env_file: .env
     depends_on:
       - video-touch-api
-      - rabbitmq
-      - redis
     environment:
       - UPLOAD_VIDEO_WORKER_PORT=$UPLOAD_VIDEO_WORKER_PORT
+      - REDIS_HOST=redis
+      - RABBIT_MQ_URL=amqp://admin:admin@rabbitmq:5672
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
     deploy:

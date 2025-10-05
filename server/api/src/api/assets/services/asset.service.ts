@@ -176,6 +176,7 @@ export class AssetService {
         updatedAsset.size
       );
       await this.createDownloadedFile(updatedAsset._id.toString(), manifestFiles);
+      await this.createAudioFile(updatedAsset._id.toString());
       await this.updateAssetStatus(updatedAsset._id.toString(), Constants.VIDEO_STATUS.PROCESSING, 'Video processing');
     }
     if (updatedAsset.latest_status === Constants.VIDEO_STATUS.RE_PROCESSING) {
@@ -342,6 +343,21 @@ export class AssetService {
       largestFile.width,
       Constants.FILE_STATUS.QUEUED,
       'Download file queued for processing',
+      0
+    );
+    return this.fileRepository.create(fileToBeSaved);
+  }
+
+  async createAudioFile(assetId: string) {
+    let name = 'audio.mp3';
+    let fileToBeSaved = FileMapper.mapForSave(
+      assetId,
+      name,
+      'AUDIO',
+      0,
+      0,
+      Constants.FILE_STATUS.QUEUED,
+      'Audio file queued for processing',
       0
     );
     return this.fileRepository.create(fileToBeSaved);

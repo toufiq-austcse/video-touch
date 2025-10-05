@@ -22,7 +22,8 @@ export class JobManagerService {
     @InjectQueue('upload-video') private videoUploadQueue: Queue,
     @InjectQueue('validate-video') private validateVideoQueue: Queue,
     @InjectQueue('download-video') private downloadVideoQueue: Queue,
-    @InjectQueue('download-file-generation') private downloadFileGenerationQueue: Queue
+    @InjectQueue('download-file-generation') private downloadFileGenerationQueue: Queue,
+    @InjectQueue('extract-audio') private audioExtractionQueue: Queue
   ) {}
 
   async getThumbnailJobByJobId(jobId: string): Promise<Models.ThumbnailGenerationJobModel | null> {
@@ -266,7 +267,7 @@ export class JobManagerService {
   }
 
   async pushDownloadVideoJob(videoDocument: AssetDocument) {
-    let downloadVideoJob = await this.buildDownloadVideoJob(videoDocument);
+    let downloadVideoJob = this.buildDownloadVideoJob(videoDocument);
     console.log('push download video job to ', AppConfigService.appConfig.BULL_DOWNLOAD_JOB_QUEUE);
     return this.downloadVideoQueue.add(AppConfigService.appConfig.BULL_DOWNLOAD_JOB_QUEUE, downloadVideoJob, {
       jobId: uuidv4(),
@@ -282,5 +283,25 @@ export class JobManagerService {
     return {
       asset_id: assetId,
     };
+  }
+
+  async publishAudioFileGenerationJob(audioFile: FileDocument) {
+    let audioFileGenerationJob: Models.AudioExtractionJobModel = {
+      asset_id: audioFile.asset_id.toString(),
+      file_id: audioFile._id.toString(),
+      name: audioFile.name,
+    };
+    return this.audioExtractionQueue.add(
+      AppConfigService.appConfig.BULL_AUDIO_EXTRACTION_JOB_QUEUE,
+      audioFileGenerationJob,
+      {
+        jobId: uuidv4(),
+        attempts: AppConfigService.appConfig.RETRY_JOB_ATTEMPT_COUNT,
+        backoff: {
+          type: 'fixed',
+          delay: minutesToMilliseconds(AppConfigService.appConfig.RETRY_JOB_BACKOFF_IN_MINUTE),
+        },
+      }
+    );
   }
 }

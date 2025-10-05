@@ -74,6 +74,7 @@ export class AppConfigService {
       BULL_DOWNLOAD_FILE_GENERATION_JOB_QUEUE: this.configService.getOrThrow('BULL_DOWNLOAD_FILE_GENERATION_JOB_QUEUE'),
       WEBHOOK_URL: this.configService.getOrThrow('WEBHOOK_URL'),
       WEBHOOK_TOKEN: this.configService.getOrThrow('WEBHOOK_TOKEN'),
+      BULL_AUDIO_EXTRACTION_JOB_QUEUE: this.configService.getOrThrow('BULL_AUDIO_EXTRACTION_JOB_QUEUE'),
     };
   }
 }

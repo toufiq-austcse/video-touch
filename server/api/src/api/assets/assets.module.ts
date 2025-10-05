@@ -143,6 +143,17 @@ import { FileResolver } from './resolvers/file.resolver';
             removeOnFail: true,
           },
         }),
+      },
+      {
+        name: 'extract-audio',
+        inject: [AppConfigService],
+        useFactory: () => ({
+          name: AppConfigService.appConfig.BULL_AUDIO_EXTRACTION_JOB_QUEUE,
+          defaultJobOptions: {
+            removeOnComplete: true,
+            removeOnFail: true,
+          },
+        }),
       }
     ),
     BullBoardModule.forFeature({
@@ -183,6 +194,10 @@ import { FileResolver } from './resolvers/file.resolver';
     }),
     BullBoardModule.forFeature({
       name: 'download-file-generation',
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: 'extract-audio',
       adapter: BullMQAdapter,
     }),
     MongooseModule.forFeatureAsync([
