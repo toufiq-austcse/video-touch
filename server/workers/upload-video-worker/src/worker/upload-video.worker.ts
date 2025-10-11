@@ -26,7 +26,9 @@ export class VideoUploaderJobHandler extends WorkerHost {
     } else if (msg.type === Constants.FILE_TYPE.PLAYLIST) {
       return this.uploadManifestFiles(msg, isLastAttempt);
     } else if (msg.type === Constants.FILE_TYPE.DOWNLOAD) {
-      return this.uploadDownFile(msg, isLastAttempt);
+      return this.uploadDownloadFile(msg, isLastAttempt);
+    } else if (msg.type === Constants.FILE_TYPE.AUDIO) {
+      return this.uploadAudioFile(msg, isLastAttempt);
     }
     return;
   }
@@ -130,7 +132,7 @@ export class VideoUploaderJobHandler extends WorkerHost {
     }
   }
 
-  async uploadDownFile(msg: Models.VideoUploadJobModel, isLatAttempt: boolean) {
+  async uploadDownloadFile(msg: Models.VideoUploadJobModel, isLatAttempt: boolean) {
     try {
       let localFilePath = `${Utils.getLocalVideoRootPath(
         msg.asset_id.toString(),
@@ -145,7 +147,55 @@ export class VideoUploaderJobHandler extends WorkerHost {
       let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
       console.log(`source file uploaded:`, res);
 
-      this.publishUpdateFileStatusEvent(msg.file_id.toString(), 'Source file uploaded', 0, Constants.FILE_STATUS.READY);
+      let dirSize = await Utils.getDirSize(localFilePath);
+      console.log('dir size:', dirSize);
+
+      this.publishUpdateFileStatusEvent(
+        msg.file_id.toString(),
+        'Source file uploaded',
+        dirSize,
+        Constants.FILE_STATUS.READY,
+      );
+    } catch (err: any) {
+      console.log('error in uploading source file', err);
+
+      if (isLatAttempt) {
+        this.publishUpdateFileStatusEvent(
+          msg.file_id.toString(),
+          'Source file uploading failed',
+          0,
+          Constants.FILE_STATUS.FAILED,
+        );
+        return;
+      }
+      throw new Error(`Error in uploading source file: ${err.message}`);
+    }
+  }
+
+  async uploadAudioFile(msg: Models.VideoUploadJobModel, isLatAttempt: boolean) {
+    try {
+      let localFilePath = `${Utils.getLocalVideoRootPath(
+        msg.asset_id.toString(),
+        AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
+      )}/${msg.name}`;
+
+      let s3SourceFileVideoPath = Utils.getS3UriSourceFileVideoPath(
+        msg.asset_id.toString(),
+        msg.name,
+        AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
+      );
+      let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
+      console.log(`audio file uploaded:`, res);
+
+      let dirSize = await Utils.getDirSize(localFilePath);
+      console.log('dir size:', dirSize);
+
+      this.publishUpdateFileStatusEvent(
+        msg.file_id.toString(),
+        'Source file uploaded',
+        dirSize,
+        Constants.FILE_STATUS.READY,
+      );
     } catch (err: any) {
       console.log('error in uploading source file', err);
 

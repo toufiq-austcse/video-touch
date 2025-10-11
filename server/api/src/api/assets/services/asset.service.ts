@@ -21,6 +21,7 @@ import { SignedUrlGeneratorService } from '@/src/api/assets/services/signed-url-
 import { WebhookService } from '../../webhook/services/webhook.service';
 import { getDownloadFileName, getSourceFileName } from '@/src/common/utils';
 import { UrlValidatorService } from './url-validator.service';
+import { FILE_TYPE } from 'video-touch-common/dist/constants';
 
 @Injectable()
 export class AssetService {
@@ -353,7 +354,7 @@ export class AssetService {
     let fileToBeSaved = FileMapper.mapForSave(
       assetId,
       name,
-      'AUDIO',
+      FILE_TYPE.AUDIO,
       0,
       0,
       Constants.FILE_STATUS.QUEUED,
