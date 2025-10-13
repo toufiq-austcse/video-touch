@@ -1,6 +1,6 @@
 import { TranscodingService } from '@/src/worker/transcoding.service';
 import { ManifestService } from '@/src/worker/manifest.service';
-import { Constants, Models } from 'video-touch-common';
+import { Constants, Models, terminal } from 'video-touch-common';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { checkIsLastAttempt } from '@/src/common/utils';
@@ -73,5 +73,27 @@ export class ProcessVideoWorker extends WorkerHost {
       }
       throw new Error(`Error while processing video at ${height}p: ${e.message}`);
     }
+  }
+
+  async getMetadata(url: string): Promise<{
+    file_name: string;
+    size: number;
+    height: number;
+    width: number;
+    duration: number;
+  }> {
+    let extractMetaCommand = `ffprobe -v quiet -show_streams -show_format -print_format json ${url}`;
+    let showStreamCommandRes = await terminal(extractMetaCommand);
+    let parsedData = JSON.parse(showStreamCommandRes);
+    let videoInfo = parsedData.streams[0];
+    let format = parsedData.format;
+
+    return {
+      file_name: format.filename,
+      size: +format.size,
+      height: videoInfo.height,
+      width: videoInfo.width,
+      duration: +videoInfo.duration,
+    };
   }
 }

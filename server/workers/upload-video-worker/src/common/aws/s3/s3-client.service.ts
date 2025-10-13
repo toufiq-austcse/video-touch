@@ -5,13 +5,11 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
 import { UploadObjModel } from '@/src/common/aws/s3/models/upload-obj.model';
 import { Models, Utils } from 'video-touch-common';
 
-
 @Injectable()
 export class S3ClientService implements OnModuleInit {
   private s3: AWS.S3;
 
-  constructor() {
-  }
+  constructor() {}
 
   onModuleInit() {
     this.s3 = new AWS.S3({
@@ -19,8 +17,8 @@ export class S3ClientService implements OnModuleInit {
       secretAccessKey: AppConfigService.appConfig.AWS_SECRET_ACCESS_KEY,
       region: AppConfigService.appConfig.AWS_REGION,
       httpOptions: {
-        timeout: 0
-      }
+        timeout: 0,
+      },
     });
   }
 
@@ -32,7 +30,7 @@ export class S3ClientService implements OnModuleInit {
         Bucket: bucket,
         Key: key,
         Body: fs.createReadStream(filePath),
-        ContentType: contentType
+        ContentType: contentType,
       };
 
       let res = await this.s3.upload(params).promise();
@@ -51,12 +49,12 @@ export class S3ClientService implements OnModuleInit {
     });
   }
 
-  buildUploadObjModel(data: Models.VideoUploadJobModel, localFilePath: string): UploadObjModel {
+  buildUploadObjModel(data: Models.FileUploadJobModel, localFilePath: string): UploadObjModel {
     return {
       bucket: AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
       key: `video-touch/${data.asset_id}`,
       filePath: localFilePath,
-      contentType: 'video/mp4'
+      contentType: 'video/mp4',
     };
   }
 
@@ -67,7 +65,7 @@ export class S3ClientService implements OnModuleInit {
       bucket: AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
       key: s3ManifestPath,
       filePath: mainManifestPath,
-      contentType: 'application/vnd.apple.mpegurl'
+      contentType: 'application/vnd.apple.mpegurl',
     });
     console.log('manifest uploaded:', res);
     return res;
