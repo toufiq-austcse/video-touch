@@ -14,8 +14,8 @@ export class UploadService {
       height: height,
       width: width,
       type: type,
-      name: name,
       size: 0,
+      name: name,
     };
     return this.uploadQueue.add('sadi', jobModel);
   }

@@ -21,6 +21,7 @@ import { SignedUrlGeneratorService } from '@/src/api/assets/services/signed-url-
 import { WebhookService } from '../../webhook/services/webhook.service';
 import { getDownloadFileName, getSourceFileName } from '@/src/common/utils';
 import { UrlValidatorService } from './url-validator.service';
+import { FILE_TYPE } from 'video-touch-common/dist/constants';
 
 @Injectable()
 export class AssetService {
@@ -176,6 +177,7 @@ export class AssetService {
         updatedAsset.size
       );
       await this.createDownloadedFile(updatedAsset._id.toString(), manifestFiles);
+      await this.createAudioFile(updatedAsset._id.toString());
       await this.updateAssetStatus(updatedAsset._id.toString(), Constants.VIDEO_STATUS.PROCESSING, 'Video processing');
     }
     if (updatedAsset.latest_status === Constants.VIDEO_STATUS.RE_PROCESSING) {
@@ -342,6 +344,21 @@ export class AssetService {
       largestFile.width,
       Constants.FILE_STATUS.QUEUED,
       'Download file queued for processing',
+      0
+    );
+    return this.fileRepository.create(fileToBeSaved);
+  }
+
+  async createAudioFile(assetId: string) {
+    let name = 'audio.mp3';
+    let fileToBeSaved = FileMapper.mapForSave(
+      assetId,
+      name,
+      FILE_TYPE.AUDIO,
+      0,
+      0,
+      Constants.FILE_STATUS.QUEUED,
+      'Audio file queued for processing',
       0
     );
     return this.fileRepository.create(fileToBeSaved);

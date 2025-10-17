@@ -203,6 +203,21 @@ export class FileService {
           );
         }
       }
+      if (doc.type === Constants.FILE_TYPE.AUDIO) {
+        console.log('Audio file found, proceeding with audio file generation');
+        let jobData = await this.jobManagerService.publishAudioFileGenerationJob(doc);
+        console.log('job published for audio file ', jobData);
+        if (jobData) {
+          await this.repository.findOneAndUpdate(
+            {
+              _id: doc._id,
+            },
+            {
+              job_id: jobData.id,
+            }
+          );
+        }
+      }
     } catch (err) {
       console.error('Error in afterSave for file service: ', err);
     }

@@ -38,6 +38,8 @@ const VideoFilesComponent: React.FC<VideoFilesComponentProps> = ({
     videoDetails.files.find((file) => file.type === "thumbnail") || null;
   const downloadFile: FileDetails | null =
     videoDetails.files.find((file) => file.type === "download") || null;
+  const audioFile: FileDetails | null =
+    videoDetails.files.find((file) => file.type === "audio") || null;
 
   // Calculate total size of other files (thumbnail and source)
   const otherFilesSize =
@@ -230,15 +232,49 @@ const VideoFilesComponent: React.FC<VideoFilesComponentProps> = ({
                   </div>
                 </div>
               )}
+              {/* Audio File Section */}
+              {audioFile && (
+                <div className="flex items-center justify-between p-3 border rounded-md">
+                  <div className="flex items-center space-x-3">
+                    <div className="text-lg font-medium">Audio</div>
+                    <Badge
+                      variant={
+                        audioFile.latest_status === "READY"
+                          ? "default"
+                          : "secondary"
+                      }
+                    >
+                      {audioFile.latest_status}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="text-sm text-muted-foreground">
+                      {bytesToMegaBytes(audioFile.size)} MB
+                    </div>
+                    {audioFile.latest_status === "READY" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onDownloadButtonClick(audioFile)}
+                        disabled={downloadLoading}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Download className="h-4 w-4" />
+                        <span className="sr-only">Download audio file</span>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
 
-              {!thumbnailFile && !sourceFile && !downloadFile && (
+              {!thumbnailFile && !sourceFile && !downloadFile && !audioFile && (
                 <div className="text-center py-4 text-muted-foreground">
                   No other files available
                 </div>
               )}
 
               {/* Total size section for Others */}
-              {(thumbnailFile || sourceFile || downloadFile) && (
+              {(thumbnailFile || sourceFile || downloadFile || audioFile) && (
                 <>
                   <Separator className="my-2" />
                   <div className="flex justify-between items-center p-3">

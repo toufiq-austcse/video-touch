@@ -181,6 +181,25 @@ services:
         delay: 5s
         max_attempts: 3
 
+  audio-worker:
+    build:
+      context: workers/audio-worker
+      dockerfile: Dockerfile
+    container_name: audio-worker
+    env_file: .env
+    depends_on:
+      - video-touch-api
+    environment:
+      - AUDIO_WORKER_PORT=$AUDIO_WORKER_PORT
+    volumes:
+      - ./temp_videos:$TEMP_VIDEO_DIRECTORY
+    cpuset: "12-15"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+
 
   upload-video-worker:
     build:

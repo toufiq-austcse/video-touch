@@ -1,5 +1,5 @@
 {
-  "name": "download-video-worker",
+  "name": "audio-worker",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -27,11 +27,11 @@
     "@nestjs/config": "^3.2.2",
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
-    "video-touch-common": "4.2.3",
     "amqplib": "^0.10.4",
     "bullmq": "^5.54.3",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "video-touch-common": "4.2.3"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

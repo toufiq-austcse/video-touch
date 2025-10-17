@@ -29,10 +29,13 @@ export class FileResolver {
     if (file.type === FILE_TYPE.DOWNLOAD) {
       s3Key = Utils.getS3DownloadFilePath(file.asset_id.toString(), file.name);
     }
+    if (file.type === FILE_TYPE.AUDIO) {
+      s3Key = Utils.getS3AudioFilePath(file.asset_id.toString(), file.name);
+    }
 
     if (!s3Key) {
       throw new BadRequestException(
-        `Unsupported file type for URL generation: ${file.type}. Only thumbnail, source, and download types are supported.`
+        `Unsupported file type for URL generation: ${file.type}. Only thumbnail, source, audio, and download types are supported.`
       );
     }
 
