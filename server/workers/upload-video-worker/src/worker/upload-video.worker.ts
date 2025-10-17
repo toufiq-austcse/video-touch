@@ -153,10 +153,12 @@ export class VideoUploaderJobHandler extends WorkerHost {
       let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
       console.log(`source file uploaded:`, res);
 
+      let fileSize = await this.getVideoFileSize(localFilePath);
+
       this.publishUpdateFileStatusEvent(
         msg.file_id.toString(),
         'Source file uploaded',
-        msg.size,
+        fileSize,
         Constants.FILE_STATUS.READY,
       );
     } catch (err: any) {
