@@ -54,7 +54,11 @@ export class FileService {
     let updatedFile = await this.repository.findOne({
       _id: mongoose.Types.ObjectId(oldDoc._id.toString()),
     });
-    if (updatedFile.type === Constants.FILE_TYPE.THUMBNAIL || updatedFile.type === Constants.FILE_TYPE.SOURCE) {
+    if (
+      updatedFile.type === Constants.FILE_TYPE.THUMBNAIL ||
+      updatedFile.type === Constants.FILE_TYPE.SOURCE ||
+      updatedFile.type === Constants.FILE_TYPE.AUDIO
+    ) {
       return;
     }
     let assetId = updatedFile.asset_id;
