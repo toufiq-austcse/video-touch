@@ -3,10 +3,8 @@ import { useRouter } from "next/router";
 import { useQuery } from "@apollo/client";
 import {
   GET_ASSET_QUERY,
-  GET_ASSET_MASTER_PLAYLIST_SIGNED_URL,
 } from "@/api/graphql/queries/query";
 import {
-  PlaylistSignedUrlResponse,
   VideoDetails,
 } from "@/api/graphql/types/video-details";
 import {
@@ -24,8 +22,6 @@ import VideoTitleComponent from "@/components/ui/video-title-component";
 import VideoFilesComponent from "@/components/ui/video-files-component";
 import { NextPage } from "next";
 import PrivateRoute from "@/components/private-route";
-import React, { useEffect } from "react";
-import { useHttpClient } from "@/api/http/useHttpClient";
 
 const PlyrHlsPlayer = dynamic(() => import("@/components/ui/video-player"), {
   ssr: false,
@@ -58,7 +54,7 @@ const VideoDetailsPage: NextPage = () => {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col items-center space-y-4">
-          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <Loader2 className="h-12 w-12 animate-spin text-indigo-500" />
           <p className="text-lg font-medium">Loading video details...</p>
         </div>
       </div>
@@ -82,12 +78,13 @@ const VideoDetailsPage: NextPage = () => {
   let videoDetails: VideoDetails = data.GetAsset;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main content - Video player and details */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className="overflow-hidden">
-            <CardHeader className="pb-0">
+          <Card className="overflow-hidden bg-white shadow-sm border border-gray-200">
+            <CardHeader className="pb-0 bg-white">
               <VideoTitleComponent videoDetails={videoDetails} />
             </CardHeader>
             <CardContent>
@@ -112,9 +109,9 @@ const VideoDetailsPage: NextPage = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Video Details</CardTitle>
+          <Card className="bg-white shadow-sm border border-gray-200">
+            <CardHeader className="bg-white">
+              <CardTitle className="text-gray-800">Video Details</CardTitle>
             </CardHeader>
             <CardContent>
               <VideoDetailsComponent videoDetails={videoDetails} />
@@ -126,12 +123,12 @@ const VideoDetailsPage: NextPage = () => {
 
         {/* Sidebar - Metadata and Status */}
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Metadata</CardTitle>
+          <Card className="bg-white shadow-sm border border-gray-200">
+            <CardHeader className="bg-white">
+              <CardTitle className="text-gray-800">Metadata</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="bg-muted/50 p-4 rounded-lg">
+              <div className="bg-gray-50 p-4 rounded-lg">
                 <Badge className="mb-2" variant="secondary">
                   {videoDetails.latest_status}
                 </Badge>
@@ -155,9 +152,9 @@ const VideoDetailsPage: NextPage = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Processing Timeline</CardTitle>
+          <Card className="bg-white shadow-sm border border-gray-200">
+            <CardHeader className="bg-white">
+              <CardTitle className="text-gray-800">Processing Timeline</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -169,17 +166,17 @@ const VideoDetailsPage: NextPage = () => {
                       className="flex items-start space-x-3 pb-4 border-b last:border-0"
                     >
                       <div
-                        className={`bg-primary/10 p-2 rounded-full ${index === 0 && status.status !== "READY" ? "blink" : ""}`}
+                        className={`bg-indigo-100 p-2 rounded-full ${index === 0 && status.status !== "READY" ? "blink" : ""}`}
                       >
-                        <div className="h-2 w-2 rounded-full bg-primary"></div>
+                        <div className="h-2 w-2 rounded-full bg-indigo-500"></div>
                       </div>
                       <div>
                         <p className="font-medium">{status.status}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-gray-600">
                           {new Date(status.created_at).toLocaleString()}
                         </p>
                         {status.details && (
-                          <p className="text-sm mt-1">{status.details}</p>
+                          <p className="text-sm mt-1 text-gray-600">{status.details}</p>
                         )}
                       </div>
                     </div>
@@ -189,6 +186,7 @@ const VideoDetailsPage: NextPage = () => {
           </Card>
         </div>
       </div>
+    </div>
     </div>
   );
 };
