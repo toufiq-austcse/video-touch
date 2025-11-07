@@ -41,8 +41,6 @@ const VideoDetailsComponent = dynamic(
 const VideoDetailsPage: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
-  const { getVodPlaybackUrl, loading: playbackUrlLoading } = useHttpClient();
-  const [playbackRes, setPlaybackRes] = React.useState<any>(null);
 
   const { data, loading, error } = useQuery(GET_ASSET_QUERY, {
     variables: {
@@ -54,31 +52,9 @@ const VideoDetailsPage: NextPage = () => {
     ),
   });
 
-  // Query for getting the signed URL from the server
-  const { data: signedUrlData, loading: signedUrlLoading } = useQuery(
-    GET_ASSET_MASTER_PLAYLIST_SIGNED_URL,
-    {
-      variables: {
-        id: id,
-      },
-      skip: !data?.GetAsset, // Skip this query until the asset data is available
-      fetchPolicy: "network-only", // Force network request on each page load, don't use cache
-    },
-  );
   // State for storing the signed URL
 
-  useEffect(() => {
-    getVodPlaybackUrl("688680be07e02c5a196445a7")
-      .then((data) => {
-        console.log("Vod Playback URL Data:", data);
-        setPlaybackRes(data);
-      })
-      .catch((err) => {
-        console.error("Error fetching Vod Playback URL:", err);
-      });
-  }, []);
-
-  if (loading || signedUrlLoading || playbackUrlLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col items-center space-y-4">
@@ -104,8 +80,6 @@ const VideoDetailsPage: NextPage = () => {
   }
 
   let videoDetails: VideoDetails = data.GetAsset;
-  let playlistSignedUrlResponse: PlaylistSignedUrlResponse =
-    signedUrlData?.GetAssetMasterPlaylistSignedUrl;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -118,10 +92,9 @@ const VideoDetailsPage: NextPage = () => {
             </CardHeader>
             <CardContent>
               <div className="mt-4 rounded-lg overflow-hidden shadow-md">
-                {playlistSignedUrlResponse ? (
+                {videoDetails.master_playlist_url ? (
                   <PlyrHlsPlayer
-                    playlistSignedUrlResponse={playlistSignedUrlResponse}
-                    vodPlaybackRes={playbackRes}
+                    masterUrl={videoDetails.master_playlist_url}
                     thumbnailUrl={videoDetails.thumbnail_url}
                   />
                 ) : (

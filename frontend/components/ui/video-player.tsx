@@ -2,52 +2,18 @@ import React, { useEffect, useRef } from "react";
 import Plyr from "plyr";
 import Hls from "hls.js";
 import "plyr/dist/plyr.css";
-import { PlaylistSignedUrlResponse } from "@/api/graphql/types/video-details";
-import Cookies from "js-cookie";
-import { VODPlaybackRes } from "@/contexts/types/vod-playback-res";
 
 interface PlyrHlsPlayerProps {
-  playlistSignedUrlResponse?: PlaylistSignedUrlResponse;
-  vodPlaybackRes?: VODPlaybackRes;
+  masterUrl?: string;
   thumbnailUrl?: string;
 }
 
 const PlyrHlsPlayer: React.FC<PlyrHlsPlayerProps> = ({
-  playlistSignedUrlResponse,
-  vodPlaybackRes,
+  masterUrl,
   thumbnailUrl,
 }) => {
-  console.log("playlistSignedUrlResponse ", playlistSignedUrlResponse);
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<Plyr | null>(null);
-
-  // Function to set Cloudfront cookies
-  const setSignedCookies = (signedCookies: any) => {
-    console.log("Setting signed cookies:", signedCookies);
-    // Set cookies at domain level
-    const domain = "video-touch.10minuteschool.com"; // Replace with your actual domain
-    const cookieOptions = {
-      domain,
-      secure: true,
-      sameSite: "strict" as const,
-    };
-
-    Cookies.set(
-      "CloudFront-Policy",
-      signedCookies.cloudfront_policy,
-      cookieOptions,
-    );
-    Cookies.set(
-      "CloudFront-Signature",
-      signedCookies.cloudfront_signature,
-      cookieOptions,
-    );
-    Cookies.set(
-      "CloudFront-Key-Pair-Id",
-      signedCookies.cloudfront_key_pair_id,
-      cookieOptions,
-    );
-  };
 
   useEffect(() => {
     if (!videoRef.current) return;
@@ -67,7 +33,7 @@ const PlyrHlsPlayer: React.FC<PlyrHlsPlayerProps> = ({
         "airplay",
         "fullscreen",
       ],
-      settings: ["quality"],
+      settings: ["captions", "quality", "speed"],
     });
 
     return () => {
@@ -75,106 +41,52 @@ const PlyrHlsPlayer: React.FC<PlyrHlsPlayerProps> = ({
         playerRef.current.destroy();
       }
     };
-  }, [thumbnailUrl]);
+  }, []);
 
   useEffect(() => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || !masterUrl) return;
 
-    const cdnProvider = process.env.NEXT_PUBLIC_CDN_PROVIDER;
-    const hls = new Hls({
-      xhrSetup: (xhr, url) => {
-        xhr.withCredentials = true;
-        // Set up custom headers for Cloudfront requests
-        // if (cdnProvider === "cloudfront" && vodPlaybackRes?.signed_cookies) {
-        //   xhr.withCredentials = true; // Important for sending cookies
-        // }
-      },
-    });
+    const hls = new Hls();
 
-    if (cdnProvider === "cloudfront" && vodPlaybackRes) {
-      console.log("Using Cloudfront CDN with signed cookies");
-      // Set Cloudfront signed cookies
-      setSignedCookies(vodPlaybackRes.signed_cookies);
+    if (Hls.isSupported()) {
+      hls.loadSource(masterUrl);
+      hls.attachMedia(videoRef.current);
 
-      const { media_sources } = vodPlaybackRes;
-      const hlsUrl = media_sources[0]?.file;
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        console.log('HLS manifest loaded, ready to play');
+      });
 
-      if (!hlsUrl) {
-        console.error("No HLS URL found in vodPlaybackRes");
-        return;
-      }
-
-      if (Hls.isSupported()) {
-        hls.loadSource(hlsUrl);
-        hls.attachMedia(videoRef.current);
-
-        hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
-          const availableQualities = hls.levels.map((level) => ({
-            src: level.url,
-            type: "hls",
-            size: level.height,
-          }));
-        });
-      }
-    } else if (cdnProvider === "gotipath" && playlistSignedUrlResponse) {
-      // Existing Gotipath implementation
-      const { main_playlist_url, resolutions_token } =
-        playlistSignedUrlResponse;
-
-      if (Hls.isSupported()) {
-        const hls = new Hls({
-          pLoader: class CustomLoader extends Hls.DefaultConfig.loader {
-            constructor(config: any) {
-              super(config);
-              const originalLoad = this.load.bind(this);
-              this.load = function (context, config, callbacks) {
-                if (
-                  context &&
-                  context.url &&
-                  context.url.match(/\.m3u8($|\?)/i)
-                ) {
-                  console.log("context.url", context.url);
-                  for (let playlistResponse of Object.keys(
-                    (playlistSignedUrlResponse as any).resolutions_token,
-                  )) {
-                    if (context.url.includes(playlistResponse)) {
-                      // Generate a secure URL using the token
-                      const token = (playlistSignedUrlResponse as any)
-                        .resolutions_token[playlistResponse];
-                      context.url = `${context.url}?${token}`;
-                    }
-                  }
-                  // Use the generateSecuredUrl function we defined above
-                }
-                return originalLoad(context, config, callbacks);
-              };
-            }
-          } as any,
-        });
-        // @ts-ignore
-        hlsRef.current = hls;
-        hls.loadSource(playlistSignedUrlResponse.main_playlist_url);
-      }
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        console.error('HLS error:', data);
+      });
+    } else if (videoRef.current.canPlayType('application/vnd.apple.mpegurl')) {
+      // Native HLS support (Safari)
+      videoRef.current.src = masterUrl;
     }
 
     return () => {
       hls.destroy();
-      // Clean up cookies when component unmounts
-      if (cdnProvider === "cloudfront") {
-        Cookies.remove("CloudFront-Policy");
-        Cookies.remove("CloudFront-Signature");
-        Cookies.remove("CloudFront-Key-Pair-Id");
-      }
     };
-  }, [playlistSignedUrlResponse, vodPlaybackRes]);
+  }, [masterUrl]);
 
   return (
-    <video
-      ref={videoRef}
-      className="plyr-react plyr"
-      crossOrigin="anonymous"
-      playsInline
-    />
+    <div
+      className="video-player-container"
+      style={{
+        backgroundImage: thumbnailUrl ? `url(${thumbnailUrl})` : 'none',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      <video
+        ref={videoRef}
+        className="plyr-react plyr video-player-element"
+        crossOrigin="anonymous"
+        playsInline
+        poster={thumbnailUrl}
+      />
+    </div>
   );
 };
 
