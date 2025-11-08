@@ -124,7 +124,12 @@ const MyDeviceDialog = ({
           accept="video/mp4"
           onChange={onFileChange}
         />
-        <Button onClick={onUploadClick}>Upload</Button>
+        <Button
+          onClick={onUploadClick}
+          className="bg-indigo-500 hover:bg-indigo-600 text-white"
+        >
+          Upload
+        </Button>
       </DialogContent>
     </Dialog>
   );

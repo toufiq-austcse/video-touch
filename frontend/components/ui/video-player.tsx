@@ -2,58 +2,29 @@ import React, { useEffect, useRef } from "react";
 import Plyr from "plyr";
 import Hls from "hls.js";
 import "plyr/dist/plyr.css";
-import { PlaylistSignedUrlResponse } from "@/api/graphql/types/video-details";
-import Cookies from "js-cookie";
-import { VODPlaybackRes } from "@/contexts/types/vod-playback-res";
 
 interface PlyrHlsPlayerProps {
-  playlistSignedUrlResponse?: PlaylistSignedUrlResponse;
-  vodPlaybackRes?: VODPlaybackRes;
+  masterUrl?: string;
   thumbnailUrl?: string;
 }
 
 const PlyrHlsPlayer: React.FC<PlyrHlsPlayerProps> = ({
-  playlistSignedUrlResponse,
-  vodPlaybackRes,
+  masterUrl,
   thumbnailUrl,
 }) => {
-  console.log("playlistSignedUrlResponse ", playlistSignedUrlResponse);
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<Plyr | null>(null);
+  const hlsRef = useRef<Hls | null>(null);
 
-  // Function to set Cloudfront cookies
-  const setSignedCookies = (signedCookies: any) => {
-    console.log("Setting signed cookies:", signedCookies);
-    // Set cookies at domain level
-    const domain = "video-touch.10minuteschool.com"; // Replace with your actual domain
-    const cookieOptions = {
-      domain,
-      secure: true,
-      sameSite: "strict" as const,
-    };
-
-    Cookies.set(
-      "CloudFront-Policy",
-      signedCookies.cloudfront_policy,
-      cookieOptions,
-    );
-    Cookies.set(
-      "CloudFront-Signature",
-      signedCookies.cloudfront_signature,
-      cookieOptions,
-    );
-    Cookies.set(
-      "CloudFront-Key-Pair-Id",
-      signedCookies.cloudfront_key_pair_id,
-      cookieOptions,
-    );
-  };
-
-  useEffect(() => {
+  const createPlayer = () => {
     if (!videoRef.current) return;
 
-    // Initialize Plyr
-    playerRef.current = new Plyr(videoRef.current, {
+    // Destroy existing player if it exists
+    if (playerRef.current) {
+      playerRef.current.destroy();
+    }
+
+    const videoOptions = {
       controls: [
         "play-large",
         "play",
@@ -67,114 +38,131 @@ const PlyrHlsPlayer: React.FC<PlyrHlsPlayerProps> = ({
         "airplay",
         "fullscreen",
       ],
-      settings: ["quality"],
-    });
+      settings: ["captions", "quality", "speed"],
+      i18n: {
+        qualityBadge: {
+          0: "Auto",
+          360: "360p",
+          480: "480p",
+          720: "720p HD",
+          1080: "1080p FHD",
+        },
+      },
+    } as any;
+
+    // If HLS levels are available, add quality configuration
+    if (hlsRef.current && hlsRef.current.levels.length > 0) {
+      videoOptions.quality = {
+        default: hlsRef.current.levels[hlsRef.current.levels.length - 1].height,
+        options: hlsRef.current.levels.map((level) => level.height),
+        forced: true,
+        // Manage quality changes
+        onChange: (quality: number) => {
+          if (hlsRef.current) {
+            hlsRef.current.levels.forEach((level, levelIndex) => {
+              if (level.height === quality) {
+                hlsRef.current!.currentLevel = levelIndex;
+              }
+            });
+          }
+        },
+      };
+    }
+
+    // Initialize Plyr with the options
+    playerRef.current = new Plyr(videoRef.current, videoOptions);
+
+    // Reattach HLS if it exists
+    if (hlsRef.current && videoRef.current) {
+      hlsRef.current.attachMedia(videoRef.current);
+    }
+  };
+
+  useEffect(() => {
+    if (!videoRef.current || !masterUrl) return;
+
+    const hls = new Hls();
+    hlsRef.current = hls;
+
+    if (Hls.isSupported()) {
+      hls.loadSource(masterUrl);
+      hls.attachMedia(videoRef.current);
+
+      hls.on(Hls.Events.MANIFEST_LOADED, () => {
+        console.log("HLS manifest loaded, ready to play");
+        console.log("Available HLS levels:", hls.levels);
+
+        // Use your provided code structure
+        const videoOptions = {} as any;
+        videoOptions.quality = {
+          default: hls.levels[hls.levels.length - 1].height,
+          options: hls.levels.map((level) => level.height),
+          forced: true,
+          // Manage quality changes
+          onChange: (quality: number) => {
+            hls.levels.forEach((level, levelIndex) => {
+              if (level.height === quality) {
+                hls.currentLevel = levelIndex;
+              }
+            });
+          },
+        };
+
+        createPlayer();
+      });
+
+      hls.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
+        console.log("Quality level switched to:", data.level);
+
+        // Update quality indicator in Plyr
+        if (playerRef.current) {
+          const currentLevel = hls.levels[data.level];
+          const qualityText = currentLevel?.height
+            ? `${currentLevel.height}p`
+            : "Auto";
+          console.log("Current quality:", qualityText);
+        }
+      });
+
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        console.error("HLS error:", data);
+      });
+    } else if (videoRef.current.canPlayType("application/vnd.apple.mpegurl")) {
+      // Native HLS support (Safari)
+      videoRef.current.src = masterUrl;
+      // Create basic player without quality options for Safari
+      createPlayer();
+    }
 
     return () => {
       if (playerRef.current) {
         playerRef.current.destroy();
       }
-    };
-  }, [thumbnailUrl]);
-
-  useEffect(() => {
-    if (!videoRef.current) return;
-
-    const cdnProvider = process.env.NEXT_PUBLIC_CDN_PROVIDER;
-    const hls = new Hls({
-      xhrSetup: (xhr, url) => {
-        xhr.withCredentials = true;
-        // Set up custom headers for Cloudfront requests
-        // if (cdnProvider === "cloudfront" && vodPlaybackRes?.signed_cookies) {
-        //   xhr.withCredentials = true; // Important for sending cookies
-        // }
-      },
-    });
-
-    if (cdnProvider === "cloudfront" && vodPlaybackRes) {
-      console.log("Using Cloudfront CDN with signed cookies");
-      // Set Cloudfront signed cookies
-      setSignedCookies(vodPlaybackRes.signed_cookies);
-
-      const { media_sources } = vodPlaybackRes;
-      const hlsUrl = media_sources[0]?.file;
-
-      if (!hlsUrl) {
-        console.error("No HLS URL found in vodPlaybackRes");
-        return;
-      }
-
-      if (Hls.isSupported()) {
-        hls.loadSource(hlsUrl);
-        hls.attachMedia(videoRef.current);
-
-        hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
-          const availableQualities = hls.levels.map((level) => ({
-            src: level.url,
-            type: "hls",
-            size: level.height,
-          }));
-        });
-      }
-    } else if (cdnProvider === "gotipath" && playlistSignedUrlResponse) {
-      // Existing Gotipath implementation
-      const { main_playlist_url, resolutions_token } =
-        playlistSignedUrlResponse;
-
-      if (Hls.isSupported()) {
-        const hls = new Hls({
-          pLoader: class CustomLoader extends Hls.DefaultConfig.loader {
-            constructor(config: any) {
-              super(config);
-              const originalLoad = this.load.bind(this);
-              this.load = function (context, config, callbacks) {
-                if (
-                  context &&
-                  context.url &&
-                  context.url.match(/\.m3u8($|\?)/i)
-                ) {
-                  console.log("context.url", context.url);
-                  for (let playlistResponse of Object.keys(
-                    (playlistSignedUrlResponse as any).resolutions_token,
-                  )) {
-                    if (context.url.includes(playlistResponse)) {
-                      // Generate a secure URL using the token
-                      const token = (playlistSignedUrlResponse as any)
-                        .resolutions_token[playlistResponse];
-                      context.url = `${context.url}?${token}`;
-                    }
-                  }
-                  // Use the generateSecuredUrl function we defined above
-                }
-                return originalLoad(context, config, callbacks);
-              };
-            }
-          } as any,
-        });
-        // @ts-ignore
-        hlsRef.current = hls;
-        hls.loadSource(playlistSignedUrlResponse.main_playlist_url);
-      }
-    }
-
-    return () => {
-      hls.destroy();
-      // Clean up cookies when component unmounts
-      if (cdnProvider === "cloudfront") {
-        Cookies.remove("CloudFront-Policy");
-        Cookies.remove("CloudFront-Signature");
-        Cookies.remove("CloudFront-Key-Pair-Id");
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+        hlsRef.current = null;
       }
     };
-  }, [playlistSignedUrlResponse, vodPlaybackRes]);
+  }, [masterUrl]);
 
   return (
-    <video
-      ref={videoRef}
-      className="plyr-react plyr"
-      crossOrigin="anonymous"
-      playsInline
-    />
+    <div
+      className="video-player-container"
+      style={{
+        backgroundImage: thumbnailUrl ? `url(${thumbnailUrl})` : "none",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <video
+        ref={videoRef}
+        className="plyr-react plyr video-player-element"
+        crossOrigin="anonymous"
+        playsInline
+        poster={thumbnailUrl}
+      />
+    </div>
   );
 };
 

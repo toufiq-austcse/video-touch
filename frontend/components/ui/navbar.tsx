@@ -18,7 +18,7 @@ const Navbar = () => {
     location.reload();
   };
   return (
-    <nav className="bg-gray-800">
+    <nav className="bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-full px-5 sm:px-6 lg:px-20">
         <div className="relative flex h-16 items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -52,7 +52,7 @@ const Navbar = () => {
                 <path d="M4 20H8V22H4C3.46957 22 2.96086 21.7893 2.58579 21.4142C2.21071 21.0391 2 20.5304 2 20V16H4V20Z" />
                 <path d="M9 7L15 12L9 17V7Z" />
               </svg>
-              <h1 className="text-white text-2xl font-bold">Video Touch</h1>
+              <h1 className="text-indigo-500 text-2xl font-bold">VDIO Touch</h1>
             </Link>
             {/*<div className="hidden sm:ml-6 sm:block">*/}
             {/*  <div className="flex space-x-4">*/}
@@ -84,7 +84,7 @@ const Navbar = () => {
                 {currentUser ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <h1 className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white underline hover:cursor-pointer">
+                      <h1 className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 underline hover:cursor-pointer">
                         {currentUser.name}
                       </h1>
                     </DropdownMenuTrigger>
@@ -98,12 +98,7 @@ const Navbar = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
-                  <Link
-                    className="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-                    href={"login"}
-                  >
-                    Login
-                  </Link>
+                  <></>
                 )}
               </div>
 

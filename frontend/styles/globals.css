@@ -90,3 +90,73 @@
 .blink {
     animation: blink 1.5s infinite;
 }
+
+/* Video Player Poster Styles */
+.video-player-container {
+    position: relative;
+    width: 100%;
+    min-height: 400px;
+    background: #000;
+}
+
+.video-player-element {
+    display: block;
+    width: 100% !important;
+    height: 400px !important;
+    object-fit: cover !important;
+}
+
+/* Plyr specific overrides */
+.plyr {
+    width: 100% !important;
+    height: 400px !important;
+}
+
+.plyr video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+.plyr__poster {
+    width: 100% !important;
+    height: 100% !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+}
+
+/* Force video element poster to cover full area */
+video[poster] {
+    object-fit: cover !important;
+    width: 100% !important;
+    height: 400px !important;
+}
+
+/* Additional poster overrides */
+.video-player-container video {
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+}
+
+/* Plyr controls positioning */
+.plyr__controls {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 10 !important;
+}
+
+/* Ensure poster shows before video loads */
+.plyr--loading .plyr__poster,
+.plyr--paused .plyr__poster {
+    display: block !important;
+}
+
