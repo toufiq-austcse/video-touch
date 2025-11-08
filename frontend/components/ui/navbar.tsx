@@ -98,12 +98,7 @@ const Navbar = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
-                  <Link
-                    className="rounded-md bg-indigo-500 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-600"
-                    href={"/login"}
-                  >
-                    Login
-                  </Link>
+                  <></>
                 )}
               </div>
 
