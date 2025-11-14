@@ -103,7 +103,12 @@ const LinkImportDialog = ({
               )}
             />
             <DialogFooter>
-              <Button type="submit" size="sm" form="link-form" className="bg-indigo-500 hover:bg-indigo-600 text-white">
+              <Button
+                type="submit"
+                size="sm"
+                form="link-form"
+                className="bg-indigo-500 hover:bg-indigo-600 text-white"
+              >
                 Import
               </Button>
             </DialogFooter>

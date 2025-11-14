@@ -1,12 +1,8 @@
 import Data from "@/components/ui/data";
 import { useRouter } from "next/router";
 import { useQuery } from "@apollo/client";
-import {
-  GET_ASSET_QUERY,
-} from "@/api/graphql/queries/query";
-import {
-  VideoDetails,
-} from "@/api/graphql/types/video-details";
+import { GET_ASSET_QUERY } from "@/api/graphql/queries/query";
+import { VideoDetails } from "@/api/graphql/types/video-details";
 import {
   bytesToMegaBytes,
   getPollInterval,
@@ -81,112 +77,116 @@ const VideoDetailsPage: NextPage = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main content - Video player and details */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card className="overflow-hidden bg-white shadow-sm border border-gray-200">
-            <CardHeader className="pb-0 bg-white">
-              <VideoTitleComponent videoDetails={videoDetails} />
-            </CardHeader>
-            <CardContent>
-              <div className="mt-4 rounded-lg overflow-hidden shadow-md">
-                {videoDetails.master_playlist_url ? (
-                  <PlyrHlsPlayer
-                    masterUrl={videoDetails.master_playlist_url}
-                    thumbnailUrl={videoDetails.thumbnail_url}
+          {/* Main content - Video player and details */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card className="overflow-hidden bg-white shadow-sm border border-gray-200">
+              <CardHeader className="pb-0 bg-white">
+                <VideoTitleComponent videoDetails={videoDetails} />
+              </CardHeader>
+              <CardContent>
+                <div className="mt-4 rounded-lg overflow-hidden shadow-md">
+                  {videoDetails.master_playlist_url ? (
+                    <PlyrHlsPlayer
+                      masterUrl={videoDetails.master_playlist_url}
+                      thumbnailUrl={videoDetails.thumbnail_url}
+                    />
+                  ) : (
+                    <div className="flex justify-center items-center h-[400px] bg-black text-white">
+                      <div className="text-center">
+                        <AlertCircle className="h-12 w-12 mx-auto mb-2" />
+                        <p className="text-lg">Video is not ready yet</p>
+                        <Badge className="mt-2 text-white" variant="outline">
+                          {videoDetails.latest_status}
+                        </Badge>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white shadow-sm border border-gray-200">
+              <CardHeader className="bg-white">
+                <CardTitle className="text-gray-800">Video Details</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <VideoDetailsComponent videoDetails={videoDetails} />
+              </CardContent>
+            </Card>
+
+            <VideoFilesComponent videoDetails={videoDetails} />
+          </div>
+
+          {/* Sidebar - Metadata and Status */}
+          <div className="space-y-6">
+            <Card className="bg-white shadow-sm border border-gray-200">
+              <CardHeader className="bg-white">
+                <CardTitle className="text-gray-800">Metadata</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <Badge className="mb-2" variant="secondary">
+                    {videoDetails.latest_status}
+                  </Badge>
+                  <Data
+                    label={"Created At"}
+                    value={new Date(videoDetails.created_at).toLocaleString()}
                   />
-                ) : (
-                  <div className="flex justify-center items-center h-[400px] bg-black text-white">
-                    <div className="text-center">
-                      <AlertCircle className="h-12 w-12 mx-auto mb-2" />
-                      <p className="text-lg">Video is not ready yet</p>
-                      <Badge className="mt-2 text-white" variant="outline">
-                        {videoDetails.latest_status}
-                      </Badge>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                  <Data
+                    label={"Resolution"}
+                    value={`${videoDetails.height} x ${videoDetails.width}`}
+                  />
+                  <Data
+                    label={"Duration"}
+                    value={secondsToHHMMSS(videoDetails.duration)}
+                  />
+                  <Data
+                    label={"Size"}
+                    value={`${bytesToMegaBytes(videoDetails.size)} MB`}
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
-          <Card className="bg-white shadow-sm border border-gray-200">
-            <CardHeader className="bg-white">
-              <CardTitle className="text-gray-800">Video Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <VideoDetailsComponent videoDetails={videoDetails} />
-            </CardContent>
-          </Card>
-
-          <VideoFilesComponent videoDetails={videoDetails} />
-        </div>
-
-        {/* Sidebar - Metadata and Status */}
-        <div className="space-y-6">
-          <Card className="bg-white shadow-sm border border-gray-200">
-            <CardHeader className="bg-white">
-              <CardTitle className="text-gray-800">Metadata</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <Badge className="mb-2" variant="secondary">
-                  {videoDetails.latest_status}
-                </Badge>
-                <Data
-                  label={"Created At"}
-                  value={new Date(videoDetails.created_at).toLocaleString()}
-                />
-                <Data
-                  label={"Resolution"}
-                  value={`${videoDetails.height} x ${videoDetails.width}`}
-                />
-                <Data
-                  label={"Duration"}
-                  value={secondsToHHMMSS(videoDetails.duration)}
-                />
-                <Data
-                  label={"Size"}
-                  value={`${bytesToMegaBytes(videoDetails.size)} MB`}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white shadow-sm border border-gray-200">
-            <CardHeader className="bg-white">
-              <CardTitle className="text-gray-800">Processing Timeline</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[...videoDetails.status_logs]
-                  .reverse()
-                  .map((status, index) => (
-                    <div
-                      key={index}
-                      className="flex items-start space-x-3 pb-4 border-b last:border-0"
-                    >
+            <Card className="bg-white shadow-sm border border-gray-200">
+              <CardHeader className="bg-white">
+                <CardTitle className="text-gray-800">
+                  Processing Timeline
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {[...videoDetails.status_logs]
+                    .reverse()
+                    .map((status, index) => (
                       <div
-                        className={`bg-indigo-100 p-2 rounded-full ${index === 0 && status.status !== "READY" ? "blink" : ""}`}
+                        key={index}
+                        className="flex items-start space-x-3 pb-4 border-b last:border-0"
                       >
-                        <div className="h-2 w-2 rounded-full bg-indigo-500"></div>
+                        <div
+                          className={`bg-indigo-100 p-2 rounded-full ${index === 0 && status.status !== "READY" ? "blink" : ""}`}
+                        >
+                          <div className="h-2 w-2 rounded-full bg-indigo-500"></div>
+                        </div>
+                        <div>
+                          <p className="font-medium">{status.status}</p>
+                          <p className="text-sm text-gray-600">
+                            {new Date(status.created_at).toLocaleString()}
+                          </p>
+                          {status.details && (
+                            <p className="text-sm mt-1 text-gray-600">
+                              {status.details}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium">{status.status}</p>
-                        <p className="text-sm text-gray-600">
-                          {new Date(status.created_at).toLocaleString()}
-                        </p>
-                        {status.details && (
-                          <p className="text-sm mt-1 text-gray-600">{status.details}</p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </CardContent>
-          </Card>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 };
