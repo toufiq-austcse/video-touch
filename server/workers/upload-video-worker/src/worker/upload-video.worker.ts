@@ -30,6 +30,8 @@ export class VideoUploaderJobHandler extends WorkerHost {
       return this.uploadDownloadFile(msg, isLastAttempt);
     } else if (msg.type === Constants.FILE_TYPE.AUDIO) {
       return this.uploadAudioFile(msg, isLastAttempt);
+    } else if (msg.type === Constants.FILE_TYPE.TRANSCRIPT) {
+      return this.uploadTranscriptFile(msg, isLastAttempt);
     }
     return;
   }
@@ -140,10 +142,10 @@ export class VideoUploaderJobHandler extends WorkerHost {
 
   async uploadDownloadFile(msg: Models.FileUploadJobModel, isLatAttempt: boolean) {
     try {
-      let localFilePath = `${Utils.getLocalVideoRootPath(
+      let localFilePath = Utils.getLocalMp3Path(
         msg.asset_id.toString(),
         AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
-      )}/${msg.name}`;
+      );
 
       let s3SourceFileVideoPath = Utils.getS3UriSourceFileVideoPath(
         msg.asset_id.toString(),
@@ -153,7 +155,7 @@ export class VideoUploaderJobHandler extends WorkerHost {
       let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
       console.log(`source file uploaded:`, res);
 
-      let fileSize = await this.getVideoFileSize(localFilePath);
+      let fileSize = await this.getFileSize(localFilePath);
 
       this.publishUpdateFileStatusEvent(
         msg.file_id.toString(),
@@ -192,8 +194,47 @@ export class VideoUploaderJobHandler extends WorkerHost {
       let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
       console.log(`audio file uploaded:`, res);
 
-      let fileSize = await this.getVideoFileSize(localFilePath);
+      let fileSize = await this.getFileSize(localFilePath);
       console.log('audio file size:', fileSize);
+
+      this.publishUpdateFileStatusEvent(
+        msg.file_id.toString(),
+        'Source file uploaded',
+        fileSize,
+        Constants.FILE_STATUS.READY,
+      );
+    } catch (err: any) {
+      console.log('error in uploading source file', err);
+
+      if (isLatAttempt) {
+        this.publishUpdateFileStatusEvent(
+          msg.file_id.toString(),
+          'Source file uploading failed',
+          0,
+          Constants.FILE_STATUS.FAILED,
+        );
+        return;
+      }
+      throw new Error(`Error in uploading source file: ${err.message}`);
+    }
+  }
+  async uploadTranscriptFile(msg: Models.FileUploadJobModel, isLatAttempt: boolean) {
+    try {
+      let localFilePath = Utils.getLocalTranscriptPath(
+        msg.asset_id.toString(),
+        AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
+      );
+
+      let s3SourceFileVideoPath = Utils.getS3UriSourceFileVideoPath(
+        msg.asset_id.toString(),
+        msg.name,
+        AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
+      );
+      let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
+      console.log(`transcript file uploaded:`, res);
+
+      let fileSize = await this.getFileSize(localFilePath);
+      console.log('transcript file size:', fileSize);
 
       this.publishUpdateFileStatusEvent(
         msg.file_id.toString(),
@@ -244,7 +285,7 @@ export class VideoUploaderJobHandler extends WorkerHost {
     };
   }
 
-  async getVideoFileSize(filePath: string): Promise<number> {
+  async getFileSize(filePath: string): Promise<number> {
     try {
       const stats = await fs.promises.stat(filePath);
       return stats.size; // Returns size in bytes

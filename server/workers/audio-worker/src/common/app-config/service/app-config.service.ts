@@ -19,6 +19,8 @@ export class AppConfigService {
       REDIS_HOST: this.configService.getOrThrow('REDIS_HOST'),
       REDIS_PORT: +this.configService.getOrThrow('REDIS_PORT'),
       BULL_UPLOAD_JOB_QUEUE: this.configService.getOrThrow('BULL_UPLOAD_JOB_QUEUE'),
+      BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE: this.configService.getOrThrow('BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE'),
+      GOOGLE_GENAI_API_KEY: this.configService.getOrThrow('GOOGLE_GENAI_API_KEY'),
     };
   }
 }

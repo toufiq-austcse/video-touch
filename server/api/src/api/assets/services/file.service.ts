@@ -1,13 +1,10 @@
 import { FileRepository } from '@/src/api/assets/repositories/file.repository';
-import { AssetDocument } from '@/src/api/assets/schemas/assets.schema';
 import { FileDocument } from '@/src/api/assets/schemas/files.schema';
 import { AssetService } from '@/src/api/assets/services/asset.service';
 import { JobManagerService } from '@/src/api/assets/services/job-manager.service';
-import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { Injectable } from '@nestjs/common';
-import fs from 'fs';
 import mongoose from 'mongoose';
-import { Constants, Utils } from 'video-touch-common';
+import { Constants } from 'video-touch-common';
 
 @Injectable()
 export class FileService {
@@ -54,16 +51,18 @@ export class FileService {
     let updatedFile = await this.repository.findOne({
       _id: mongoose.Types.ObjectId(oldDoc._id.toString()),
     });
-    if (
-      updatedFile.type === Constants.FILE_TYPE.THUMBNAIL ||
-      updatedFile.type === Constants.FILE_TYPE.SOURCE ||
-      updatedFile.type === Constants.FILE_TYPE.AUDIO
-    ) {
-      return;
+
+    if (updatedFile.type === Constants.FILE_TYPE.AUDIO && updatedFile.latest_status === Constants.FILE_STATUS.READY) {
+      this.checkForTranscriptionGeneration(updatedFile)
+        .then()
+        .catch((err) => {
+          console.log('error while checking transcription generation', err);
+        });
     }
+
     let assetId = updatedFile.asset_id;
 
-    if (updatedFile.latest_status == Constants.FILE_STATUS.READY) {
+    if (updatedFile.latest_status == Constants.FILE_STATUS.READY && updatedFile.type === Constants.FILE_TYPE.PLAYLIST) {
       this.checkDownloadFileGeneration(updatedFile)
         .then()
         .catch((err) => {
@@ -131,32 +130,19 @@ export class FileService {
     }
   }
 
-  async listThumbnailFiles(items: AssetDocument[]): Promise<FileDocument[]> {
-    let assetIds = items.map((item) => item._id);
-    return this.repository.find({
-      asset_id: { $in: assetIds },
-      latest_status: Constants.FILE_STATUS.READY,
-      type: Constants.FILE_TYPE.THUMBNAIL,
-    });
-  }
-
-  async getThumbnailFile(assetId: string) {
-    return this.repository.findOne({
-      asset_id: mongoose.Types.ObjectId(assetId),
-      latest_status: Constants.FILE_STATUS.READY,
-      type: Constants.FILE_TYPE.THUMBNAIL,
-    });
-  }
-
-  deleteLocalFile(assetId: string, resolution: string) {
-    console.log('delete local file called ', assetId, ' resolution ', resolution);
-    let localPath = `${Utils.getLocalVideoRootPath(
-      assetId,
-      AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY
-    )}/${resolution}`;
-    console.log('local path ', localPath);
-    if (fs.existsSync(localPath)) {
-      fs.rmSync(localPath, { recursive: true, force: true });
+  async initTranscriptionFileGeneration(transcriptFile: FileDocument) {
+    console.log('Transcript file found, proceeding with transcription generation');
+    let jobData = await this.jobManagerService.publishTranscriptionGenerationJob(transcriptFile);
+    console.log('job published for transcript file ', jobData);
+    if (jobData) {
+      await this.repository.findOneAndUpdate(
+        {
+          _id: transcriptFile._id,
+        },
+        {
+          job_id: jobData.id,
+        }
+      );
     }
   }
 
@@ -233,5 +219,19 @@ export class FileService {
       type: type,
       latest_status: status,
     });
+  }
+
+  async checkForTranscriptionGeneration(updatedFile: FileDocument) {
+    let transcriptTypeFile = await this.getFileByType(
+      updatedFile.asset_id.toString(),
+      Constants.FILE_TYPE.TRANSCRIPT,
+      Constants.FILE_STATUS.QUEUED
+    );
+    if (!transcriptTypeFile) {
+      console.log('No transcript type file found, skipping transcription generation');
+      return;
+    }
+
+    return this.initTranscriptionFileGeneration(transcriptTypeFile);
   }
 }

@@ -62,6 +62,7 @@ export class AppConfigService {
       BULL_720P_PROCESS_VIDEO_JOB_QUEUE: this.configService.getOrThrow('BULL_720P_PROCESS_VIDEO_JOB_QUEUE'),
       BULL_1080P_PROCESS_VIDEO_JOB_QUEUE: this.configService.getOrThrow('BULL_1080P_PROCESS_VIDEO_JOB_QUEUE'),
       BULL_THUMBNAIL_GENERATION_JOB_QUEUE: this.configService.getOrThrow('BULL_THUMBNAIL_GENERATION_JOB_QUEUE'),
+      BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE: this.configService.getOrThrow('BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE'),
       REDIS_HOST: this.configService.getOrThrow('REDIS_HOST'),
       REDIS_PORT: this.configService.getOrThrow('REDIS_PORT'),
       MIN_AVAILABLE_DISK_SPACE_REQUIRED_IN_BYTES: +this.configService.get(
@@ -75,6 +76,8 @@ export class AppConfigService {
       WEBHOOK_URL: this.configService.getOrThrow('WEBHOOK_URL'),
       WEBHOOK_TOKEN: this.configService.getOrThrow('WEBHOOK_TOKEN'),
       BULL_AUDIO_EXTRACTION_JOB_QUEUE: this.configService.getOrThrow('BULL_AUDIO_EXTRACTION_JOB_QUEUE'),
+      GOOGLE_GENAI_API_KEY: this.configService.getOrThrow('GOOGLE_GENAI_API_KEY'),
+      TRANSCRIPTION_GENERATION_ENABLED: this.configService.get('TRANSCRIPTION_GENERATION_ENABLED', 'false') === 'true',
     };
   }
 }

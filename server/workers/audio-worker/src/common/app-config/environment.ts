@@ -6,6 +6,8 @@ export interface EnvironmentVariables {
   TEMP_VIDEO_DIRECTORY: string;
   BULL_AUDIO_EXTRACTION_JOB_QUEUE: string;
   BULL_UPLOAD_JOB_QUEUE: string;
+  BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE: string;
   REDIS_HOST: string;
   REDIS_PORT: number;
+  GOOGLE_GENAI_API_KEY: string;
 }

@@ -3,7 +3,6 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
 import { HeightWidthMap } from '@/src/api/assets/models/file.model';
 import { FileDocument } from '@/src/api/assets/schemas/files.schema';
 import { Constants, Models } from 'video-touch-common';
-import { JobMetadataModel, VideoProcessingJobModel } from 'video-touch-common/dist/models';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { v4 as uuidv4 } from 'uuid';
@@ -23,7 +22,8 @@ export class JobManagerService {
     @InjectQueue('validate-video') private validateVideoQueue: Queue,
     @InjectQueue('download-video') private downloadVideoQueue: Queue,
     @InjectQueue('download-file-generation') private downloadFileGenerationQueue: Queue,
-    @InjectQueue('extract-audio') private audioExtractionQueue: Queue
+    @InjectQueue('extract-audio') private audioExtractionQueue: Queue,
+    @InjectQueue('audio-transcription') private audioTranscriptionQueue: Queue
   ) {}
 
   async getThumbnailJobByJobId(jobId: string): Promise<Models.ThumbnailGenerationJobModel | null> {
@@ -34,15 +34,15 @@ export class JobManagerService {
     return null;
   }
 
-  async getUploadSourceFileJobByJobId(jobId: string): Promise<Models.VideoUploadJobModel | null> {
+  async getUploadSourceFileJobByJobId(jobId: string): Promise<Models.FileUploadJobModel | null> {
     const job = await this.videoUploadQueue.getJob(jobId);
     if (job) {
-      return job.data as Models.VideoUploadJobModel;
+      return job.data as Models.FileUploadJobModel;
     }
     return null;
   }
 
-  async getVideoProcessingJobByJobId(jobId: string, height: number): Promise<JobMetadataModel | null> {
+  async getVideoProcessingJobByJobId(jobId: string, height: number): Promise<Models.JobMetadataModel | null> {
     let queue: Queue | null = null;
     switch (height) {
       case 1080:
@@ -65,7 +65,7 @@ export class JobManagerService {
     }
     const job = await queue.getJob(jobId);
     if (job) {
-      return job.data as JobMetadataModel;
+      return job.data as Models.JobMetadataModel;
     }
     return null;
   }
@@ -141,7 +141,7 @@ export class JobManagerService {
     return this.getHeightWidthMap().find((data) => data.height === height);
   }
 
-  async publishVideoProcessingJob(jobModel: VideoProcessingJobModel) {
+  async publishVideoProcessingJob(jobModel: Models.VideoProcessingJobModel) {
     console.log('publishing video processing job for ', jobModel);
     if (jobModel.height === 360) {
       return this.videoProcessQueue360p.add(AppConfigService.appConfig.BULL_360P_PROCESS_VIDEO_JOB_QUEUE, jobModel, {
@@ -235,13 +235,14 @@ export class JobManagerService {
   }
 
   async publishSourceFileUploadJob(file: FileDocument) {
-    let uploadJob: Models.VideoUploadJobModel = {
+    let uploadJob: Models.FileUploadJobModel = {
       asset_id: file.asset_id.toString(),
       file_id: file._id.toString(),
       height: file.height,
       width: file.width,
       type: Constants.FILE_TYPE.SOURCE,
       name: file.name,
+      size: 0,
     };
     console.log('publishing source file upload job for ', uploadJob);
     return this.videoUploadQueue.add(AppConfigService.appConfig.BULL_UPLOAD_JOB_QUEUE, uploadJob, {
@@ -294,6 +295,26 @@ export class JobManagerService {
     return this.audioExtractionQueue.add(
       AppConfigService.appConfig.BULL_AUDIO_EXTRACTION_JOB_QUEUE,
       audioFileGenerationJob,
+      {
+        jobId: uuidv4(),
+        attempts: AppConfigService.appConfig.RETRY_JOB_ATTEMPT_COUNT,
+        backoff: {
+          type: 'fixed',
+          delay: minutesToMilliseconds(AppConfigService.appConfig.RETRY_JOB_BACKOFF_IN_MINUTE),
+        },
+      }
+    );
+  }
+
+  async publishTranscriptionGenerationJob(transcriptFile: FileDocument) {
+    let transcriptionGenerationJob: Models.AudioTranscriptionJobModel = {
+      asset_id: transcriptFile.asset_id.toString(),
+      file_id: transcriptFile._id.toString(),
+      name: transcriptFile.name,
+    };
+    return this.audioTranscriptionQueue.add(
+      AppConfigService.appConfig.BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE,
+      transcriptionGenerationJob,
       {
         jobId: uuidv4(),
         attempts: AppConfigService.appConfig.RETRY_JOB_ATTEMPT_COUNT,
