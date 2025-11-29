@@ -178,8 +178,10 @@ export class AssetService {
       );
       await this.createDownloadedFile(updatedAsset._id.toString(), manifestFiles);
       await this.createAudioFile(updatedAsset._id.toString());
-      if (AppConfigService.appConfig.TRANSCRIPTION_GENERATION_ENABLED) {
+      if (AppConfigService.appConfig.TRANSCRIPTION_GENERATION_ENABLED && updatedAsset.with_transcription) {
         await this.createTranscriptionFile(updatedAsset._id.toString());
+      } else {
+        console.log('transcription generation is disabled. Skipping transcription file creation.');
       }
       await this.updateAssetStatus(updatedAsset._id.toString(), Constants.VIDEO_STATUS.PROCESSING, 'Video processing');
     }

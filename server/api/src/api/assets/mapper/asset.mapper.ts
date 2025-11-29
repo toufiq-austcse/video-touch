@@ -24,6 +24,7 @@ export class AssetMapper {
       description: createVideoInput.description,
       source_url: createVideoInput.source_url,
       tags: createVideoInput.tags,
+      with_transcription: createVideoInput.with_transcription || false,
     };
   }
 
@@ -86,6 +87,7 @@ export class AssetMapper {
         created_at: asset.createdAt,
         updated_at: asset.updatedAt,
         _id: asset._id.toString(),
+        with_transcription: asset.with_transcription,
       } as Asset,
       { excludeExtraneousValues: true, enableImplicitConversion: true }
     );

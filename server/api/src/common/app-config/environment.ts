@@ -64,6 +64,9 @@ export interface EnvironmentVariables {
 
   WEBHOOK_URL: string;
   WEBHOOK_TOKEN: string;
-  GOOGLE_GENAI_API_KEY: string;
   TRANSCRIPTION_GENERATION_ENABLED: boolean;
+  GOOGLE_GENAI_API_KEY: string;
+  GOOGLE_GEN_AI_MODEL: string;
+  OPENAI_API_KEY: string;
+  OPENAI_MODEL: string;
 }

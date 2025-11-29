@@ -78,6 +78,36 @@ export class AppConfigService {
       BULL_AUDIO_EXTRACTION_JOB_QUEUE: this.configService.getOrThrow('BULL_AUDIO_EXTRACTION_JOB_QUEUE'),
       GOOGLE_GENAI_API_KEY: this.configService.get('GOOGLE_GENAI_API_KEY'),
       TRANSCRIPTION_GENERATION_ENABLED: this.configService.get('TRANSCRIPTION_GENERATION_ENABLED', 'false') === 'true',
+      GOOGLE_GEN_AI_MODEL: this.configService.get('GOOGLE_GEN_AI_MODEL'),
+      OPENAI_API_KEY: this.configService.get('OPENAI_API_KEY'),
+      OPENAI_MODEL: this.configService.get('OPENAI_MODEL'),
     };
+    this.validateTranscriptionGenerationEnabled();
+  }
+
+  validateTranscriptionGenerationEnabled() {
+    if (!AppConfigService.appConfig.TRANSCRIPTION_GENERATION_ENABLED) {
+      console.log('Transcription generation is disabled in the configuration.');
+      return false;
+    }
+    if (!AppConfigService.appConfig.OPENAI_MODEL && !AppConfigService.appConfig.GOOGLE_GEN_AI_MODEL) {
+      console.log('Transcription generation is enabled, but no model is configured.');
+      process.exit(1);
+    }
+    //Transcription generation is enabled, validate API keys and models
+    if (AppConfigService.appConfig.OPENAI_MODEL) {
+      if (!AppConfigService.appConfig.OPENAI_API_KEY) {
+        console.log('Model for OpenAI is set but API key is missing.');
+        process.exit(1);
+      }
+    }
+    if (AppConfigService.appConfig.GOOGLE_GEN_AI_MODEL) {
+      if (!AppConfigService.appConfig.GOOGLE_GENAI_API_KEY) {
+        console.log('Model for Google GenAI is set but API key is missing.');
+        process.exit(1);
+      }
+    }
+
+    return null;
   }
 }

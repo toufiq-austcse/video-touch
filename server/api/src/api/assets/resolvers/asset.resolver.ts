@@ -61,6 +61,7 @@ export class AssetResolver {
         description: currentAsset.description,
         source_url: mainFileUrl,
         tags: currentAsset.tags,
+        with_transcription: currentAsset.with_transcription,
       },
       user
     );

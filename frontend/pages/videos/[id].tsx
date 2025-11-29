@@ -144,6 +144,12 @@ const VideoDetailsPage: NextPage = () => {
                     label={"Size"}
                     value={`${bytesToMegaBytes(videoDetails.size)} MB`}
                   />
+                  <Data
+                    label={"Transcription"}
+                    value={
+                      videoDetails.with_transcription ? "Requested" : "Not Requested"
+                    }
+                  />
                 </div>
               </CardContent>
             </Card>

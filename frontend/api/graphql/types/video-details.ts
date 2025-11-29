@@ -15,6 +15,7 @@ export interface VideoDetails {
   latest_status: string;
   master_playlist_url: string;
   files: FileDetails[];
+  with_transcription: boolean;
 }
 
 export interface FileDetails {

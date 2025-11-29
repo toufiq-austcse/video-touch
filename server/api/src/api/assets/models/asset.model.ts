@@ -20,6 +20,9 @@ export class CreateAssetResponse {
   @Field()
   status: string;
 
+  @Field()
+  with_transcription: boolean;
+
   @Field(() => [String])
   tags: string[];
 }
@@ -53,11 +56,6 @@ export class Asset {
   @Transform((value) => value.obj.width ?? 0)
   width: number;
 
-  // @Field({ nullable: true })
-  // @Expose()
-  // @Transform((value) => value.obj.thumbnail_url ?? null)
-  // thumbnail_url: string;
-
   @Field()
   @Expose()
   @Transform((value) => value.obj.size ?? 0)
@@ -88,6 +86,11 @@ export class Asset {
   @Field()
   @Expose()
   updated_at: Date;
+
+  @Field()
+  @Expose()
+  @Transform((value) => value.obj.with_transcription ?? false)
+  with_transcription: boolean;
 }
 
 @ObjectType()
