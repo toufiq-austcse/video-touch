@@ -5,13 +5,15 @@ import { JobManagerService } from '@/src/api/assets/services/job-manager.service
 import { Injectable } from '@nestjs/common';
 import mongoose from 'mongoose';
 import { Constants } from 'video-touch-common';
+import { WebhookService } from '@/src/api/webhook/services/webhook.service';
 
 @Injectable()
 export class FileService {
   constructor(
     private repository: FileRepository,
     private assetService: AssetService,
-    private jobManagerService: JobManagerService
+    private jobManagerService: JobManagerService,
+    private webhookService: WebhookService
   ) {}
 
   async updateFileStatus(fileId: string, status: string, details: string, size?: number) {
@@ -50,6 +52,10 @@ export class FileService {
     console.log('oldDoc ', oldDoc);
     let updatedFile = await this.repository.findOne({
       _id: mongoose.Types.ObjectId(oldDoc._id.toString()),
+    });
+
+    this.webhookService.publishFileEvent(updatedFile).catch((err) => {
+      console.log('error while publishing webhook event ', err);
     });
 
     if (updatedFile.type === Constants.FILE_TYPE.AUDIO && updatedFile.latest_status === Constants.FILE_STATUS.READY) {

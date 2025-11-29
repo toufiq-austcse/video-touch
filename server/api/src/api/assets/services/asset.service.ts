@@ -140,7 +140,7 @@ export class AssetService {
       _id: mongoose.Types.ObjectId(oldDoc._id.toString()),
     });
 
-    this.webhookService.publishEvent(updatedAsset).catch((err) => {
+    this.webhookService.publishAssetEvent(updatedAsset).catch((err) => {
       console.log('error while publishing webhook event ', err);
     });
 
