@@ -147,7 +147,9 @@ const VideoDetailsPage: NextPage = () => {
                   <Data
                     label={"Transcription"}
                     value={
-                      videoDetails.with_transcription ? "Requested" : "Not Requested"
+                      videoDetails.with_transcription
+                        ? "Requested"
+                        : "Not Requested"
                     }
                   />
                 </div>
