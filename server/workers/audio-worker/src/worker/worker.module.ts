@@ -7,6 +7,8 @@ import { RabbitMQModule } from '../common/rabbit-mq/rabbit-mq.module';
 import { FileStatusPublisher } from '@/src/worker/file-status.publisher';
 import { UploadService } from '@/src/worker/upload.service';
 import { AudioExtractionWorker } from '@/src/worker/audio-extraction.worker';
+import { AudioTranscriptionWorker } from '@/src/worker/audio-transcription.worker';
+import { GenAiClientModule } from '@/src/common/gen-ai-models/gen-ai-client.module';
 
 @Module({
   imports: [
@@ -29,6 +31,12 @@ import { AudioExtractionWorker } from '@/src/worker/audio-extraction.worker';
         }),
       },
       {
+        inject: [AppConfigService],
+        useFactory: () => ({
+          name: AppConfigService.appConfig.BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE,
+        }),
+      },
+      {
         name: 'upload-video',
         inject: [AppConfigService],
         useFactory: () => ({
@@ -36,8 +44,15 @@ import { AudioExtractionWorker } from '@/src/worker/audio-extraction.worker';
         }),
       },
     ),
+    GenAiClientModule,
   ],
   controllers: [],
-  providers: [AudioExtractionService, AudioExtractionWorker, FileStatusPublisher, UploadService],
+  providers: [
+    AudioExtractionService,
+    AudioExtractionWorker,
+    AudioTranscriptionWorker,
+    FileStatusPublisher,
+    UploadService,
+  ],
 })
 export class WorkerModule {}

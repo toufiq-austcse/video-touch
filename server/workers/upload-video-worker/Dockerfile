@@ -1,5 +1,5 @@
 
-FROM node:18 as base
+FROM node:20 as base
 
 WORKDIR /app
 COPY package.json \

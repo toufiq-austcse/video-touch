@@ -71,6 +71,9 @@ export class AssetDocument extends AbstractDocument {
 
   @Prop({ required: false, default: [], type: [StatusSchema] })
   status_logs?: [Omit<StatusDocument, '_id'>];
+
+  @Prop({ required: false, default: false })
+  with_transcription?: boolean;
 }
 
 export const VideoSchema = SchemaFactory.createForClass(AssetDocument);

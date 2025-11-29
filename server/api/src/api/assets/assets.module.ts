@@ -154,6 +154,17 @@ import { FileResolver } from './resolvers/file.resolver';
             removeOnFail: true,
           },
         }),
+      },
+      {
+        name: 'audio-transcription',
+        inject: [AppConfigService],
+        useFactory: () => ({
+          name: AppConfigService.appConfig.BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE,
+          defaultJobOptions: {
+            removeOnComplete: true,
+            removeOnFail: true,
+          },
+        }),
       }
     ),
     BullBoardModule.forFeature({
@@ -198,6 +209,10 @@ import { FileResolver } from './resolvers/file.resolver';
     }),
     BullBoardModule.forFeature({
       name: 'extract-audio',
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: 'audio-transcription',
       adapter: BullMQAdapter,
     }),
     MongooseModule.forFeatureAsync([

@@ -40,6 +40,8 @@ const VideoFilesComponent: React.FC<VideoFilesComponentProps> = ({
     videoDetails.files.find((file) => file.type === "download") || null;
   const audioFile: FileDetails | null =
     videoDetails.files.find((file) => file.type === "audio") || null;
+  const transcriptFile: FileDetails | null =
+    videoDetails.files.find((file) => file.type === "transcript") || null;
 
   // Calculate total size of other files (thumbnail and source)
   const otherFilesSize =
@@ -261,6 +263,42 @@ const VideoFilesComponent: React.FC<VideoFilesComponentProps> = ({
                       >
                         <Download className="h-4 w-4" />
                         <span className="sr-only">Download audio file</span>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+              {/* Transcript File Section */}
+              {transcriptFile && (
+                <div className="flex items-center justify-between p-3 border rounded-md">
+                  <div className="flex items-center space-x-3">
+                    <div className="text-lg font-medium">Transcript</div>
+                    <Badge
+                      variant={
+                        transcriptFile.latest_status === "READY"
+                          ? "default"
+                          : "secondary"
+                      }
+                    >
+                      {transcriptFile.latest_status}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="text-sm text-muted-foreground">
+                      {bytesToMegaBytes(transcriptFile.size)} MB
+                    </div>
+                    {transcriptFile.latest_status === "READY" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onDownloadButtonClick(transcriptFile)}
+                        disabled={downloadLoading}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Download className="h-4 w-4" />
+                        <span className="sr-only">
+                          Download transcript file
+                        </span>
                       </Button>
                     )}
                   </div>

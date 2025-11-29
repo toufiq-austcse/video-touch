@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@golevelup/nestjs-rabbitmq": "5.2.0",
+    "@google/genai": "^1.29.1",
     "@nestjs/axios": "^3.0.2",
     "@nestjs/bullmq": "^11.0.2",
     "@nestjs/common": "^10.0.0",
@@ -29,9 +30,10 @@
     "@nestjs/platform-express": "^10.0.0",
     "amqplib": "^0.10.4",
     "bullmq": "^5.54.3",
+    "openai": "^6.9.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
-    "video-touch-common": "4.2.3"
+    "video-touch-common": "^4.2.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

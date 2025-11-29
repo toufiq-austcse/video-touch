@@ -140,7 +140,7 @@ export class AssetService {
       _id: mongoose.Types.ObjectId(oldDoc._id.toString()),
     });
 
-    this.webhookService.publishEvent(updatedAsset).catch((err) => {
+    this.webhookService.publishAssetEvent(updatedAsset).catch((err) => {
       console.log('error while publishing webhook event ', err);
     });
 
@@ -178,6 +178,11 @@ export class AssetService {
       );
       await this.createDownloadedFile(updatedAsset._id.toString(), manifestFiles);
       await this.createAudioFile(updatedAsset._id.toString());
+      if (AppConfigService.appConfig.TRANSCRIPTION_GENERATION_ENABLED && updatedAsset.with_transcription) {
+        await this.createTranscriptionFile(updatedAsset._id.toString());
+      } else {
+        console.log('transcription generation is disabled. Skipping transcription file creation.');
+      }
       await this.updateAssetStatus(updatedAsset._id.toString(), Constants.VIDEO_STATUS.PROCESSING, 'Video processing');
     }
     if (updatedAsset.latest_status === Constants.VIDEO_STATUS.RE_PROCESSING) {
@@ -359,6 +364,21 @@ export class AssetService {
       0,
       Constants.FILE_STATUS.QUEUED,
       'Audio file queued for processing',
+      0
+    );
+    return this.fileRepository.create(fileToBeSaved);
+  }
+
+  async createTranscriptionFile(assetId: string) {
+    let name = Utils.getTranscriptFileName();
+    let fileToBeSaved = FileMapper.mapForSave(
+      assetId,
+      name,
+      FILE_TYPE.TRANSCRIPT,
+      0,
+      0,
+      Constants.FILE_STATUS.QUEUED,
+      'Transcription file queued for processing',
       0
     );
     return this.fileRepository.create(fileToBeSaved);

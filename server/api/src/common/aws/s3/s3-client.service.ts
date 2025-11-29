@@ -50,7 +50,7 @@ export class S3ClientService implements OnModuleInit {
     });
   }
 
-  buildUploadObjModel(data: Models.VideoUploadJobModel, localFilePath: string): UploadObjModel {
+  buildUploadObjModel(data: Models.FileUploadJobModel, localFilePath: string): UploadObjModel {
     return {
       bucket: AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
       key: `video-touch/${data.asset_id}`,

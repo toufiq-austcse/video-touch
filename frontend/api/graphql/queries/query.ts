@@ -57,6 +57,7 @@ export const GET_ASSET_QUERY = gql`
         width
         type
       }
+      with_transcription
     }
   }
 `;

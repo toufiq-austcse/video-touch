@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsArray, IsEmail, IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
+import { IsArray, IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, IsUrl } from 'class-validator';
 
 @InputType()
 export class RecreateAssetInputDto {
@@ -33,6 +33,11 @@ export class CreateAssetInputDto {
   @IsUrl()
   @IsNotEmpty()
   source_url: string;
+
+  @Field({ defaultValue: false })
+  @IsBoolean()
+  @IsOptional()
+  with_transcription: boolean;
 
   @Field(() => [String], { nullable: true })
   @IsArray()

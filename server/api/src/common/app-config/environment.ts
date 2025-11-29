@@ -39,6 +39,7 @@ export interface EnvironmentVariables {
   BULL_THUMBNAIL_GENERATION_JOB_QUEUE: string;
   BULL_DOWNLOAD_FILE_GENERATION_JOB_QUEUE: string;
   BULL_AUDIO_EXTRACTION_JOB_QUEUE: string;
+  BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE: string;
 
   AWS_ACCESS_KEY_ID: string;
   AWS_REGION: string;
@@ -63,4 +64,9 @@ export interface EnvironmentVariables {
 
   WEBHOOK_URL: string;
   WEBHOOK_TOKEN: string;
+  TRANSCRIPTION_GENERATION_ENABLED: boolean;
+  GOOGLE_GENAI_API_KEY: string;
+  GOOGLE_GEN_AI_MODEL: string;
+  OPENAI_API_KEY: string;
+  OPENAI_MODEL: string;
 }
