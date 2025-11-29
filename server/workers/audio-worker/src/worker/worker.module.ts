@@ -8,6 +8,7 @@ import { FileStatusPublisher } from '@/src/worker/file-status.publisher';
 import { UploadService } from '@/src/worker/upload.service';
 import { AudioExtractionWorker } from '@/src/worker/audio-extraction.worker';
 import { AudioTranscriptionWorker } from '@/src/worker/audio-transcription.worker';
+import { GenAiClientModule } from '@/src/common/gen-ai-models/gen-ai-client.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { AudioTranscriptionWorker } from '@/src/worker/audio-transcription.worke
         }),
       },
     ),
+    GenAiClientModule,
   ],
   controllers: [],
   providers: [

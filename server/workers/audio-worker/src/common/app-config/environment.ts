@@ -10,4 +10,5 @@ export interface EnvironmentVariables {
   REDIS_HOST: string;
   REDIS_PORT: number;
   GOOGLE_GENAI_API_KEY: string;
+  OPENAI_API_KEY: string;
 }

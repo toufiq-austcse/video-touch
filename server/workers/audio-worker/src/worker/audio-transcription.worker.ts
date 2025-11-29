@@ -7,20 +7,17 @@ import { Constants, Models, Utils } from 'video-touch-common';
 import { FileStatusPublisher } from '@/src/worker/file-status.publisher';
 import { UploadService } from '@/src/worker/upload.service';
 import { FILE_TYPE } from 'video-touch-common/dist/constants';
-import { createPartFromUri, createUserContent, GoogleGenAI } from '@google/genai';
-import { createWriteStream } from 'fs';
+import { GeminiClientService } from '@/src/common/gen-ai-models/gemini/gemini-client.service';
 
 @Processor(process.env.BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE)
 export class AudioTranscriptionWorker extends WorkerHost implements OnModuleInit {
-  private aiClient: GoogleGenAI;
   constructor(
     private fileStatusPublisher: FileStatusPublisher,
     private uploadService: UploadService,
+    // private gemniClientService: GeminiClientService,
+    private openAiClientService: GeminiClientService,
   ) {
     super();
-    this.aiClient = new GoogleGenAI({
-      apiKey: AppConfigService.appConfig.GOOGLE_GENAI_API_KEY,
-    });
   }
 
   onModuleInit() {
@@ -42,7 +39,8 @@ export class AudioTranscriptionWorker extends WorkerHost implements OnModuleInit
 
       let inputFilePath = Utils.getLocalMp3Path(msg.asset_id, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
       const tempJsonlPath = Utils.getLocalTranscriptPath(msg.asset_id, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
-      await this.transcribeAudio(msg.asset_id, inputFilePath, tempJsonlPath);
+      // await this.gemniClientService.transcribeAudio(inputFilePath, tempJsonlPath);
+      await this.openAiClientService.transcribeAudio(inputFilePath, tempJsonlPath);
       console.log('audio transcribed successfully');
       await this.uploadService.publishVideoUploadJob(
         msg.file_id.toString(),
@@ -78,58 +76,5 @@ export class AudioTranscriptionWorker extends WorkerHost implements OnModuleInit
       return true; // This is the last attempt
     }
     return false; // There are more attempts left
-  }
-
-  async transcribeAudio(assetId: string, localFilePath: string, outputFilePath: string) {
-    const uploadedFile = await this.aiClient.files.upload({
-      file: localFilePath,
-      config: { mimeType: 'audio/mp3' },
-    });
-
-    const stream = await this.aiClient.models.generateContentStream({
-      model: 'gemini-2.5-flash',
-      contents: createUserContent([
-        createPartFromUri(uploadedFile.uri, uploadedFile.mimeType),
-        `You are a transcription assistant. Your task is to:
-1. Transcribe the audio file to text
-2. Identify sentence boundaries
-3. Add accurate start and end timestamps (HH:MM:SS format) for each sentence
-4. Return ONLY valid JSON array, no additional text
-
-Format your response as a JSON array with this exact structure:
-[
-  {
-    "startTime": "00:00:01",
-    "endTime": "00:00:05",
-    "text": "First sentence transcribed here"
-  }
-]
-
-Requirements:
-- Use HH:MM:SS format for timestamps
-- One complete sentence per object
-- Ensure timestamps are sequential and accurate
-- Return ONLY the JSON array, no markdown formatting or extra text`,
-      ]),
-    });
-
-    const writeStream = createWriteStream(outputFilePath);
-
-    console.log('Starting transcription streaming...');
-    // Write raw chunks directly to JSONL file
-    for await (const chunk of stream) {
-      const text = chunk.text || '';
-      writeStream.write(text);
-    }
-
-    await new Promise<void>((resolve, reject) => {
-      writeStream.end(() => {
-        console.log('Transcription streaming completed.');
-        resolve();
-      });
-      writeStream.on('error', reject);
-    });
-
-    console.log(`Transcription saved to ${outputFilePath}`);
   }
 }

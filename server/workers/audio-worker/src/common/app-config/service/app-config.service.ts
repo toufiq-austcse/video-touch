@@ -21,6 +21,7 @@ export class AppConfigService {
       BULL_UPLOAD_JOB_QUEUE: this.configService.getOrThrow('BULL_UPLOAD_JOB_QUEUE'),
       BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE: this.configService.getOrThrow('BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE'),
       GOOGLE_GENAI_API_KEY: this.configService.getOrThrow('GOOGLE_GENAI_API_KEY'),
+      OPENAI_API_KEY: this.configService.getOrThrow('OPENAI_API_KEY'),
     };
   }
 }
