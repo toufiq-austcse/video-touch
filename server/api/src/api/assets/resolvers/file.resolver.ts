@@ -32,6 +32,9 @@ export class FileResolver {
     if (file.type === FILE_TYPE.AUDIO) {
       s3Key = Utils.getS3AudioFilePath(file.asset_id.toString(), file.name);
     }
+    if (file.type === FILE_TYPE.TRANSCRIPT) {
+      s3Key = Utils.getS3TranscriptFilePath(file.asset_id.toString(), file.name);
+    }
 
     if (!s3Key) {
       throw new BadRequestException(

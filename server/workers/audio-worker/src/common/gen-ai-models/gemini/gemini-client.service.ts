@@ -11,6 +11,9 @@ export class GeminiClientService implements OnModuleInit {
   constructor() {}
 
   onModuleInit() {
+    if (!AppConfigService.appConfig.GOOGLE_GENAI_API_KEY) {
+      return;
+    }
     this.aiClient = new GoogleGenAI({
       apiKey: AppConfigService.appConfig.GOOGLE_GENAI_API_KEY,
     });
@@ -23,7 +26,7 @@ export class GeminiClientService implements OnModuleInit {
     });
 
     const stream = await this.aiClient.models.generateContentStream({
-      model: 'gemini-2.5-flash',
+      model: AppConfigService.appConfig.GOOGLE_GEN_AI_MODEL,
       contents: createUserContent([
         createPartFromUri(uploadedFile.uri, uploadedFile.mimeType),
         getTranscriptionPrompt(),

@@ -9,6 +9,9 @@ export interface EnvironmentVariables {
   BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE: string;
   REDIS_HOST: string;
   REDIS_PORT: number;
+  TRANSCRIPTION_GENERATION_ENABLED: boolean;
+  GOOGLE_GEN_AI_MODEL: string;
   GOOGLE_GENAI_API_KEY: string;
+  OPENAI_MODEL: string;
   OPENAI_API_KEY: string;
 }

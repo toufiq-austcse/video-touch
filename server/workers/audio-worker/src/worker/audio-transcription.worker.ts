@@ -8,14 +8,16 @@ import { FileStatusPublisher } from '@/src/worker/file-status.publisher';
 import { UploadService } from '@/src/worker/upload.service';
 import { FILE_TYPE } from 'video-touch-common/dist/constants';
 import { GeminiClientService } from '@/src/common/gen-ai-models/gemini/gemini-client.service';
+import { GEN_AI_PLATFORM } from '@/src/common/utils';
+import { OpenAiClientService } from '@/src/common/gen-ai-models/open-ai/open-ai-client.service';
 
 @Processor(process.env.BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE)
 export class AudioTranscriptionWorker extends WorkerHost implements OnModuleInit {
   constructor(
     private fileStatusPublisher: FileStatusPublisher,
     private uploadService: UploadService,
-    // private gemniClientService: GeminiClientService,
-    private openAiClientService: GeminiClientService,
+    private gemniClientService: GeminiClientService,
+    private openAiClientService: OpenAiClientService,
   ) {
     super();
   }
@@ -39,8 +41,7 @@ export class AudioTranscriptionWorker extends WorkerHost implements OnModuleInit
 
       let inputFilePath = Utils.getLocalMp3Path(msg.asset_id, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
       const tempJsonlPath = Utils.getLocalTranscriptPath(msg.asset_id, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
-      // await this.gemniClientService.transcribeAudio(inputFilePath, tempJsonlPath);
-      await this.openAiClientService.transcribeAudio(inputFilePath, tempJsonlPath);
+      await this.transcribeAudio(inputFilePath, tempJsonlPath);
       console.log('audio transcribed successfully');
       await this.uploadService.publishVideoUploadJob(
         msg.file_id.toString(),
@@ -67,6 +68,22 @@ export class AudioTranscriptionWorker extends WorkerHost implements OnModuleInit
     }
   }
 
+  async transcribeAudio(inputFilePath: string, outputJsonlPath: string) {
+    let genAIPlatform = this.getGenAIPlatform();
+    switch (genAIPlatform) {
+      case GEN_AI_PLATFORM.GOOGLE_GENAI:
+        console.log('Using Gemini for audio transcription');
+        await this.gemniClientService.transcribeAudio(inputFilePath, outputJsonlPath);
+        break;
+      case GEN_AI_PLATFORM.OPENAI:
+        console.log('Using OpenAI for audio transcription');
+        await this.openAiClientService.transcribeAudio(inputFilePath, outputJsonlPath);
+        break;
+      default:
+        throw new Error('No GenAI platform configured for audio transcription');
+    }
+  }
+
   isLastAttempt(job: Job): boolean {
     console.log(`Job ${job.id} attempts made: ${job.attemptsMade}, max attempts: ${job.opts.attempts}`);
 
@@ -76,5 +93,15 @@ export class AudioTranscriptionWorker extends WorkerHost implements OnModuleInit
       return true; // This is the last attempt
     }
     return false; // There are more attempts left
+  }
+
+  private getGenAIPlatform(): string {
+    if (AppConfigService.appConfig.GOOGLE_GENAI_API_KEY) {
+      return GEN_AI_PLATFORM.GOOGLE_GENAI;
+    }
+    if (AppConfigService.appConfig.OPENAI_API_KEY) {
+      return GEN_AI_PLATFORM.OPENAI;
+    }
+    return null;
   }
 }

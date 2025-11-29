@@ -1,7 +1,8 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import OpenAI from 'openai';
-import { readFileSync, createWriteStream } from 'fs';
+import * as fs from 'node:fs';
+import { createWriteStream } from 'fs';
 import { getTranscriptionPrompt } from '@/src/common/utils';
 
 @Injectable()
@@ -11,22 +12,37 @@ export class OpenAiClientService implements OnModuleInit {
   constructor() {}
 
   onModuleInit() {
+    if (!AppConfigService.appConfig.OPENAI_API_KEY) {
+      return;
+    }
     this.aiClient = new OpenAI({
       apiKey: AppConfigService.appConfig.OPENAI_API_KEY,
     });
   }
 
   async transcribeAudio(localFilePath: string, outputFilePath: string) {
-    console.log('Starting transcription with GPT-4o audio...');
+    console.log('Starting transcription with OpenAI...');
+
+    const model = AppConfigService.appConfig.OPENAI_MODEL;
+
+    // For GPT-4o models, use chat completions with audio input for better prompt control
+    if (model.includes('gpt-4o')) {
+      await this.transcribeWithGPT4o(localFilePath, outputFilePath);
+    } else {
+      // For Whisper, use standard transcription API
+      await this.transcribeWithWhisper(localFilePath, outputFilePath);
+    }
+  }
+
+  private async transcribeWithGPT4o(localFilePath: string, outputFilePath: string) {
+    console.log('Using GPT-4o audio model for Bangla transcription...');
 
     // Read and encode audio file to base64
-    const audioBuffer = readFileSync(localFilePath);
+    const audioBuffer = fs.readFileSync(localFilePath);
     const audioBase64 = audioBuffer.toString('base64');
 
-    // Using GPT-4o audio model with chat completions for streaming support
     const stream = await this.aiClient.chat.completions.create({
-      model: 'gpt-4o-audio-preview',
-      modalities: ['text'],
+      model: AppConfigService.appConfig.OPENAI_MODEL,
       messages: [
         {
           role: 'user',
@@ -61,6 +77,37 @@ export class OpenAiClientService implements OnModuleInit {
     await new Promise<void>((resolve, reject) => {
       writeStream.end(() => {
         console.log('Transcription streaming completed.');
+        resolve();
+      });
+      writeStream.on('error', reject);
+    });
+
+    console.log(`Bangla transcription saved to ${outputFilePath}`);
+  }
+
+  private async transcribeWithWhisper(localFilePath: string, outputFilePath: string) {
+    console.log('Using Whisper for transcription...');
+
+    const transcription = await this.aiClient.audio.transcriptions.create({
+      file: fs.createReadStream(localFilePath),
+      model: 'whisper-1',
+      response_format: 'verbose_json',
+      timestamp_granularities: ['segment'],
+    });
+
+    const segments = (transcription as any).segments || [];
+    const formattedOutput = segments.map((segment: any) => ({
+      start_second: segment.start,
+      end_second: segment.end,
+      text: segment.text.trim(),
+    }));
+
+    const writeStream = createWriteStream(outputFilePath);
+    writeStream.write(JSON.stringify(formattedOutput, null, 2));
+
+    await new Promise<void>((resolve, reject) => {
+      writeStream.end(() => {
+        console.log(`Transcription completed. Processed ${formattedOutput.length} segments.`);
         resolve();
       });
       writeStream.on('error', reject);

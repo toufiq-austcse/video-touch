@@ -20,8 +20,11 @@ export class AppConfigService {
       REDIS_PORT: +this.configService.getOrThrow('REDIS_PORT'),
       BULL_UPLOAD_JOB_QUEUE: this.configService.getOrThrow('BULL_UPLOAD_JOB_QUEUE'),
       BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE: this.configService.getOrThrow('BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE'),
-      GOOGLE_GENAI_API_KEY: this.configService.getOrThrow('GOOGLE_GENAI_API_KEY'),
-      OPENAI_API_KEY: this.configService.getOrThrow('OPENAI_API_KEY'),
+      TRANSCRIPTION_GENERATION_ENABLED: this.configService.get('TRANSCRIPTION_GENERATION_ENABLED') === 'true',
+      GOOGLE_GENAI_API_KEY: this.configService.get('GOOGLE_GENAI_API_KEY'),
+      OPENAI_API_KEY: this.configService.get('OPENAI_API_KEY'),
+      GOOGLE_GEN_AI_MODEL: this.configService.get('GOOGLE_GEN_AI_MODEL'),
+      OPENAI_MODEL: this.configService.get('OPENAI_MODEL'),
     };
   }
 }

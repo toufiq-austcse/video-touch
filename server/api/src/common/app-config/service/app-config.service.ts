@@ -76,7 +76,7 @@ export class AppConfigService {
       WEBHOOK_URL: this.configService.getOrThrow('WEBHOOK_URL'),
       WEBHOOK_TOKEN: this.configService.getOrThrow('WEBHOOK_TOKEN'),
       BULL_AUDIO_EXTRACTION_JOB_QUEUE: this.configService.getOrThrow('BULL_AUDIO_EXTRACTION_JOB_QUEUE'),
-      GOOGLE_GENAI_API_KEY: this.configService.getOrThrow('GOOGLE_GENAI_API_KEY'),
+      GOOGLE_GENAI_API_KEY: this.configService.get('GOOGLE_GENAI_API_KEY'),
       TRANSCRIPTION_GENERATION_ENABLED: this.configService.get('TRANSCRIPTION_GENERATION_ENABLED', 'false') === 'true',
     };
   }
