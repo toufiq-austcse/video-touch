@@ -142,10 +142,10 @@ export class VideoUploaderJobHandler extends WorkerHost {
 
   async uploadDownloadFile(msg: Models.FileUploadJobModel, isLatAttempt: boolean) {
     try {
-      let localFilePath = Utils.getLocalMp3Path(
+      let localFilePath = `${Utils.getLocalVideoRootPath(
         msg.asset_id.toString(),
         AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
-      );
+      )}/${msg.name}`;
 
       let s3SourceFileVideoPath = Utils.getS3UriSourceFileVideoPath(
         msg.asset_id.toString(),
