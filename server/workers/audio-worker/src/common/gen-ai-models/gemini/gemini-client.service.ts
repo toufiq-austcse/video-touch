@@ -31,6 +31,30 @@ export class GeminiClientService implements OnModuleInit {
         createPartFromUri(uploadedFile.uri, uploadedFile.mimeType),
         getTranscriptionPrompt(),
       ]),
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: 'ARRAY',
+          items: {
+            type: 'OBJECT',
+            properties: {
+              start: {
+                type: 'STRING',
+                description: 'Start time in HH:MM:SS format (e.g., 00:01:30, 01:25:45)',
+              },
+              end: {
+                type: 'STRING',
+                description: 'End time in HH:MM:SS format (e.g., 00:01:45, 01:26:00)',
+              },
+              text: {
+                type: 'STRING',
+                description: 'Transcribed text in original language',
+              },
+            },
+            required: ['start', 'end', 'text'],
+          },
+        },
+      },
     });
 
     const writeStream = createWriteStream(outputFilePath);
