@@ -311,7 +311,9 @@ export class JobManagerService {
       asset_id: transcriptFile.asset_id.toString(),
       file_id: transcriptFile._id.toString(),
       name: transcriptFile.name,
-    };
+      audio_file_name: transcriptFile.meta?.audio_file_name || '',
+      audio_start_time: transcriptFile.meta?.audio_start_time || '0:00:00',
+    } as any;
     return this.audioTranscriptionQueue.add(
       AppConfigService.appConfig.BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE,
       transcriptionGenerationJob,

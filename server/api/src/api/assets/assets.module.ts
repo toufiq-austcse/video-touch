@@ -271,9 +271,14 @@ import { FileResolver } from './resolvers/file.resolver';
               return;
             }
             let fileService = moduleRef.get<FileService>(FileService, { strict: false });
+            let assetRepository = moduleRef.get<AssetRepository>(AssetRepository, { strict: false });
 
             if (this['_update']['$set']['latest_status']) {
-              await fileService.afterUpdateFileLatestStatus(doc);
+              let asset = await assetRepository.findOne({
+                _id: doc.asset_id,
+              });
+
+              await fileService.afterUpdateFileLatestStatus(doc, asset);
             }
 
             return;

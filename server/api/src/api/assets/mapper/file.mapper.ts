@@ -15,7 +15,8 @@ export class FileMapper {
     width: number,
     status: string,
     status_details: string,
-    size: number = 0
+    size: number = 0,
+    meta: any = {}
   ): Omit<FileDocument, '_id'> {
     return {
       asset_id: mongoose.Types.ObjectId(asset_id),
@@ -26,6 +27,7 @@ export class FileMapper {
       size: size,
       status_logs: [StatusMapper.mapForSave(status, status_details)],
       type: type,
+      meta,
     };
   }
 

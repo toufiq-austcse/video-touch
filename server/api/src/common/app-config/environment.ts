@@ -69,4 +69,5 @@ export interface EnvironmentVariables {
   GOOGLE_GEN_AI_MODEL: string;
   OPENAI_API_KEY: string;
   OPENAI_MODEL: string;
+  AUDIO_CHUNK_DURATION_IN_SEC: number;
 }

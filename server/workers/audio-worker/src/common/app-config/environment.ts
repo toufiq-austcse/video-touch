@@ -7,6 +7,7 @@ export interface EnvironmentVariables {
   BULL_AUDIO_EXTRACTION_JOB_QUEUE: string;
   BULL_UPLOAD_JOB_QUEUE: string;
   BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE: string;
+  BULL_AUDIO_SPLIT_JOB_QUEUE: string;
   REDIS_HOST: string;
   REDIS_PORT: number;
   TRANSCRIPTION_GENERATION_ENABLED: boolean;
