@@ -1,22 +1,21 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import * as console from 'node:console';
 import { Job } from 'bullmq';
 import { OnModuleInit } from '@nestjs/common';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
-import { Constants, Models, Utils } from 'video-touch-common';
+import { Constants, Models, terminal, Utils } from 'video-touch-common';
 import { FileStatusPublisher } from '@/src/worker/file-status.publisher';
-import { UploadService } from '@/src/worker/upload.service';
-import { FILE_TYPE } from 'video-touch-common/dist/constants';
 import { GeminiClientService } from '@/src/common/gen-ai-models/gemini/gemini-client.service';
 import { GEN_AI_PLATFORM } from '@/src/common/utils';
 import { OpenAiClientService } from '@/src/common/gen-ai-models/open-ai/open-ai-client.service';
+import * as fs from 'node:fs';
 
-@Processor(process.env.BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE)
+@Processor(process.env.BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE, {
+  concurrency: 5,
+})
 export class AudioTranscriptionWorker extends WorkerHost implements OnModuleInit {
   constructor(
     private fileStatusPublisher: FileStatusPublisher,
-    private uploadService: UploadService,
-    private gemniClientService: GeminiClientService,
+    private geminiClientService: GeminiClientService,
     private openAiClientService: OpenAiClientService,
   ) {
     super();
@@ -39,19 +38,25 @@ export class AudioTranscriptionWorker extends WorkerHost implements OnModuleInit
         Constants.FILE_STATUS.PROCESSING,
       );
 
-      let inputFilePath = Utils.getLocalMp3Path(msg.asset_id, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
-      const tempJsonlPath = Utils.getLocalTranscriptPath(msg.asset_id, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
-      await this.transcribeAudio(inputFilePath, tempJsonlPath);
-      console.log('audio transcribed successfully');
-      await this.uploadService.publishVideoUploadJob(
-        msg.file_id.toString(),
-        msg.name,
+      let inputFilePath = `${Utils.getLocalAudioChunksDir(msg.asset_id, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY)}/${job.data.audio_file_name}`;
+      let outputJsonPath = Utils.getLocalPartialTranscriptsDir(
         msg.asset_id,
-        0,
-        0,
-        FILE_TYPE.TRANSCRIPT,
+        AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
       );
-      console.log('audio transcript upload job published');
+      let audioStartTime = job.data.audio_start_time || '00:00:00';
+
+      if (!fs.existsSync(outputJsonPath)) {
+        fs.mkdirSync(outputJsonPath, { recursive: true });
+        console.log(`Created directory for transcript output at ${outputJsonPath}`);
+      }
+      await this.transcribeAudio(inputFilePath, `${outputJsonPath}/${job.data.name}`, audioStartTime);
+      this.fileStatusPublisher.publishUpdateFileStatusEvent(
+        msg.file_id.toString(),
+        'Audio transcription completed',
+        0,
+        Constants.FILE_STATUS.READY,
+      );
+      console.log('audio transcribed successfully');
     } catch (e: any) {
       console.log(`error while transcribing ${msg.asset_id} audio`, e, isLastAttempt);
 
@@ -68,12 +73,12 @@ export class AudioTranscriptionWorker extends WorkerHost implements OnModuleInit
     }
   }
 
-  async transcribeAudio(inputFilePath: string, outputJsonlPath: string) {
+  async transcribeAudio(inputFilePath: string, outputJsonlPath: string, audioStartTime: string) {
     let genAIPlatform = this.getGenAIPlatform();
     switch (genAIPlatform) {
       case GEN_AI_PLATFORM.GOOGLE_GENAI:
         console.log('Using Gemini for audio transcription');
-        await this.gemniClientService.transcribeAudio(inputFilePath, outputJsonlPath);
+        await this.geminiClientService.transcribeAudio(inputFilePath, outputJsonlPath);
         break;
       case GEN_AI_PLATFORM.OPENAI:
         console.log('Using OpenAI for audio transcription');
@@ -103,5 +108,14 @@ export class AudioTranscriptionWorker extends WorkerHost implements OnModuleInit
       return GEN_AI_PLATFORM.OPENAI;
     }
     return null;
+  }
+
+  async splitAudio(inputFilePath: string, outputDir: string) {
+    // This method can be implemented to split audio files if needed
+    // For now, it's just a placeholder
+    console.log(`Splitting audio file ${inputFilePath} into directory ${outputDir}`);
+    const command = `ffmpeg -i ${inputFilePath} -f segment -segment_time 300 -c copy ${outputDir}%03d.mp3`;
+    await terminal(command);
+    console.log('Audio splitting completed');
   }
 }

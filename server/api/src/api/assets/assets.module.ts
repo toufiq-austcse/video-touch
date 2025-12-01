@@ -36,6 +36,7 @@ import { WebhookModule } from '../webhook/webhook.module';
 import { UrlValidatorService } from './services/url-validator.service';
 import { HttpModule } from '@nestjs/axios';
 import { FileResolver } from './resolvers/file.resolver';
+import { TranscriptService } from '@/src/api/assets/services/transcript.service';
 
 @Module({
   imports: [
@@ -165,6 +166,17 @@ import { FileResolver } from './resolvers/file.resolver';
             removeOnFail: true,
           },
         }),
+      },
+      {
+        name: 'audio-transcript-merge',
+        inject: [AppConfigService],
+        useFactory: () => ({
+          name: AppConfigService.appConfig.BULL_AUDIO_TRANSCRIPT_MERGE_QUEUE,
+          defaultJobOptions: {
+            removeOnComplete: true,
+            removeOnFail: true,
+          },
+        }),
       }
     ),
     BullBoardModule.forFeature({
@@ -213,6 +225,10 @@ import { FileResolver } from './resolvers/file.resolver';
     }),
     BullBoardModule.forFeature({
       name: 'audio-transcription',
+      adapter: BullMQAdapter,
+    }),
+    BullBoardModule.forFeature({
+      name: 'audio-transcript-merge',
       adapter: BullMQAdapter,
     }),
     MongooseModule.forFeatureAsync([
@@ -271,9 +287,14 @@ import { FileResolver } from './resolvers/file.resolver';
               return;
             }
             let fileService = moduleRef.get<FileService>(FileService, { strict: false });
+            let assetRepository = moduleRef.get<AssetRepository>(AssetRepository, { strict: false });
 
             if (this['_update']['$set']['latest_status']) {
-              await fileService.afterUpdateFileLatestStatus(doc);
+              let asset = await assetRepository.findOne({
+                _id: doc.asset_id,
+              });
+
+              await fileService.afterUpdateFileLatestStatus(doc, asset);
             }
 
             return;
@@ -319,6 +340,7 @@ import { FileResolver } from './resolvers/file.resolver';
     JobVerificationService,
     SignedUrlGeneratorService,
     UrlValidatorService,
+    TranscriptService,
   ],
 })
 export class AssetsModule {}

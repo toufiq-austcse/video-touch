@@ -81,6 +81,8 @@ export class AppConfigService {
       GOOGLE_GEN_AI_MODEL: this.configService.get('GOOGLE_GEN_AI_MODEL'),
       OPENAI_API_KEY: this.configService.get('OPENAI_API_KEY'),
       OPENAI_MODEL: this.configService.get('OPENAI_MODEL'),
+      AUDIO_CHUNK_DURATION_IN_SEC: +this.configService.getOrThrow('AUDIO_CHUNK_DURATION_IN_SEC'),
+      BULL_AUDIO_TRANSCRIPT_MERGE_QUEUE: this.configService.getOrThrow('BULL_AUDIO_TRANSCRIPT_MERGE_QUEUE'),
     };
     this.validateTranscriptionGenerationEnabled();
   }

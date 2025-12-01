@@ -33,7 +33,7 @@
     "openai": "^6.9.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
-    "video-touch-common": "^4.2.5"
+    "video-touch-common": "^4.4.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

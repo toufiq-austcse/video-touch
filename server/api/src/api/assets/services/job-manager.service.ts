@@ -23,7 +23,8 @@ export class JobManagerService {
     @InjectQueue('download-video') private downloadVideoQueue: Queue,
     @InjectQueue('download-file-generation') private downloadFileGenerationQueue: Queue,
     @InjectQueue('extract-audio') private audioExtractionQueue: Queue,
-    @InjectQueue('audio-transcription') private audioTranscriptionQueue: Queue
+    @InjectQueue('audio-transcription') private audioTranscriptionQueue: Queue,
+    @InjectQueue('audio-transcript-merge') private transcriptMergerQueue: Queue
   ) {}
 
   async getThumbnailJobByJobId(jobId: string): Promise<Models.ThumbnailGenerationJobModel | null> {
@@ -311,10 +312,42 @@ export class JobManagerService {
       asset_id: transcriptFile.asset_id.toString(),
       file_id: transcriptFile._id.toString(),
       name: transcriptFile.name,
+      audio_file_name: transcriptFile.meta?.audio_file_name || '',
+      audio_start_time: transcriptFile.meta?.audio_start_time || '0:00:00',
     };
     return this.audioTranscriptionQueue.add(
       AppConfigService.appConfig.BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE,
       transcriptionGenerationJob,
+      {
+        jobId: uuidv4(),
+        attempts: AppConfigService.appConfig.RETRY_JOB_ATTEMPT_COUNT,
+        backoff: {
+          type: 'fixed',
+          delay: minutesToMilliseconds(AppConfigService.appConfig.RETRY_JOB_BACKOFF_IN_MINUTE),
+        },
+      }
+    );
+  }
+  async publishTranscriptMergingJob(
+    assetId: string,
+    mainTranscriptFile: FileDocument,
+    partialTranscriptFile: FileDocument[]
+  ) {
+    let transcriptMergingJob: Models.AudioTranscriptionMergeJobModel = {
+      asset_id: assetId,
+      file_id: mainTranscriptFile._id.toString(),
+      name: mainTranscriptFile.name,
+      type: mainTranscriptFile.type,
+      partial_transcript_files: partialTranscriptFile.map((file) => {
+        return {
+          name: file.name,
+          audio_start_time: file.meta?.audio_start_time || '0:00:00',
+        };
+      }),
+    };
+    return this.transcriptMergerQueue.add(
+      AppConfigService.appConfig.BULL_AUDIO_TRANSCRIPT_MERGE_QUEUE,
+      transcriptMergingJob,
       {
         jobId: uuidv4(),
         attempts: AppConfigService.appConfig.RETRY_JOB_ATTEMPT_COUNT,

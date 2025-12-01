@@ -4,8 +4,15 @@ import { AssetService } from '@/src/api/assets/services/asset.service';
 import { JobManagerService } from '@/src/api/assets/services/job-manager.service';
 import { Injectable } from '@nestjs/common';
 import mongoose from 'mongoose';
-import { Constants } from 'video-touch-common';
+import { Constants, terminal, Utils } from 'video-touch-common';
 import { WebhookService } from '@/src/api/webhook/services/webhook.service';
+import fs from 'fs';
+import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
+import { AssetDocument } from '@/src/api/assets/schemas/assets.schema';
+import { FileMapper } from '@/src/api/assets/mapper/file.mapper';
+import { FILE_TYPE } from 'video-touch-common/dist/constants';
+import { getTranscriptFileName } from 'video-touch-common/dist/utils';
+import { TranscriptService } from '@/src/api/assets/services/transcript.service';
 
 @Injectable()
 export class FileService {
@@ -13,7 +20,8 @@ export class FileService {
     private repository: FileRepository,
     private assetService: AssetService,
     private jobManagerService: JobManagerService,
-    private webhookService: WebhookService
+    private webhookService: WebhookService,
+    private transcriptService: TranscriptService
   ) {}
 
   async updateFileStatus(fileId: string, status: string, details: string, size?: number) {
@@ -48,7 +56,7 @@ export class FileService {
     );
   }
 
-  async afterUpdateFileLatestStatus(oldDoc: FileDocument) {
+  async afterUpdateFileLatestStatus(oldDoc: FileDocument, assetDocument: AssetDocument) {
     console.log('oldDoc ', oldDoc);
     let updatedFile = await this.repository.findOne({
       _id: mongoose.Types.ObjectId(oldDoc._id.toString()),
@@ -59,7 +67,7 @@ export class FileService {
     });
 
     if (updatedFile.type === Constants.FILE_TYPE.AUDIO && updatedFile.latest_status === Constants.FILE_STATUS.READY) {
-      this.checkForTranscriptionGeneration(updatedFile)
+      this.checkForTranscriptionGeneration(updatedFile, assetDocument)
         .then()
         .catch((err) => {
           console.log('error while checking transcription generation', err);
@@ -90,6 +98,17 @@ export class FileService {
         })
         .catch((err) => {
           console.log('error while updating master file version', err);
+        });
+    }
+    if (
+      updatedFile.type === Constants.FILE_TYPE.PARTIAL_TRANSCRIPT &&
+      updatedFile.latest_status === Constants.FILE_STATUS.READY
+    ) {
+      this.transcriptService
+        .generateTranscriptByPartialTranscriptFile(updatedFile)
+        .then()
+        .catch((err) => {
+          console.log('error while generating transcript for asset', err);
         });
     }
 
@@ -128,22 +147,6 @@ export class FileService {
       await this.repository.findOneAndUpdate(
         {
           _id: downloadFile._id,
-        },
-        {
-          job_id: jobData.id,
-        }
-      );
-    }
-  }
-
-  async initTranscriptionFileGeneration(transcriptFile: FileDocument) {
-    console.log('Transcript file found, proceeding with transcription generation');
-    let jobData = await this.jobManagerService.publishTranscriptionGenerationJob(transcriptFile);
-    console.log('job published for transcript file ', jobData);
-    if (jobData) {
-      await this.repository.findOneAndUpdate(
-        {
-          _id: transcriptFile._id,
         },
         {
           job_id: jobData.id,
@@ -214,6 +217,21 @@ export class FileService {
           );
         }
       }
+      if (doc.type === FILE_TYPE.PARTIAL_TRANSCRIPT) {
+        console.log('Transcription file found, proceeding with transcription file generation');
+        let jobData = await this.jobManagerService.publishTranscriptionGenerationJob(doc);
+        console.log('job published for transcription file ', jobData);
+        if (jobData) {
+          await this.repository.findOneAndUpdate(
+            {
+              _id: doc._id,
+            },
+            {
+              job_id: jobData.id,
+            }
+          );
+        }
+      }
     } catch (err) {
       console.error('Error in afterSave for file service: ', err);
     }
@@ -227,17 +245,101 @@ export class FileService {
     });
   }
 
-  async checkForTranscriptionGeneration(updatedFile: FileDocument) {
-    let transcriptTypeFile = await this.getFileByType(
-      updatedFile.asset_id.toString(),
-      Constants.FILE_TYPE.TRANSCRIPT,
-      Constants.FILE_STATUS.QUEUED
+  async createPartialTranscriptionFile(
+    assetId: string,
+    transcriptFileName: string,
+    audioFileName: string,
+    audioStartTime: string
+  ) {
+    let fileToBeSaved = FileMapper.mapForSave(
+      assetId,
+      transcriptFileName,
+      FILE_TYPE.PARTIAL_TRANSCRIPT,
+      0,
+      0,
+      Constants.FILE_STATUS.QUEUED,
+      'Transcription file queued for processing',
+      0,
+      {
+        audio_start_time: audioStartTime,
+        audio_file_name: audioFileName,
+      }
     );
-    if (!transcriptTypeFile) {
-      console.log('No transcript type file found, skipping transcription generation');
-      return;
-    }
+    return this.repository.create(fileToBeSaved);
+  }
 
-    return this.initTranscriptionFileGeneration(transcriptTypeFile);
+  async createTranscriptionFile(assetId: string) {
+    let fileToBeSaved = FileMapper.mapForSave(
+      assetId,
+      getTranscriptFileName(),
+      FILE_TYPE.TRANSCRIPT,
+      0,
+      0,
+      Constants.FILE_STATUS.QUEUED,
+      'Transcription file queued for processing',
+      0
+    );
+    return this.repository.create(fileToBeSaved);
+  }
+
+  async checkForTranscriptionGeneration(updatedFile: FileDocument, asset: AssetDocument) {
+    console.log('Checking for transcription generation settings');
+    if (AppConfigService.appConfig.TRANSCRIPTION_GENERATION_ENABLED && asset.with_transcription) {
+      let audioFilePath = Utils.getLocalMp3Path(
+        updatedFile.asset_id.toString(),
+        AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY
+      );
+      if (!fs.existsSync(audioFilePath)) {
+        console.log('Audio file does not exist, skipping transcription generation');
+        return;
+      }
+
+      let outputDir = `${Utils.getLocalVideoRootPath(
+        updatedFile.asset_id.toString(),
+        AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY
+      )}/audio_chunks/`;
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir);
+      }
+      await this.splitAudio(audioFilePath, outputDir);
+
+      let sortedFiles = fs.readdirSync(outputDir).sort((a, b) => {
+        const numA = parseInt(a.match(/\d+/)?.[0] || '0');
+        const numB = parseInt(b.match(/\d+/)?.[0] || '0');
+        return numA - numB;
+      });
+
+      let startTimeSeconds = 0;
+      for (let i = 0; i < sortedFiles.length; i++) {
+        const chunkInputFilePath = `${outputDir}${sortedFiles[i]}`;
+        await this.createPartialTranscriptionFile(
+          asset._id.toString(),
+          `transcript_${i}.json`,
+          sortedFiles[i],
+          this.formatSecondsToHHMMSS(startTimeSeconds)
+        );
+        startTimeSeconds += AppConfigService.appConfig.AUDIO_CHUNK_DURATION_IN_SEC;
+        console.log(`Created transcription file for chunk: ${chunkInputFilePath}`);
+      }
+
+      await this.createTranscriptionFile(asset._id.toString());
+    } else {
+      console.log('transcription generation is disabled. Skipping transcription file creation.');
+    }
+  }
+
+  async splitAudio(inputFilePath: string, outputDir: string) {
+    console.log(`Splitting audio file ${inputFilePath} into directory ${outputDir}`);
+    const command = `ffmpeg -i ${inputFilePath} -f segment -segment_time ${AppConfigService.appConfig.AUDIO_CHUNK_DURATION_IN_SEC} -c copy ${outputDir}%03d.mp3`;
+    await terminal(command);
+    console.log('Audio splitting completed');
+  }
+
+  formatSecondsToHHMMSS(seconds: number): string {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+
+    return [hours, minutes, secs].map((unit) => unit.toString().padStart(2, '0')).join(':');
   }
 }

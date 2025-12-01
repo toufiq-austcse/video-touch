@@ -36,6 +36,9 @@ export class FileDocument extends AbstractDocument {
 
   @Prop({ required: false })
   job_id?: string;
+
+  @Prop({ required: false, type: Object })
+  meta?: any;
 }
 
 export const FileSchema = SchemaFactory.createForClass(FileDocument);

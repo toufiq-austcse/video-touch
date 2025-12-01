@@ -9,6 +9,7 @@ import { UploadService } from '@/src/worker/upload.service';
 import { AudioExtractionWorker } from '@/src/worker/audio-extraction.worker';
 import { AudioTranscriptionWorker } from '@/src/worker/audio-transcription.worker';
 import { GenAiClientModule } from '@/src/common/gen-ai-models/gen-ai-client.module';
+import { TranscriptMergerWorker } from '@/src/worker/transcript-merger.worker';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { GenAiClientModule } from '@/src/common/gen-ai-models/gen-ai-client.modu
     AudioTranscriptionWorker,
     FileStatusPublisher,
     UploadService,
+    TranscriptMergerWorker,
   ],
 })
 export class WorkerModule {}

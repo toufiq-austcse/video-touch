@@ -20,6 +20,7 @@ type CreateAssetResponse {
   description: String
   source_url: String!
   status: String!
+  with_transcription: Boolean!
   tags: [String!]!
 }
 
@@ -37,6 +38,7 @@ type Asset {
   tags: [String!]!
   created_at: DateTime!
   updated_at: DateTime!
+  with_transcription: Boolean!
   thumbnail_url: String!
   files: [File!]!
 }
@@ -113,6 +115,7 @@ input CreateAssetInputDto {
   title: String
   description: String
   source_url: String!
+  with_transcription: Boolean! = false
   tags: [String!]
 }
 
