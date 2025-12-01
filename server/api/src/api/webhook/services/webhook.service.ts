@@ -5,7 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { AssetDocument } from '../../assets/schemas/assets.schema';
 import { WebhookPayloadDto } from '../dto/webhook-payload.dto';
 import { FileDocument } from '@/src/api/assets/schemas/files.schema';
-import { Utils } from 'video-touch-common';
+import { Utils, Constants } from 'video-touch-common';
 
 @Injectable()
 export class WebhookService {
@@ -39,6 +39,10 @@ export class WebhookService {
   }
   async publishFileEvent(updatedFile: FileDocument): Promise<any> {
     try {
+      if (updatedFile.type === Constants.FILE_TYPE.PARTIAL_TRANSCRIPT) {
+        console.log('skipping webhook for partial transcript file ', updatedFile._id.toString());
+        return;
+      }
       let payload: WebhookPayloadDto = {
         event_type: `file.status.${updatedFile.latest_status.toLowerCase()}`,
         data: {

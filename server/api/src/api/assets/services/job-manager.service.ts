@@ -314,7 +314,7 @@ export class JobManagerService {
       name: transcriptFile.name,
       audio_file_name: transcriptFile.meta?.audio_file_name || '',
       audio_start_time: transcriptFile.meta?.audio_start_time || '0:00:00',
-    } as any;
+    };
     return this.audioTranscriptionQueue.add(
       AppConfigService.appConfig.BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE,
       transcriptionGenerationJob,
@@ -328,14 +328,22 @@ export class JobManagerService {
       }
     );
   }
-  async publishTranscriptMergingJob(assetId: string, fileId: string, partialTranscriptFile: FileDocument[]) {
-    let transcriptMergingJob = {
+  async publishTranscriptMergingJob(
+    assetId: string,
+    mainTranscriptFile: FileDocument,
+    partialTranscriptFile: FileDocument[]
+  ) {
+    let transcriptMergingJob: Models.AudioTranscriptionMergeJobModel = {
       asset_id: assetId,
-      file_id: fileId,
-      partial_transcript_files: partialTranscriptFile.map((file) => ({
-        name: file.name,
-        audio_start_time: file.meta?.audio_start_time || '0:00:00',
-      })),
+      file_id: mainTranscriptFile._id.toString(),
+      name: mainTranscriptFile.name,
+      type: mainTranscriptFile.type,
+      partial_transcript_files: partialTranscriptFile.map((file) => {
+        return {
+          name: file.name,
+          audio_start_time: file.meta?.audio_start_time || '0:00:00',
+        };
+      }),
     };
     return this.transcriptMergerQueue.add(
       AppConfigService.appConfig.BULL_AUDIO_TRANSCRIPT_MERGE_QUEUE,

@@ -12,6 +12,7 @@ import { AssetDocument } from '@/src/api/assets/schemas/assets.schema';
 import { FileMapper } from '@/src/api/assets/mapper/file.mapper';
 import { FILE_TYPE } from 'video-touch-common/dist/constants';
 import { getTranscriptFileName } from 'video-touch-common/dist/utils';
+import { TranscriptService } from '@/src/api/assets/services/transcript.service';
 
 @Injectable()
 export class FileService {
@@ -19,7 +20,8 @@ export class FileService {
     private repository: FileRepository,
     private assetService: AssetService,
     private jobManagerService: JobManagerService,
-    private webhookService: WebhookService
+    private webhookService: WebhookService,
+    private transcriptService: TranscriptService
   ) {}
 
   async updateFileStatus(fileId: string, status: string, details: string, size?: number) {
@@ -98,6 +100,17 @@ export class FileService {
           console.log('error while updating master file version', err);
         });
     }
+    if (
+      updatedFile.type === Constants.FILE_TYPE.PARTIAL_TRANSCRIPT &&
+      updatedFile.latest_status === Constants.FILE_STATUS.READY
+    ) {
+      this.transcriptService
+        .generateTranscriptByPartialTranscriptFile(updatedFile)
+        .then()
+        .catch((err) => {
+          console.log('error while generating transcript for asset', err);
+        });
+    }
 
     if (updatedFile.latest_status === Constants.FILE_STATUS.FAILED) {
       this.assetService
@@ -134,22 +147,6 @@ export class FileService {
       await this.repository.findOneAndUpdate(
         {
           _id: downloadFile._id,
-        },
-        {
-          job_id: jobData.id,
-        }
-      );
-    }
-  }
-
-  async initTranscriptionFileGeneration(transcriptFile: FileDocument) {
-    console.log('Transcript file found, proceeding with transcription generation');
-    let jobData = await this.jobManagerService.publishTranscriptionGenerationJob(transcriptFile);
-    console.log('job published for transcript file ', jobData);
-    if (jobData) {
-      await this.repository.findOneAndUpdate(
-        {
-          _id: transcriptFile._id,
         },
         {
           job_id: jobData.id,
@@ -220,7 +217,7 @@ export class FileService {
           );
         }
       }
-      if (doc.type === 'partial_transcript') {
+      if (doc.type === FILE_TYPE.PARTIAL_TRANSCRIPT) {
         console.log('Transcription file found, proceeding with transcription file generation');
         let jobData = await this.jobManagerService.publishTranscriptionGenerationJob(doc);
         console.log('job published for transcription file ', jobData);
@@ -234,9 +231,6 @@ export class FileService {
             }
           );
         }
-      }
-      if (doc.type === FILE_TYPE.TRANSCRIPT) {
-        // console.log('Final Transcript file found, proceeding with transcription file generation');
       }
     } catch (err) {
       console.error('Error in afterSave for file service: ', err);
@@ -260,7 +254,7 @@ export class FileService {
     let fileToBeSaved = FileMapper.mapForSave(
       assetId,
       transcriptFileName,
-      'partial_transcript',
+      FILE_TYPE.PARTIAL_TRANSCRIPT,
       0,
       0,
       Constants.FILE_STATUS.QUEUED,

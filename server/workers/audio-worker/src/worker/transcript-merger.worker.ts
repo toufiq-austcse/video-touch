@@ -1,10 +1,9 @@
 import { OnModuleInit } from '@nestjs/common';
-import path from 'node:path';
 import fs from 'node:fs';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import console from 'node:console';
 import { Job } from 'bullmq';
-import { Constants, Utils } from 'video-touch-common';
+import { Constants, Models, Utils } from 'video-touch-common';
 import { FileStatusPublisher } from '@/src/worker/file-status.publisher';
 import { checkLastAttempt } from '@/src/common/utils';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
@@ -25,10 +24,17 @@ export class TranscriptMergerWorker extends WorkerHost implements OnModuleInit {
   }
 
   async process(job: Job): Promise<any> {
-    let msg: any = job.data;
     console.log('TranscriptMergerWorker', job.data);
+    let msg: Models.AudioTranscriptionMergeJobModel = job.data as Models.AudioTranscriptionMergeJobModel;
     let isLastAttempt = checkLastAttempt(job);
     try {
+      this.fileStatusPublisher.publishUpdateFileStatusEvent(
+        msg.file_id.toString(),
+          `Transcript merging started`,
+        0,
+        Constants.FILE_STATUS.PROCESSING,
+      );
+
       await this.generateTranscript(msg.asset_id, msg.partial_transcript_files);
       console.log('transcript merged successfully');
       await this.uploaderService.publishVideoUploadJob(
@@ -90,20 +96,14 @@ export class TranscriptMergerWorker extends WorkerHost implements OnModuleInit {
       AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
     );
 
-    // Ensure the directory exists
-    const finalTranscriptDir = path.dirname(finalTranscriptFilePath);
-    if (!fs.existsSync(finalTranscriptDir)) {
-      fs.mkdirSync(finalTranscriptDir, { recursive: true });
-    }
-
     // Merge all partial transcripts into a single JSON array
     let mergedTranscripts: any[] = [];
 
     for (let file of partialTranscriptFiles) {
-      let partialTranscriptPath = `${Utils.getLocalVideoRootPath(
+      let partialTranscriptPath = `${Utils.getLocalPartialTranscriptsDir(
         assetId,
         AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
-      )}/transcripts/${file.name}`;
+      )}/${file.name}`;
 
       if (!fs.existsSync(partialTranscriptPath)) {
         console.warn(`Partial transcript file not found: ${partialTranscriptPath}`);

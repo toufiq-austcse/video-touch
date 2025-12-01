@@ -15,7 +15,7 @@ import * as fs from 'node:fs';
 export class AudioTranscriptionWorker extends WorkerHost implements OnModuleInit {
   constructor(
     private fileStatusPublisher: FileStatusPublisher,
-    private gemniClientService: GeminiClientService,
+    private geminiClientService: GeminiClientService,
     private openAiClientService: OpenAiClientService,
   ) {
     super();
@@ -38,8 +38,11 @@ export class AudioTranscriptionWorker extends WorkerHost implements OnModuleInit
         Constants.FILE_STATUS.PROCESSING,
       );
 
-      let inputFilePath = `${Utils.getLocalVideoRootPath(msg.asset_id, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY)}/audio_chunks/${job.data.audio_file_name}`;
-      let outputJsonPath = `${Utils.getLocalVideoRootPath(msg.asset_id, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY)}/transcripts`;
+      let inputFilePath = `${Utils.getLocalAudioChunksDir(msg.asset_id, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY)}/${job.data.audio_file_name}`;
+      let outputJsonPath = Utils.getLocalPartialTranscriptsDir(
+        msg.asset_id,
+        AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
+      );
       let audioStartTime = job.data.audio_start_time || '00:00:00';
 
       if (!fs.existsSync(outputJsonPath)) {
@@ -75,7 +78,7 @@ export class AudioTranscriptionWorker extends WorkerHost implements OnModuleInit
     switch (genAIPlatform) {
       case GEN_AI_PLATFORM.GOOGLE_GENAI:
         console.log('Using Gemini for audio transcription');
-        await this.gemniClientService.transcribeAudio(inputFilePath, outputJsonlPath);
+        await this.geminiClientService.transcribeAudio(inputFilePath, outputJsonlPath);
         break;
       case GEN_AI_PLATFORM.OPENAI:
         console.log('Using OpenAI for audio transcription');
