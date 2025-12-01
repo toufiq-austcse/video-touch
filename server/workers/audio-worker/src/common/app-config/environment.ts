@@ -15,4 +15,5 @@ export interface EnvironmentVariables {
   GOOGLE_GENAI_API_KEY: string;
   OPENAI_MODEL: string;
   OPENAI_API_KEY: string;
+  BULL_AUDIO_TRANSCRIPT_MERGE_QUEUE: string;
 }

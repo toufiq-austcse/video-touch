@@ -40,6 +40,7 @@ export interface EnvironmentVariables {
   BULL_DOWNLOAD_FILE_GENERATION_JOB_QUEUE: string;
   BULL_AUDIO_EXTRACTION_JOB_QUEUE: string;
   BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE: string;
+  BULL_AUDIO_TRANSCRIPT_MERGE_QUEUE: string;
 
   AWS_ACCESS_KEY_ID: string;
   AWS_REGION: string;
