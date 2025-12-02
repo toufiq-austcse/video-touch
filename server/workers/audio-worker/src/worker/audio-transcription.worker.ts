@@ -10,7 +10,7 @@ import { OpenAiClientService } from '@/src/common/gen-ai-models/open-ai/open-ai-
 import * as fs from 'node:fs';
 
 @Processor(process.env.BULL_AUDIO_TRANSCRIPTION_JOB_QUEUE, {
-  concurrency: 5,
+  concurrency: 3,
 })
 export class AudioTranscriptionWorker extends WorkerHost implements OnModuleInit {
   constructor(
