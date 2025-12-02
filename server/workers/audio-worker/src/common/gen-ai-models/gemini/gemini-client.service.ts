@@ -1,14 +1,15 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { createPartFromUri, createUserContent, GoogleGenAI } from '@google/genai';
-import { getTranscriptionPrompt } from '@/src/common/utils';
 import { createWriteStream } from 'fs';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class GeminiClientService implements OnModuleInit {
   private aiClient: GoogleGenAI;
+  private promtText: string;
 
-  constructor() {}
+  constructor(private httpService: HttpService) {}
 
   onModuleInit() {
     if (!AppConfigService.appConfig.GOOGLE_GENAI_API_KEY) {
@@ -17,6 +18,16 @@ export class GeminiClientService implements OnModuleInit {
     this.aiClient = new GoogleGenAI({
       apiKey: AppConfigService.appConfig.GOOGLE_GENAI_API_KEY,
     });
+    this.setupPrompt().then(() => {
+      console.log('prompt loaded');
+    });
+  }
+
+  async setupPrompt() {
+    const promptUrl = AppConfigService.appConfig.TRANSCRIPT_PROMT_FILE_URL;
+    const response = await this.httpService.axiosRef.get<string>(promptUrl);
+    this.promtText = response.data;
+    console.log(this.promtText);
   }
 
   async transcribeAudio(localFilePath: string, outputFilePath: string) {
@@ -27,10 +38,7 @@ export class GeminiClientService implements OnModuleInit {
 
     const stream = await this.aiClient.models.generateContentStream({
       model: AppConfigService.appConfig.GOOGLE_GEN_AI_MODEL,
-      contents: createUserContent([
-        createPartFromUri(uploadedFile.uri, uploadedFile.mimeType),
-        getTranscriptionPrompt(),
-      ]),
+      contents: createUserContent([createPartFromUri(uploadedFile.uri, uploadedFile.mimeType), this.promtText]),
       config: {
         responseMimeType: 'application/json',
         responseSchema: {

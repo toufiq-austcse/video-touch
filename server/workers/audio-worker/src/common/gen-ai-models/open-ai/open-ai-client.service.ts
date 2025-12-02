@@ -3,13 +3,14 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
 import OpenAI from 'openai';
 import * as fs from 'node:fs';
 import { createWriteStream } from 'fs';
-import { getTranscriptionPrompt } from '@/src/common/utils';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class OpenAiClientService implements OnModuleInit {
   private aiClient: OpenAI;
+  private promtText: string;
 
-  constructor() {}
+  constructor(private httpService: HttpService) {}
 
   onModuleInit() {
     if (!AppConfigService.appConfig.OPENAI_API_KEY) {
@@ -18,6 +19,17 @@ export class OpenAiClientService implements OnModuleInit {
     this.aiClient = new OpenAI({
       apiKey: AppConfigService.appConfig.OPENAI_API_KEY,
     });
+
+    this.setupPrompt().then(() => {
+      console.log('prompt loaded');
+    });
+  }
+
+  async setupPrompt() {
+    const promptUrl = AppConfigService.appConfig.TRANSCRIPT_PROMT_FILE_URL;
+    const response = await this.httpService.axiosRef.get<string>(promptUrl);
+    this.promtText = response.data;
+    console.log(this.promtText);
   }
 
   async transcribeAudio(localFilePath: string, outputFilePath: string) {
@@ -56,7 +68,7 @@ export class OpenAiClientService implements OnModuleInit {
             },
             {
               type: 'text',
-              text: getTranscriptionPrompt(),
+              text: this.promtText,
             },
           ],
         },

@@ -16,4 +16,5 @@ export interface EnvironmentVariables {
   OPENAI_MODEL: string;
   OPENAI_API_KEY: string;
   BULL_AUDIO_TRANSCRIPT_MERGE_QUEUE: string;
+  TRANSCRIPT_PROMT_FILE_URL: string;
 }
