@@ -27,6 +27,7 @@ export class AppConfigService {
       OPENAI_MODEL: this.configService.get('OPENAI_MODEL'),
       BULL_AUDIO_SPLIT_JOB_QUEUE: this.configService.getOrThrow('BULL_AUDIO_SPLIT_JOB_QUEUE'),
       BULL_AUDIO_TRANSCRIPT_MERGE_QUEUE: this.configService.getOrThrow('BULL_AUDIO_TRANSCRIPT_MERGE_QUEUE'),
+      TRANSCRIPT_PROMT_FILE_URL: this.configService.getOrThrow('TRANSCRIPT_PROMT_FILE_URL'),
     };
   }
 }
