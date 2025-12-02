@@ -60,10 +60,27 @@ export class TranscriptMergerWorker extends WorkerHost implements OnModuleInit {
       throw new Error(`Error while extracting audio of assetId ${msg.asset_id}p: ${e.message}`);
     }
   }
-  // Helper function to convert HH:MM:SS to seconds
   private timeToSeconds(time: string): number {
-    const parts = time.split(':').map(Number);
-    return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    if (!time || typeof time !== 'string') {
+      console.warn(`Invalid time format: ${time}, defaulting to 0`);
+      return 0;
+    }
+
+    const parts = time.split(':');
+
+    if (parts.length !== 3) {
+      console.warn(`Time format should be HH:MM:SS, got: ${time}, defaulting to 0`);
+      return 0;
+    }
+
+    const [hours, minutes, seconds] = parts.map(Number);
+
+    if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
+      console.warn(`Non-numeric values in time string: ${time}, defaulting to 0`);
+      return 0;
+    }
+
+    return hours * 3600 + minutes * 60 + seconds;
   }
 
   // Helper function to convert seconds to HH:MM:SS

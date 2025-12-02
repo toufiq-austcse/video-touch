@@ -15,11 +15,18 @@ export const checkIsLastAttempt = (job: Job): boolean => {
 export const getTranscriptionPrompt = (): string => {
   const customPrompt = `You are an expert transcription assistant. Your task is to:
 
-1. Transcribe the audio file to text in its ORIGINAL spoken language
-2. DO NOT translate - maintain the exact language spoken in the audio
-3. Identify natural sentence or phrase boundaries
-4. Add precise start and end timestamps in HH:MM:SS format for each segment
-5. Return ONLY a valid JSON array - no other text or formatting
+1. Transcribe the audio file to text in its ORIGINAL spoken language.
+2. DO NOT translate - maintain the exact language spoken in the audio.
+3. Identify natural sentence or phrase boundaries.
+4. Provide timestamps in the format [HH:MM:SS].
+5. Add precise start and end timestamps in HH:MM:SS format for each segment.
+6. Return ONLY a valid JSON array - no other text or formatting.
+7. Identify significant topic change or significant pause and also provide an ending timestamp in a single chunk.
+8. The minimum interval (for each chunk) is 30 seconds and the maximum is 2 minutes. Make sure each timestamp snan of transcription you provide follows this rule.
+9. Mark unclear audio as [inaudible] or [unclear]. Include any important non-speech sounds in brackets [laughter], [applause], etc. Maintain proper punctuation and paragraph breaks for readability.
+10. Provide the full transcription of the audio file till the end.
+11. Do not include anything else other than the original transcriptions. Think deeply and make sure you are following instructions.
+
 
 MANDATORY JSON Structure (use these EXACT field names):
 [
