@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
-import { createPartFromUri, createUserContent, GoogleGenAI } from '@google/genai';
+import { createPartFromUri, createUserContent, GenerateContentConfig, GoogleGenAI } from '@google/genai';
 import { createWriteStream } from 'fs';
 import { HttpService } from '@nestjs/axios';
 
@@ -36,33 +36,44 @@ export class GeminiClientService implements OnModuleInit {
       config: { mimeType: 'audio/mp3' },
     });
 
+    let config: GenerateContentConfig = {
+      responseMimeType: 'application/json',
+      responseSchema: {
+        type: 'ARRAY',
+        items: {
+          type: 'OBJECT',
+          properties: {
+            start: {
+              type: 'STRING',
+              description: 'Start time in HH:MM:SS format (e.g., 00:01:30, 01:25:45)',
+            },
+            end: {
+              type: 'STRING',
+              description: 'End time in HH:MM:SS format (e.g., 00:01:45, 01:26:00)',
+            },
+            text: {
+              type: 'STRING',
+              description: 'Transcribed text in original language',
+            },
+          },
+          required: ['start', 'end', 'text'],
+        },
+      },
+    };
+    if (AppConfigService.appConfig.GOOGLE_GENAI_THINKING_LEVEL) {
+      config.thinkingConfig = {
+        thinkingLevel: AppConfigService.appConfig.GOOGLE_GENAI_THINKING_LEVEL as any,
+      };
+    }
+
+    if (AppConfigService.appConfig.GOOGLE_GENAI_TEMPERATURE) {
+      config.temperature = AppConfigService.appConfig.GOOGLE_GENAI_TEMPERATURE;
+    }
+
     const stream = await this.aiClient.models.generateContentStream({
       model: AppConfigService.appConfig.GOOGLE_GEN_AI_MODEL,
       contents: createUserContent([createPartFromUri(uploadedFile.uri, uploadedFile.mimeType), this.promtText]),
-      config: {
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: 'ARRAY',
-          items: {
-            type: 'OBJECT',
-            properties: {
-              start: {
-                type: 'STRING',
-                description: 'Start time in HH:MM:SS format (e.g., 00:01:30, 01:25:45)',
-              },
-              end: {
-                type: 'STRING',
-                description: 'End time in HH:MM:SS format (e.g., 00:01:45, 01:26:00)',
-              },
-              text: {
-                type: 'STRING',
-                description: 'Transcribed text in original language',
-              },
-            },
-            required: ['start', 'end', 'text'],
-          },
-        },
-      },
+      config: config,
     });
 
     const writeStream = createWriteStream(outputFilePath);

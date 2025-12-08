@@ -13,6 +13,8 @@ export interface EnvironmentVariables {
   TRANSCRIPTION_GENERATION_ENABLED: boolean;
   GOOGLE_GEN_AI_MODEL: string;
   GOOGLE_GENAI_API_KEY: string;
+  GOOGLE_GENAI_TEMPERATURE: number;
+  GOOGLE_GENAI_THINKING_LEVEL: string;
   OPENAI_MODEL: string;
   OPENAI_API_KEY: string;
   BULL_AUDIO_TRANSCRIPT_MERGE_QUEUE: string;

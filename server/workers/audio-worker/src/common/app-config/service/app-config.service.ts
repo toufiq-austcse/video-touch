@@ -24,6 +24,8 @@ export class AppConfigService {
       GOOGLE_GENAI_API_KEY: this.configService.get('GOOGLE_GENAI_API_KEY'),
       OPENAI_API_KEY: this.configService.get('OPENAI_API_KEY'),
       GOOGLE_GEN_AI_MODEL: this.configService.get('GOOGLE_GEN_AI_MODEL'),
+      GOOGLE_GENAI_TEMPERATURE: +this.configService.get('GOOGLE_GENAI_TEMPERATURE'),
+      GOOGLE_GENAI_THINKING_LEVEL: this.configService.get('GOOGLE_GENAI_THINKING_LEVEL'),
       OPENAI_MODEL: this.configService.get('OPENAI_MODEL'),
       BULL_AUDIO_SPLIT_JOB_QUEUE: this.configService.getOrThrow('BULL_AUDIO_SPLIT_JOB_QUEUE'),
       BULL_AUDIO_TRANSCRIPT_MERGE_QUEUE: this.configService.getOrThrow('BULL_AUDIO_TRANSCRIPT_MERGE_QUEUE'),
