@@ -8,7 +8,7 @@ import {
   getPollInterval,
   secondsToHHMMSS,
 } from "@/lib/utils";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -18,6 +18,7 @@ import VideoTitleComponent from "@/components/ui/video-title-component";
 import VideoFilesComponent from "@/components/ui/video-files-component";
 import { NextPage } from "next";
 import PrivateRoute from "@/components/private-route";
+import { useState } from "react";
 
 const PlyrHlsPlayer = dynamic(() => import("@/components/ui/video-player"), {
   ssr: false,
@@ -33,6 +34,7 @@ const VideoDetailsComponent = dynamic(
 const VideoDetailsPage: NextPage = () => {
   const router = useRouter();
   const { id } = router.query;
+  const [isTimelineExpanded, setIsTimelineExpanded] = useState(false);
 
   const { data, loading, error } = useQuery(GET_ASSET_QUERY, {
     variables: {
@@ -163,33 +165,59 @@ const VideoDetailsPage: NextPage = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {[...videoDetails.status_logs]
-                    .reverse()
-                    .map((status, index) => (
-                      <div
-                        key={index}
-                        className="flex items-start space-x-3 pb-4 border-b last:border-0"
-                      >
+                <div
+                  className={`space-y-4 overflow-hidden transition-all duration-300 ${
+                    isTimelineExpanded ? "max-h-none" : "max-h-[400px]"
+                  }`}
+                >
+                  <div
+                    className={`space-y-4 ${!isTimelineExpanded ? "overflow-y-auto max-h-[400px]" : ""}`}
+                  >
+                    {[...videoDetails.status_logs]
+                      .reverse()
+                      .map((status, index) => (
                         <div
-                          className={`bg-indigo-100 p-2 rounded-full ${index === 0 && status.status !== "READY" ? "blink" : ""}`}
+                          key={index}
+                          className="flex items-start space-x-3 pb-4 border-b last:border-0"
                         >
-                          <div className="h-2 w-2 rounded-full bg-indigo-500"></div>
-                        </div>
-                        <div>
-                          <p className="font-medium">{status.status}</p>
-                          <p className="text-sm text-gray-600">
-                            {new Date(status.created_at).toLocaleString()}
-                          </p>
-                          {status.details && (
-                            <p className="text-sm mt-1 text-gray-600">
-                              {status.details}
+                          <div
+                            className={`bg-indigo-100 p-2 rounded-full ${index === 0 && status.status !== "READY" ? "blink" : ""}`}
+                          >
+                            <div className="h-2 w-2 rounded-full bg-indigo-500"></div>
+                          </div>
+                          <div>
+                            <p className="font-medium">{status.status}</p>
+                            <p className="text-sm text-gray-600">
+                              {new Date(status.created_at).toLocaleString()}
                             </p>
-                          )}
+                            {status.details && (
+                              <p className="text-sm mt-1 text-gray-600">
+                                {status.details}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                  </div>
                 </div>
+                {videoDetails.status_logs.length > 5 && (
+                  <button
+                    onClick={() => setIsTimelineExpanded(!isTimelineExpanded)}
+                    className="w-full mt-4 py-2 px-4 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-md flex items-center justify-center gap-2 transition-colors"
+                  >
+                    {isTimelineExpanded ? (
+                      <>
+                        <span>Show Less</span>
+                        <ChevronUp className="h-4 w-4" />
+                      </>
+                    ) : (
+                      <>
+                        <span>Show More</span>
+                        <ChevronDown className="h-4 w-4" />
+                      </>
+                    )}
+                  </button>
+                )}
               </CardContent>
             </Card>
           </div>
