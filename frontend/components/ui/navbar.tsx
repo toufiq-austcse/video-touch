@@ -91,6 +91,10 @@ const Navbar = () => {
                     <DropdownMenuContent className="w-56">
                       <DropdownMenuLabel>My Account</DropdownMenuLabel>
                       <DropdownMenuSeparator />
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link href="/developer">Developer</Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem>
                         <LogOut className="mr-2 h-4 w-4" />
                         <span onClick={onLogOutClick}>Log out</span>
