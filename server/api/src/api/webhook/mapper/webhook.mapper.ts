@@ -26,9 +26,7 @@ export class WebhookMapper {
     };
   }
 
-  static toPaginatedWebhookResponse(
-    paginatedResult: BasePaginatedResponse<WebHookDocument>
-  ): PaginatedWebhookResponse {
+  static toPaginatedWebhookResponse(paginatedResult: BasePaginatedResponse<WebHookDocument>): PaginatedWebhookResponse {
     return {
       webhooks: paginatedResult.items.map((webhook) => this.toWebhookResponse(webhook)),
       page_info: paginatedResult.pageInfo,

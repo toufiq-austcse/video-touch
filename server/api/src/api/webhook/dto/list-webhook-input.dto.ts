@@ -23,4 +23,3 @@ export class ListWebhookInputDto {
   @IsOptional()
   search: string;
 }
-

@@ -37,4 +37,3 @@ export class PaginatedWebhookResponse {
   @Expose()
   page_info: PageInfo;
 }
-
