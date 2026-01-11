@@ -318,9 +318,7 @@ const DeveloperPage: NextPage = () => {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className=" text-2xl font-bold">
-            Developer Settings
-          </h1>
+          <h1 className=" text-2xl font-bold">Developer Settings</h1>
           <p className="text-gray-600 mt-2">
             Manage webhooks and API integrations for your application
           </p>
@@ -340,9 +338,7 @@ const DeveloperPage: NextPage = () => {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className=" text-2xl font-bold">
-            Developer Settings
-          </h1>
+          <h1 className=" text-2xl font-bold">Developer Settings</h1>
           <p className="text-gray-600 mt-2">
             Manage webhooks and API integrations for your application
           </p>
@@ -368,9 +364,7 @@ const DeveloperPage: NextPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className=" text-2xl font-bold">
-          Developer Settings
-        </h1>
+        <h1 className=" text-2xl font-bold">Developer Settings</h1>
         <p className="text-gray-600 mt-2">
           Manage webhooks and API integrations for your application
         </p>
