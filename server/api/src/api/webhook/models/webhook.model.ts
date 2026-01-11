@@ -12,7 +12,7 @@ export class Webhook {
   url: string;
 
   @Field({
-    nullable:true
+    nullable: true,
   })
   @Expose()
   secret_token: string;
