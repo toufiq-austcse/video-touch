@@ -12,6 +12,7 @@ import { UserDocument } from '@/src/api/auth/schemas/user.schema';
 import { WebhookMapper } from '@/src/api/webhook/mapper/webhook.mapper';
 import { WebhookRepository } from '@/src/api/webhook/repositories/webhook.repository';
 import { ListWebhookInputDto } from '@/src/api/webhook/dto/list-webhook-input.dto';
+import { UpdateWebhookInputDto } from '@/src/api/webhook/dto/update-webhook-input.dto';
 
 @Injectable()
 export class WebhookService {
@@ -30,6 +31,28 @@ export class WebhookService {
       listWebhookInputDto.search,
       user
     );
+  }
+
+  async update(oldWebhook: WebHookDocument, updateWebhookInput: UpdateWebhookInputDto) {
+    await this.repistory.findOneAndUpdate(
+      { _id: oldWebhook._id },
+      {
+        url: updateWebhookInput.url ? updateWebhookInput.url : oldWebhook.url,
+        secret_token: updateWebhookInput.secret_token !== undefined ? updateWebhookInput.secret_token : oldWebhook.secret_token,
+      }
+    );
+    return this.repistory.findOne({ _id: oldWebhook._id });
+  }
+
+  async getWebhook(_id: string, user: UserDocument) {
+    return this.repistory.findOne({
+      _id: _id,
+      user_id: user._id,
+    });
+  }
+
+  async delete(webhook: WebHookDocument) {
+    await this.repistory.deleteOne({ _id: webhook._id });
   }
 
   async publishAssetEvent(updatedAsset: AssetDocument): Promise<any> {

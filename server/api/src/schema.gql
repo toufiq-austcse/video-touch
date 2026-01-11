@@ -132,6 +132,8 @@ type Mutation {
   UpdateAsset(_id: String!, updateAssetInputDto: UpdateAssetInputDto!): Asset!
   DeleteAsset(_id: String!): String!
   CreateWebhook(createWebhookInput: CreateWebhookInputDto!): Webhook!
+  UpdateWebhook(_id: String!, updateWebhookInputDto: UpdateWebhookInputDto!): Webhook!
+  DeleteWebhook(_id: String!): String!
 }
 
 input CreateAssetInputDto {
@@ -159,5 +161,10 @@ input UpdateAssetInputDto {
 
 input CreateWebhookInputDto {
   url: String!
+  secret_token: String
+}
+
+input UpdateWebhookInputDto {
+  url: String
   secret_token: String
 }
