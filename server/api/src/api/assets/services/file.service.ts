@@ -66,7 +66,11 @@ export class FileService {
       console.log('error while publishing webhook event ', err);
     });
 
-    if (updatedFile.type === Constants.FILE_TYPE.AUDIO && updatedFile.latest_status === Constants.FILE_STATUS.READY) {
+    if (
+      updatedFile.type === Constants.FILE_TYPE.AUDIO &&
+      updatedFile.latest_status === Constants.FILE_STATUS.READY &&
+      assetDocument.with_transcription
+    ) {
       this.checkForTranscriptionGeneration(updatedFile, assetDocument)
         .then()
         .catch((err) => {
@@ -82,15 +86,6 @@ export class FileService {
         .catch((err) => {
           console.log('error while checking download file generation', err);
         });
-
-      this.assetService
-        .checkForAssetReadyStatus(assetId.toString())
-        .then(() => {
-          console.log('checked for asset ready status');
-        })
-        .catch((err) => {
-          console.log('error while checking asset ready status', err);
-        });
       this.assetService
         .updateMasterFileVersion(assetId.toString())
         .then((data) => {
@@ -99,6 +94,46 @@ export class FileService {
         .catch((err) => {
           console.log('error while updating master file version', err);
         });
+    }
+    if (updatedFile.latest_status === Constants.FILE_STATUS.READY) {
+      if (assetDocument.with_transcoding) {
+        if (
+          updatedFile.latest_status === Constants.FILE_STATUS.READY &&
+          updatedFile.type === Constants.FILE_TYPE.PLAYLIST
+        ) {
+          this.assetService
+            .checkForAssetReadyStatus(assetId.toString())
+            .then(() => {
+              console.log('checked for asset ready status');
+            })
+            .catch((err) => {
+              console.log('error while checking asset ready status', err);
+            });
+        }
+      } else if (assetDocument.with_transcription) {
+        if (
+          updatedFile.type === Constants.FILE_TYPE.TRANSCRIPT &&
+          updatedFile.latest_status === Constants.FILE_STATUS.READY
+        ) {
+          this.assetService
+            .checkForAssetReadyStatus(assetId.toString())
+            .then(() => {
+              console.log('checked for asset ready status');
+            })
+            .catch((err) => {
+              console.log('error while checking asset ready status', err);
+            });
+        }
+      } else {
+        this.assetService
+          .checkForAssetReadyStatus(assetId.toString())
+          .then(() => {
+            console.log('checked for asset ready status');
+          })
+          .catch((err) => {
+            console.log('error while checking asset ready status', err);
+          });
+      }
     }
     if (
       updatedFile.type === Constants.FILE_TYPE.PARTIAL_TRANSCRIPT &&

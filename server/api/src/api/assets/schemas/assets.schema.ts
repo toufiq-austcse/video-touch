@@ -74,6 +74,9 @@ export class AssetDocument extends AbstractDocument {
 
   @Prop({ required: false, default: false })
   with_transcription?: boolean;
+
+  @Prop({ required: false, default: true })
+  with_transcoding?: boolean;
 }
 
 export const VideoSchema = SchemaFactory.createForClass(AssetDocument);

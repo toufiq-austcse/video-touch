@@ -39,6 +39,11 @@ export class CreateAssetInputDto {
   @IsOptional()
   with_transcription: boolean;
 
+  @Field({ defaultValue: true })
+  @IsBoolean()
+  @IsOptional()
+  with_transcoding: boolean;
+
   @Field(() => [String], { nullable: true })
   @IsArray()
   @IsOptional()
