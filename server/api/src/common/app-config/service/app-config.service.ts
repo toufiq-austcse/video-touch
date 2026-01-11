@@ -93,7 +93,7 @@ export class AppConfigService {
       return false;
     }
     if (!AppConfigService.appConfig.OPENAI_MODEL && !AppConfigService.appConfig.GOOGLE_GEN_AI_MODEL) {
-      console.log('Transcription generation is enabled, but no model is configured.');
+      console.log('Transcription generation is enabled, but no models is configured.');
       process.exit(1);
     }
     //Transcription generation is enabled, validate API keys and models

@@ -47,7 +47,7 @@ export class OpenAiClientService implements OnModuleInit {
   }
 
   private async transcribeWithGPT4o(localFilePath: string, outputFilePath: string) {
-    console.log('Using GPT-4o audio model for Bangla transcription...');
+    console.log('Using GPT-4o audio models for Bangla transcription...');
 
     // Read and encode audio file to base64
     const audioBuffer = fs.readFileSync(localFilePath);

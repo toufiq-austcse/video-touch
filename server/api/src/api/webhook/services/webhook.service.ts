@@ -6,10 +6,20 @@ import { AssetDocument } from '../../assets/schemas/assets.schema';
 import { WebhookPayloadDto } from '../dto/webhook-payload.dto';
 import { FileDocument } from '@/src/api/assets/schemas/files.schema';
 import { Utils, Constants } from 'video-touch-common';
+import { WebHookDocument } from '@/src/api/webhook/schemas/webhook.schema';
+import { CreateWebhookInputDto } from '@/src/api/webhook/dto/create-webhook-input.dto';
+import { UserDocument } from '@/src/api/auth/schemas/user.schema';
+import { WebhookMapper } from '@/src/api/webhook/mapper/webhook.mapper';
+import { WebhookRepository } from '@/src/api/webhook/repositories/webhook.repository';
 
 @Injectable()
 export class WebhookService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(private readonly httpService: HttpService, private repistory: WebhookRepository) {}
+
+  async create(input: CreateWebhookInputDto, user: UserDocument): Promise<WebHookDocument> {
+    let webhookDocument = WebhookMapper.buildWebhookDocumentForSaving(input, user);
+    return this.repistory.create(webhookDocument);
+  }
 
   async publishAssetEvent(updatedAsset: AssetDocument): Promise<any> {
     try {

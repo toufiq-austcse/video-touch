@@ -39,6 +39,7 @@ type Asset {
   created_at: DateTime!
   updated_at: DateTime!
   with_transcription: Boolean!
+  with_transcoding: Boolean!
   thumbnail_url: String!
   files: [File!]!
 }
@@ -84,6 +85,14 @@ type User {
   updatedAt: String!
 }
 
+type Webhook {
+  _id: String!
+  url: String!
+  secret_token: String
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
 type Query {
   ListAsset(listAssetInputDto: ListAssetInputDto!): PaginatedAssetResponse!
   GetAsset(getAssetInputDto: GetAssetInputDto!): Asset!
@@ -109,6 +118,7 @@ type Mutation {
   ReprocessAsset(reprocessAssetInputDto: ReprocessAssetInputDto!): CreateAssetResponse!
   UpdateAsset(_id: String!, updateAssetInputDto: UpdateAssetInputDto!): Asset!
   DeleteAsset(_id: String!): String!
+  CreateWebhook(createWebhookInput: CreateWebhookInputDto!): Webhook!
 }
 
 input CreateAssetInputDto {
@@ -116,6 +126,7 @@ input CreateAssetInputDto {
   description: String
   source_url: String!
   with_transcription: Boolean! = false
+  with_transcoding: Boolean! = true
   tags: [String!]
 }
 
@@ -131,4 +142,9 @@ input UpdateAssetInputDto {
   title: String
   description: String
   tags: [String!]
+}
+
+input CreateWebhookInputDto {
+  url: String!
+  secret_token: String
 }
