@@ -29,12 +29,16 @@ const UploadNew = ({ refetch }: { refetch: () => void }) => {
     sourceUrl: string,
     title: string,
     description: string,
+    withTranscoding: boolean,
+    withTranscription: boolean,
   ) => {
     let res = await createVideo({
       variables: {
         source_url: sourceUrl,
         title: title,
         description: description,
+        with_transcoding: withTranscoding,
+        with_transcription: withTranscription,
       },
     });
     console.log("Success:", res);
