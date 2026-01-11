@@ -14,6 +14,7 @@ export class AssetMapper {
     createVideoInput: CreateAssetInputDto,
     userDocument: UserDocument
   ): Omit<AssetDocument, '_id'> {
+    console.log('createVideoInput ', createVideoInput);
     let title = createVideoInput.title;
     if (!title) {
       title = this.parsedTitle(createVideoInput.source_url);
@@ -24,7 +25,8 @@ export class AssetMapper {
       description: createVideoInput.description,
       source_url: createVideoInput.source_url,
       tags: createVideoInput.tags,
-      with_transcription: createVideoInput.with_transcription || false,
+      with_transcription: createVideoInput.with_transcription ?? false,
+      with_transcoding: createVideoInput.with_transcoding ?? true,
     };
   }
 
@@ -87,7 +89,8 @@ export class AssetMapper {
         created_at: asset.createdAt,
         updated_at: asset.updatedAt,
         _id: asset._id.toString(),
-        with_transcription: asset.with_transcription,
+        with_transcription: asset.with_transcription ?? false,
+        with_transcoding: asset.with_transcoding ?? true,
       } as Asset,
       { excludeExtraneousValues: true, enableImplicitConversion: true }
     );

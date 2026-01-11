@@ -147,6 +147,14 @@ const VideoDetailsPage: NextPage = () => {
                     value={`${bytesToMegaBytes(videoDetails.size)} MB`}
                   />
                   <Data
+                    label={"Transcoding"}
+                    value={
+                      videoDetails.with_transcoding
+                        ? "Requested"
+                        : "Not Requested"
+                    }
+                  />
+                  <Data
                     label={"Transcription"}
                     value={
                       videoDetails.with_transcription

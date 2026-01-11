@@ -91,6 +91,11 @@ export class Asset {
   @Expose()
   @Transform((value) => value.obj.with_transcription ?? false)
   with_transcription: boolean;
+
+  @Field()
+  @Expose()
+  @Transform((value) => value.obj.with_transcoding ?? false)
+  with_transcoding: boolean;
 }
 
 @ObjectType()

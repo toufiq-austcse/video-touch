@@ -20,6 +20,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const formSchema = z.object({
   link: z.string().url({
@@ -27,6 +28,8 @@ const formSchema = z.object({
   }),
   title: z.string().optional(),
   description: z.string().optional(),
+  withTranscoding: z.boolean().default(true),
+  withTranscription: z.boolean().default(false),
 });
 const LinkImportDialog = ({
   open,
@@ -35,7 +38,13 @@ const LinkImportDialog = ({
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  onSubmit: (sourceUrl: string, title: string, description: string) => void;
+  onSubmit: (
+    sourceUrl: string,
+    title: string,
+    description: string,
+    withTranscoding: boolean,
+    withTranscription: boolean,
+  ) => void;
 }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -43,10 +52,18 @@ const LinkImportDialog = ({
       link: "",
       title: "",
       description: "",
+      withTranscoding: true,
+      withTranscription: false,
     },
   });
   const onFormSubmit = async (values: z.infer<typeof formSchema>) => {
-    onSubmit(values.link, values.title as string, values.description as string);
+    onSubmit(
+      values.link,
+      values.title as string,
+      values.description as string,
+      values.withTranscoding,
+      values.withTranscription,
+    );
     form.reset();
   };
 
@@ -102,6 +119,43 @@ const LinkImportDialog = ({
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="withTranscoding"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Transcoding</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="withTranscription"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Transcription</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+
             <DialogFooter>
               <Button
                 type="submit"

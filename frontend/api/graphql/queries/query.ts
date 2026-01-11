@@ -58,6 +58,7 @@ export const GET_ASSET_QUERY = gql`
         type
       }
       with_transcription
+      with_transcoding
     }
   }
 `;
@@ -68,6 +69,8 @@ export const CREATE_ASSET_MUTATION = gql`
     $description: String
     $source_url: String!
     $tags: [String!]
+    $with_transcoding: Boolean
+    $with_transcription: Boolean
   ) {
     CreateAsset(
       createAssetInput: {
@@ -75,6 +78,8 @@ export const CREATE_ASSET_MUTATION = gql`
         source_url: $source_url
         description: $description
         tags: $tags
+        with_transcoding: $with_transcoding
+        with_transcription: $with_transcription
       }
     ) {
       _id

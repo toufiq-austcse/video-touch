@@ -167,17 +167,20 @@ export class AssetService {
         });
     }
     if (updatedAsset.latest_status === Constants.VIDEO_STATUS.VALIDATED) {
-      let heightWidthMapByHeight = this.jobManagerService.getAllHeightWidthMapByHeight(updatedAsset.height);
-      let manifestFiles = await this.insertManifestFilesData(updatedAsset._id.toString(), heightWidthMapByHeight);
-      await this.createThumbnailFile(updatedAsset._id.toString(), updatedAsset.height, updatedAsset.width);
       await this.createSourceFile(
         updatedAsset._id.toString(),
         updatedAsset.height,
         updatedAsset.width,
         updatedAsset.size
       );
-      await this.createDownloadedFile(updatedAsset._id.toString(), manifestFiles);
+      await this.createThumbnailFile(updatedAsset._id.toString(), updatedAsset.height, updatedAsset.width);
       await this.createAudioFile(updatedAsset._id.toString());
+      if (updatedAsset.with_transcoding) {
+        let heightWidthMapByHeight = this.jobManagerService.getAllHeightWidthMapByHeight(updatedAsset.height);
+        let manifestFiles = await this.insertManifestFilesData(updatedAsset._id.toString(), heightWidthMapByHeight);
+        await this.createDownloadedFile(updatedAsset._id.toString(), manifestFiles);
+      }
+
       await this.updateAssetStatus(updatedAsset._id.toString(), Constants.VIDEO_STATUS.PROCESSING, 'Video processing');
     }
     if (updatedAsset.latest_status === Constants.VIDEO_STATUS.RE_PROCESSING) {
