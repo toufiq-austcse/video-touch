@@ -11,6 +11,7 @@ import { CreateWebhookInputDto } from '@/src/api/webhook/dto/create-webhook-inpu
 import { UserDocument } from '@/src/api/auth/schemas/user.schema';
 import { WebhookMapper } from '@/src/api/webhook/mapper/webhook.mapper';
 import { WebhookRepository } from '@/src/api/webhook/repositories/webhook.repository';
+import { ListWebhookInputDto } from '@/src/api/webhook/dto/list-webhook-input.dto';
 
 @Injectable()
 export class WebhookService {
@@ -19,6 +20,16 @@ export class WebhookService {
   async create(input: CreateWebhookInputDto, user: UserDocument): Promise<WebHookDocument> {
     let webhookDocument = WebhookMapper.buildWebhookDocumentForSaving(input, user);
     return this.repistory.create(webhookDocument);
+  }
+
+  async listWebhooks(listWebhookInputDto: ListWebhookInputDto, user: UserDocument) {
+    return this.repistory.getPaginatedWebhooks(
+      listWebhookInputDto.first,
+      listWebhookInputDto.after,
+      listWebhookInputDto.before,
+      listWebhookInputDto.search,
+      user
+    );
   }
 
   async publishAssetEvent(updatedAsset: AssetDocument): Promise<any> {

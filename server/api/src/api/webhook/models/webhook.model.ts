@@ -1,5 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Expose } from 'class-transformer';
+import { PageInfo } from '@/src/api/assets/models/asset.model';
 
 @ObjectType()
 export class Webhook {
@@ -25,3 +26,15 @@ export class Webhook {
   @Expose()
   updated_at: Date;
 }
+
+@ObjectType()
+export class PaginatedWebhookResponse {
+  @Field((type) => [Webhook])
+  @Expose()
+  webhooks: Webhook[];
+
+  @Field((type) => PageInfo)
+  @Expose()
+  page_info: PageInfo;
+}
+
