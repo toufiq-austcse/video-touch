@@ -38,7 +38,8 @@ export class WebhookService {
       { _id: oldWebhook._id },
       {
         url: updateWebhookInput.url ? updateWebhookInput.url : oldWebhook.url,
-        secret_token: updateWebhookInput.secret_token !== undefined ? updateWebhookInput.secret_token : oldWebhook.secret_token,
+        secret_token:
+          updateWebhookInput.secret_token !== undefined ? updateWebhookInput.secret_token : oldWebhook.secret_token,
       }
     );
     return this.repistory.findOne({ _id: oldWebhook._id });

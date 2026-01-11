@@ -14,4 +14,3 @@ export class UpdateWebhookInputDto {
   @IsOptional()
   secret_token: string;
 }
-
