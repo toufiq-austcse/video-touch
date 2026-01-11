@@ -38,7 +38,13 @@ const LinkImportDialog = ({
 }: {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  onSubmit: (sourceUrl: string, title: string, description: string, withTranscoding: boolean, withTranscription: boolean) => void;
+  onSubmit: (
+    sourceUrl: string,
+    title: string,
+    description: string,
+    withTranscoding: boolean,
+    withTranscription: boolean,
+  ) => void;
 }) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,7 +62,7 @@ const LinkImportDialog = ({
       values.title as string,
       values.description as string,
       values.withTranscoding,
-      values.withTranscription
+      values.withTranscription,
     );
     form.reset();
   };
