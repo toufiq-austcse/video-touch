@@ -1,4 +1,4 @@
-export const FILE_SYNC_PROVIDER = {
+export const STORAGE_PROVIDER = {
   S3: 's3',
-  RCLONE: 'rclone',
+  BUNNY: 'bunny',
 };

@@ -5,6 +5,7 @@ import { ThumbnailGenerationWorker } from '@/src/worker/thumbnail-generation.wor
 import { AwsModule } from '@/src/common/aws/aws.module';
 import { BullModule } from '@nestjs/bullmq';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
+import { BunnyModule } from '@/src/common/bunny/bunny.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AppConfigService } from '@/src/common/app-config/service/app-config.ser
       }),
     }),
     RabbitMQModule,
+    BunnyModule,
     AwsModule,
   ],
   controllers: [],

@@ -24,7 +24,7 @@ export class AppConfigService {
       BULL_UPLOAD_JOB_QUEUE: this.configService.getOrThrow('BULL_UPLOAD_JOB_QUEUE'),
       REDIS_HOST: this.configService.getOrThrow('REDIS_HOST'),
       REDIS_PORT: +this.configService.getOrThrow('REDIS_PORT'),
-      FILE_SYNC_PROVIDER: this.configService.getOrThrow('FILE_SYNC_PROVIDER'),
+      STORAGE_PROVIDER: this.configService.getOrThrow('STORAGE_PROVIDER'),
       BUNNY_STORAGE_ZONE_NAME: this.configService.get('BUNNY_STORAGE_ZONE_NAME'),
       BUNNY_STORAGE_URL: this.configService.get('BUNNY_STORAGE_URL'),
       BUNNY_ACCESS_KEY: this.configService.get('BUNNY_ACCESS_KEY'),

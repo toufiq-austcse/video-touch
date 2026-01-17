@@ -6,12 +6,14 @@ import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service
 import { Job } from 'bullmq';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import console from 'node:console';
+import { BunnyHttpService } from '@/src/common/bunny/service/bunny-http.service';
 
 @Processor(process.env.BULL_THUMBNAIL_GENERATION_JOB_QUEUE)
 export class ThumbnailGenerationWorker extends WorkerHost {
   constructor(
     private s3ClientService: S3ClientService,
     private rabbitMqService: RabbitMqService,
+    private bunnyClientService: BunnyHttpService,
   ) {
     super();
   }
@@ -37,21 +39,32 @@ export class ThumbnailGenerationWorker extends WorkerHost {
         AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
       );
 
-      await this.generateThumbnnail(videoPath, thumbnailOutputPath);
+      await this.generateThumbnail(videoPath, thumbnailOutputPath);
       let metadata = await this.getMetadata(thumbnailOutputPath);
       Logger.debug(metadata, 'Thumbnail metadata');
 
-      let uploadRes = await this.s3ClientService.uploadObject(
-        {
-          bucket: AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
-          key: Utils.getS3ThumbnailPath(msg.asset_id.toString()),
+      if (AppConfigService.appConfig.STORAGE_PROVIDER === 's3') {
+        let uploadRes = await this.s3ClientService.uploadObject(
+          {
+            bucket: AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
+            key: Utils.getS3ThumbnailPath(msg.asset_id.toString()),
+            filePath: thumbnailOutputPath,
+            contentType: 'image/png',
+          },
+          true,
+        );
+        Logger.debug(uploadRes, 'Thumbnail upload response');
+      } else if (AppConfigService.appConfig.STORAGE_PROVIDER === 'bunny') {
+        //TODO: need to move to shared pkg
+        let uploadRes = await this.bunnyClientService.uploadFile({
           filePath: thumbnailOutputPath,
+          remotePath: `/videos/${msg.asset_id}/thumbnail.png`, //TODO: need support in library
           contentType: 'image/png',
-        },
-        true,
-      );
-
-      Logger.debug(uploadRes, 'Thumbnail upload response');
+        });
+        Logger.debug(uploadRes, 'Thumbnail upload response');
+      } else {
+        throw new Error('Unsupported storage provider: ' + AppConfigService.appConfig.STORAGE_PROVIDER);
+      }
 
       this.publishUpdateFileStatusEvent(msg.file_id, metadata.size, Constants.FILE_STATUS.READY, 'Thumbnail generated');
       console.log('event published');
@@ -76,7 +89,7 @@ export class ThumbnailGenerationWorker extends WorkerHost {
     return false; // There are more attempts left
   }
 
-  async generateThumbnnail(mp4FilePath: string, thumbnailOutPutPath: string): Promise<string> {
+  async generateThumbnail(mp4FilePath: string, thumbnailOutPutPath: string): Promise<string> {
     let thumbnailGenerationCommand = `ffmpeg -i ${mp4FilePath} -vf "thumbnail" -frames:v 1 ${thumbnailOutPutPath}`;
     let showStreamCommandRes = await terminal(thumbnailGenerationCommand);
     console.log('showStreamCommandRes', showStreamCommandRes);

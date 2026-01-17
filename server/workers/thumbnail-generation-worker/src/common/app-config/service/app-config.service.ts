@@ -22,6 +22,10 @@ export class AppConfigService {
       AWS_S3_BUCKET_NAME: this.configService.getOrThrow('AWS_S3_BUCKET_NAME'),
       REDIS_HOST: this.configService.getOrThrow('REDIS_HOST'),
       REDIS_PORT: +this.configService.getOrThrow('REDIS_PORT'),
+      STORAGE_PROVIDER: this.configService.getOrThrow('STORAGE_PROVIDER'),
+      BUNNY_STORAGE_ZONE_NAME: this.configService.get('BUNNY_STORAGE_ZONE_NAME'),
+      BUNNY_STORAGE_URL: this.configService.get('BUNNY_STORAGE_URL'),
+      BUNNY_ACCESS_KEY: this.configService.get('BUNNY_ACCESS_KEY'),
     };
   }
 }
