@@ -5,12 +5,14 @@ import { AwsModule } from '@/src/common/aws/aws.module';
 import { VideoUploaderJobHandler } from '@/src/worker/upload-video.worker';
 import { BullModule } from '@nestjs/bullmq';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
+import { BunnyModule } from '@/src/common/bunny/bunny.module';
 
 @Module({
   imports: [
     AppConfigModule,
     RabbitMQModule,
     AwsModule,
+    BunnyModule,
     BullModule.forRootAsync({
       inject: [AppConfigService],
       useFactory: () => ({

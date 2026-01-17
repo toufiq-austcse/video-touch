@@ -13,4 +13,8 @@ export interface EnvironmentVariables {
   BULL_UPLOAD_JOB_QUEUE: string;
   REDIS_HOST: string;
   REDIS_PORT: number;
+  FILE_SYNC_PROVIDER: string;
+  BUNNY_STORAGE_ZONE_NAME: string;
+  BUNNY_STORAGE_URL: string;
+  BUNNY_ACCESS_KEY: string;
 }
