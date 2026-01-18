@@ -373,7 +373,7 @@ export class AssetService {
   }> {
     let resolutionsToken: Record<string, string> = {};
     // Get the path for the master playlist
-    let s3AssetPath = Utils.getS3ManifestPath(asset._id.toString()).replace('main.m3u8', '');
+    let s3AssetPath = Utils.getServerManifestPath(asset._id.toString()).replace('main.m3u8', '');
     let paths = await this.s3ClientService.getAllDirectories(
       s3AssetPath,
       AppConfigService.appConfig.AWS_S3_BUCKET_NAME
@@ -420,7 +420,7 @@ export class AssetService {
 
   async getSourceFileUrlToReprocess(asset: AssetDocument, sourceFile: FileDocument): Promise<string> {
     if (sourceFile) {
-      let sourceFilePath = Utils.getS3SourceFileVideoPath(asset._id.toString(), getSourceFileName());
+      let sourceFilePath = Utils.getServerSourceFileVideoPath(asset._id.toString(), getSourceFileName());
       return this.s3ClientService.generateSignedUrlToGetObject(
         AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
         sourceFilePath

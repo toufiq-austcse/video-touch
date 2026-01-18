@@ -39,6 +39,7 @@ type Asset {
   created_at: DateTime!
   updated_at: DateTime!
   with_transcription: Boolean!
+  with_transcoding: Boolean!
   thumbnail_url: String!
   files: [File!]!
 }
@@ -116,6 +117,7 @@ input CreateAssetInputDto {
   description: String
   source_url: String!
   with_transcription: Boolean! = false
+  with_transcoding: Boolean! = true
   tags: [String!]
 }
 

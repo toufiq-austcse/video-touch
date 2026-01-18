@@ -62,7 +62,9 @@ export class FileService {
       _id: mongoose.Types.ObjectId(oldDoc._id.toString()),
     });
 
-    this.webhookService.publishFileEvent(updatedFile).catch((err) => {
+    let cdnUrl = this.getCdnFileUrl(updatedFile);
+
+    this.webhookService.publishFileEvent(updatedFile, cdnUrl).catch((err) => {
       console.log('error while publishing webhook event ', err);
     });
 
@@ -376,5 +378,23 @@ export class FileService {
     const secs = Math.floor(seconds % 60);
 
     return [hours, minutes, secs].map((unit) => unit.toString().padStart(2, '0')).join(':');
+  }
+
+  getCdnFileUrl(file: FileDocument): string {
+    let cdnBaseUrl = AppConfigService.appConfig.CDN_BASE_URL;
+    switch (file.type) {
+      case Constants.FILE_TYPE.SOURCE:
+        return `${cdnBaseUrl}/${Utils.getServerSourceFileVideoPath(file.asset_id.toString(), file.name)}`;
+      case Constants.FILE_TYPE.THUMBNAIL:
+        return `${cdnBaseUrl}/${Utils.getServerThumbnailPath(file.asset_id.toString())}`;
+      case Constants.FILE_TYPE.AUDIO:
+        return `${cdnBaseUrl}/${Utils.getServerAudioFilePath(file.asset_id.toString(), file.name)}`;
+      case Constants.FILE_TYPE.DOWNLOAD:
+        return `${cdnBaseUrl}/${Utils.getServerDownloadFilePath(file.asset_id.toString(), file.name)}`;
+      case Constants.FILE_TYPE.TRANSCRIPT:
+        return `${cdnBaseUrl}/${Utils.getServerTranscriptFilePath(file.asset_id.toString(), file.name)}`;
+      default:
+        return ``;
+    }
   }
 }
