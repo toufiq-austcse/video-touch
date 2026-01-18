@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '../environment';
+import { Constants } from 'video-touch-common';
 
 @Injectable()
 export class AppConfigService {
@@ -36,10 +37,10 @@ export class AppConfigService {
       RABBIT_MQ_UPDATE_ASSET_STATUS_QUEUE: this.configService.getOrThrow('RABBIT_MQ_UPDATE_ASSET_STATUS_QUEUE'),
 
       MAX_VIDEO_SIZE_IN_BYTES: this.configService.getOrThrow('MAX_VIDEO_SIZE_IN_BYTES', { infer: true }),
-      AWS_ACCESS_KEY_ID: this.configService.getOrThrow('AWS_ACCESS_KEY_ID'),
-      AWS_REGION: this.configService.getOrThrow('AWS_REGION'),
-      AWS_SECRET_ACCESS_KEY: this.configService.getOrThrow('AWS_SECRET_ACCESS_KEY'),
-      AWS_S3_BUCKET_NAME: this.configService.getOrThrow('AWS_S3_BUCKET_NAME'),
+      AWS_ACCESS_KEY_ID: this.configService.get('AWS_ACCESS_KEY_ID'),
+      AWS_REGION: this.configService.get('AWS_REGION'),
+      AWS_SECRET_ACCESS_KEY: this.configService.get('AWS_SECRET_ACCESS_KEY'),
+      AWS_S3_BUCKET_NAME: this.configService.get('AWS_S3_BUCKET_NAME'),
       VIDEO_BASE_URL: this.configService.getOrThrow('VIDEO_BASE_URL'),
       TEMP_UPLOAD_DIRECTORY: this.configService.getOrThrow('TEMP_UPLOAD_DIRECTORY'),
       RABBIT_MQ_UPDATE_ASSET_ROUTING_KEY: this.configService.getOrThrow('RABBIT_MQ_UPDATE_ASSET_ROUTING_KEY'),
@@ -83,14 +84,19 @@ export class AppConfigService {
       OPENAI_MODEL: this.configService.get('OPENAI_MODEL'),
       AUDIO_CHUNK_DURATION_IN_SEC: +this.configService.getOrThrow('AUDIO_CHUNK_DURATION_IN_SEC'),
       BULL_AUDIO_TRANSCRIPT_MERGE_QUEUE: this.configService.getOrThrow('BULL_AUDIO_TRANSCRIPT_MERGE_QUEUE'),
+      STORAGE_PROVIDER: this.configService.getOrThrow('STORAGE_PROVIDER'),
+      BUNNY_STORAGE_ZONE_NAME: this.configService.get('BUNNY_STORAGE_ZONE_NAME'),
+      BUNNY_STORAGE_URL: this.configService.get('BUNNY_STORAGE_URL'),
+      BUNNY_ACCESS_KEY: this.configService.get('BUNNY_ACCESS_KEY'),
     };
     this.validateTranscriptionGenerationEnabled();
+    this.validateStorageConfig();
   }
 
   validateTranscriptionGenerationEnabled() {
     if (!AppConfigService.appConfig.TRANSCRIPTION_GENERATION_ENABLED) {
       console.log('Transcription generation is disabled in the configuration.');
-      return false;
+      return;
     }
     if (!AppConfigService.appConfig.OPENAI_MODEL && !AppConfigService.appConfig.GOOGLE_GEN_AI_MODEL) {
       console.log('Transcription generation is enabled, but no model is configured.');
@@ -110,6 +116,32 @@ export class AppConfigService {
       }
     }
 
-    return null;
+    return;
+  }
+
+  validateStorageConfig() {
+    if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.S3) {
+      if (
+        !AppConfigService.appConfig.AWS_ACCESS_KEY_ID ||
+        !AppConfigService.appConfig.AWS_SECRET_ACCESS_KEY ||
+        !AppConfigService.appConfig.AWS_S3_BUCKET_NAME ||
+        !AppConfigService.appConfig.AWS_REGION
+      ) {
+        console.log('AWS S3 storage provider is selected, but some AWS configurations are missing.');
+        process.exit(1);
+      }
+    } else if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.BUNNY) {
+      if (
+        !AppConfigService.appConfig.BUNNY_ACCESS_KEY ||
+        !AppConfigService.appConfig.BUNNY_STORAGE_ZONE_NAME ||
+        !AppConfigService.appConfig.BUNNY_STORAGE_URL
+      ) {
+        console.log('Bunny storage provider is selected, but some Bunny configurations are missing.');
+        process.exit(1);
+      }
+    } else {
+      console.log('Unsupported storage provider: ' + AppConfigService.appConfig.STORAGE_PROVIDER);
+      process.exit(1);
+    }
   }
 }

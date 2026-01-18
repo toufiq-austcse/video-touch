@@ -3,7 +3,6 @@ import fs from 'fs';
 import * as AWS from 'aws-sdk';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { UploadObjModel } from '@/src/common/aws/s3/models/upload-obj.model';
-import { Models, Utils } from 'video-touch-common';
 
 @Injectable()
 export class S3ClientService implements OnModuleInit {
@@ -48,30 +47,6 @@ export class S3ClientService implements OnModuleInit {
     fs.unlink(filePath, (err) => {
       if (err) throw err;
     });
-  }
-
-  buildUploadObjModel(data: Models.FileUploadJobModel, localFilePath: string): UploadObjModel {
-    return {
-      bucket: AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
-      key: `video-touch/${data.asset_id}`,
-      filePath: localFilePath,
-      acl: 'public-read',
-      contentType: 'video/mp4',
-    };
-  }
-
-  async syncMainManifestFile(assetId: string) {
-    let mainManifestPath = Utils.getMainManifestPath(assetId, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
-    let s3ManifestPath = Utils.getS3ManifestPath(assetId);
-    let res = await this.uploadObject({
-      bucket: AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
-      key: s3ManifestPath,
-      filePath: mainManifestPath,
-      acl: 'public-read',
-      contentType: 'application/vnd.apple.mpegurl',
-    });
-    console.log('manifest uploaded:', res);
-    return res;
   }
 
   async generateSignedUrlToGetObject(

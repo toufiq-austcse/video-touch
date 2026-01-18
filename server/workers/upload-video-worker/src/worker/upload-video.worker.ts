@@ -1,17 +1,19 @@
 import { S3ClientService } from '@/src/common/aws/s3/s3-client.service';
 import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
-import { Constants, Models, terminal, Utils } from 'video-touch-common';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import * as process from 'node:process';
 import * as console from 'node:console';
 import { Job } from 'bullmq';
 import fs from 'fs';
+import { BunnyHttpService } from '@/src/common/bunny/service/bunny-http.service';
+import { Constants, Models, terminal, Utils } from 'video-touch-common';
 
-@Processor(process.env.BULL_UPLOAD_JOB_QUEUE)
+@Processor(process.env.BULL_UPLOAD_JOB_QUEUE, { concurrency: 3 })
 export class VideoUploaderJobHandler extends WorkerHost {
   constructor(
     private s3ClientService: S3ClientService,
+    private bunnyClientService: BunnyHttpService,
     private rabbitMqService: RabbitMqService,
   ) {
     super();
@@ -74,15 +76,26 @@ export class VideoUploaderJobHandler extends WorkerHost {
         msg.height,
         AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
       );
-      let s3VideoPath = Utils.getS3UriVideoPathByHeight(
-        msg.asset_id.toString(),
-        msg.height,
-        AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
-      );
-      let res = await this.syncDirToS3(localFilePath, s3VideoPath);
-      console.log(`video ${msg.height}p uploaded:`, res);
-
-      await this.s3ClientService.syncMainManifestFile(msg.asset_id.toString());
+      if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.S3) {
+        let s3VideoPath = Utils.getS3UriVideoPathByHeight(
+          msg.asset_id.toString(),
+          msg.height,
+          AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
+        );
+        let res = await this.syncDirToS3(localFilePath, s3VideoPath);
+        console.log(`video ${msg.height}p uploaded:`, res);
+        await this.s3ClientService.syncMainManifestFile(msg.asset_id.toString());
+        console.log('main manifest synced to s3');
+      } else if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.BUNNY) {
+        const destinationPath = Utils.getBunnyUriVideoPathByHeight(msg.asset_id.toString(), msg.height);
+        let res = await this.bunnyClientService.syncDirToBunny(localFilePath, destinationPath);
+        console.log(`video ${msg.height}p uploaded:`, res);
+        await this.bunnyClientService.syncMainManifestFile(msg.asset_id.toString());
+        console.log('main manifest synced to Bunny');
+      } else {
+        console.log('STORAGE_PROVIDER value must be either s3 or bunny');
+        throw new Error('STORAGE_PROVIDER value must be either s3 or bunny');
+      }
 
       let dirSize = await Utils.getDirSize(localFilePath);
       console.log('dir size:', dirSize);
@@ -110,13 +123,22 @@ export class VideoUploaderJobHandler extends WorkerHost {
         AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
       )}/${msg.asset_id}.mp4`;
 
-      let s3SourceFileVideoPath = Utils.getS3UriSourceFileVideoPath(
-        msg.asset_id.toString(),
-        msg.name,
-        AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
-      );
-      let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
-      console.log(`source file uploaded:`, res);
+      if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.S3) {
+        let s3SourceFileVideoPath = Utils.getS3UriSourceFileVideoPath(
+          msg.asset_id.toString(),
+          msg.name,
+          AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
+        );
+        let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
+        console.log(`source file uploaded:`, res);
+      } else if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.BUNNY) {
+        const destinationPath = Utils.getServerSourceFileVideoPath(msg.asset_id.toString(), msg.name);
+        let res = await this.bunnyClientService.syncFileToBunny(localFilePath, destinationPath);
+        console.log(`source file uploaded:`, res);
+      } else {
+        console.log('STORAGE_PROVIDER value must be either s3 or bunny');
+        throw new Error('STORAGE_PROVIDER value must be either s3 or bunny');
+      }
 
       this.publishUpdateFileStatusEvent(
         msg.file_id.toString(),
@@ -147,13 +169,22 @@ export class VideoUploaderJobHandler extends WorkerHost {
         AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
       )}/${msg.name}`;
 
-      let s3SourceFileVideoPath = Utils.getS3UriSourceFileVideoPath(
-        msg.asset_id.toString(),
-        msg.name,
-        AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
-      );
-      let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
-      console.log(`source file uploaded:`, res);
+      if (AppConfigService.appConfig.STORAGE_PROVIDER == Constants.STORAGE_PROVIDER.S3) {
+        let s3SourceFileVideoPath = Utils.getS3UriSourceFileVideoPath(
+          msg.asset_id.toString(),
+          msg.name,
+          AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
+        );
+        let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
+        console.log(`source file uploaded:`, res);
+      } else if (AppConfigService.appConfig.STORAGE_PROVIDER == Constants.STORAGE_PROVIDER.BUNNY) {
+        const destinationPath = Utils.getServerDownloadFilePath(msg.asset_id.toString(), msg.name);
+        let res = await this.bunnyClientService.syncFileToBunny(localFilePath, destinationPath);
+        console.log(`source file uploaded:`, res);
+      } else {
+        console.log('STORAGE_PROVIDER value must be either s3 or bunny');
+        throw new Error('STORAGE_PROVIDER value must be either s3 or bunny');
+      }
 
       let fileSize = await this.getFileSize(localFilePath);
 
@@ -186,13 +217,22 @@ export class VideoUploaderJobHandler extends WorkerHost {
         AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
       )}/${msg.name}`;
 
-      let s3SourceFileVideoPath = Utils.getS3UriSourceFileVideoPath(
-        msg.asset_id.toString(),
-        msg.name,
-        AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
-      );
-      let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
-      console.log(`audio file uploaded:`, res);
+      if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.S3) {
+        let s3SourceFileVideoPath = Utils.getS3UriSourceFileVideoPath(
+          msg.asset_id.toString(),
+          msg.name,
+          AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
+        );
+        let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
+        console.log(`audio file uploaded:`, res);
+      } else if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.BUNNY) {
+        const destinationPath = Utils.getServerAudioFilePath(msg.asset_id.toString(), msg.name);
+        let res = await this.bunnyClientService.syncFileToBunny(localFilePath, destinationPath);
+        console.log(`audio file uploaded:`, res);
+      } else {
+        console.log('STORAGE_PROVIDER value must be either s3 or bunny');
+        throw new Error('STORAGE_PROVIDER value must be either s3 or bunny');
+      }
 
       let fileSize = await this.getFileSize(localFilePath);
       console.log('audio file size:', fileSize);
@@ -225,13 +265,22 @@ export class VideoUploaderJobHandler extends WorkerHost {
         AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
       );
 
-      let s3SourceFileVideoPath = Utils.getS3UriSourceFileVideoPath(
-        msg.asset_id.toString(),
-        msg.name,
-        AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
-      );
-      let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
-      console.log(`transcript file uploaded:`, res);
+      if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.S3) {
+        let s3SourceFileVideoPath = Utils.getS3UriSourceFileVideoPath(
+          msg.asset_id.toString(),
+          msg.name,
+          AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
+        );
+        let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
+        console.log(`transcript file uploaded:`, res);
+      } else if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.BUNNY) {
+        const destinationPath = Utils.getServerTranscriptFilePath(msg.asset_id.toString(), msg.name);
+        let res = await this.bunnyClientService.syncFileToBunny(localFilePath, destinationPath);
+        console.log(`transcript file uploaded:`, res);
+      } else {
+        console.log('STORAGE_PROVIDER value must be either s3 or bunny');
+        throw new Error('STORAGE_PROVIDER value must be either s3 or bunny');
+      }
 
       let fileSize = await this.getFileSize(localFilePath);
       console.log('transcript file size:', fileSize);
