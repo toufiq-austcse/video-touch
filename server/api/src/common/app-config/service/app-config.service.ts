@@ -127,7 +127,7 @@ export class AppConfigService {
         !AppConfigService.appConfig.AWS_S3_BUCKET_NAME ||
         !AppConfigService.appConfig.AWS_REGION
       ) {
-        console.log('AWS S3 storage provider is selected, but some AWS configurations are missing.');
+        console.error('AWS S3 storage provider is selected, but some AWS configurations are missing.');
         process.exit(1);
       }
     } else if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.BUNNY) {
@@ -136,11 +136,11 @@ export class AppConfigService {
         !AppConfigService.appConfig.BUNNY_STORAGE_ZONE_NAME ||
         !AppConfigService.appConfig.BUNNY_STORAGE_URL
       ) {
-        console.log('Bunny storage provider is selected, but some Bunny configurations are missing.');
+        console.error('Bunny storage provider is selected, but some Bunny configurations are missing.');
         process.exit(1);
       }
     } else {
-      console.log('Unsupported storage provider: ' + AppConfigService.appConfig.STORAGE_PROVIDER);
+      console.error('Unsupported storage provider: ' + AppConfigService.appConfig.STORAGE_PROVIDER);
       process.exit(1);
     }
   }
