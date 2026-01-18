@@ -33,7 +33,7 @@
     "axios": "^1.6.7",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
-    "video-touch-common": "^1.0.1"
+    "video-touch-common": "^5.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

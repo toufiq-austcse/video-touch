@@ -43,22 +43,21 @@ export class ThumbnailGenerationWorker extends WorkerHost {
       let metadata = await this.getMetadata(thumbnailOutputPath);
       Logger.debug(metadata, 'Thumbnail metadata');
 
-      if (AppConfigService.appConfig.STORAGE_PROVIDER === 's3') {
+      if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.S3) {
         let uploadRes = await this.s3ClientService.uploadObject(
           {
             bucket: AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
-            key: Utils.getS3ThumbnailPath(msg.asset_id.toString()),
+            key: Utils.getServerThumbnailPath(msg.asset_id.toString()),
             filePath: thumbnailOutputPath,
             contentType: 'image/png',
           },
           true,
         );
         Logger.debug(uploadRes, 'Thumbnail upload response');
-      } else if (AppConfigService.appConfig.STORAGE_PROVIDER === 'bunny') {
-        //TODO: need to move to shared pkg
+      } else if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.BUNNY) {
         let uploadRes = await this.bunnyClientService.uploadFile({
           filePath: thumbnailOutputPath,
-          remotePath: `/videos/${msg.asset_id}/thumbnail.png`, //TODO: need support in library
+          remotePath: Utils.getServerThumbnailPath(msg.asset_id.toString()),
           contentType: 'image/png',
         });
         Logger.debug(uploadRes, 'Thumbnail upload response');

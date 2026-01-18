@@ -12,7 +12,7 @@ export class BunnyHttpService {
 
   async syncMainManifestFile(assetId: string): Promise<any> {
     let mainManifestPath = Utils.getMainManifestPath(assetId, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
-    const bunnyManifestPath = this.getBunnyManifestPath(assetId);
+    const bunnyManifestPath = Utils.getServerManifestPath(assetId);
 
     const res = await this.uploadFile({
       filePath: mainManifestPath,
@@ -85,8 +85,5 @@ export class BunnyHttpService {
 
   private getEndpoint(): string {
     return AppConfigService.appConfig.BUNNY_STORAGE_URL.replace('https://', '').replace('http://', '');
-  }
-  private getBunnyManifestPath(assetId: string): string {
-    return `videos/${assetId}/main.m3u8`;
   }
 }

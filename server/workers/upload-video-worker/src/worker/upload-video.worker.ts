@@ -1,14 +1,13 @@
 import { S3ClientService } from '@/src/common/aws/s3/s3-client.service';
 import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
-import { Constants, Models, terminal, Utils } from 'video-touch-common';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import * as process from 'node:process';
 import * as console from 'node:console';
 import { Job } from 'bullmq';
 import fs from 'fs';
 import { BunnyHttpService } from '@/src/common/bunny/service/bunny-http.service';
-import { STORAGE_PROVIDER } from '@/src/common/constants';
+import { Constants, Models, terminal, Utils } from 'video-touch-common';
 
 @Processor(process.env.BULL_UPLOAD_JOB_QUEUE, { concurrency: 3 })
 export class VideoUploaderJobHandler extends WorkerHost {
@@ -77,7 +76,7 @@ export class VideoUploaderJobHandler extends WorkerHost {
         msg.height,
         AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
       );
-      if (AppConfigService.appConfig.STORAGE_PROVIDER === STORAGE_PROVIDER.S3) {
+      if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.S3) {
         let s3VideoPath = Utils.getS3UriVideoPathByHeight(
           msg.asset_id.toString(),
           msg.height,
@@ -87,8 +86,8 @@ export class VideoUploaderJobHandler extends WorkerHost {
         console.log(`video ${msg.height}p uploaded:`, res);
         await this.s3ClientService.syncMainManifestFile(msg.asset_id.toString());
         console.log('main manifest synced to s3');
-      } else if (AppConfigService.appConfig.STORAGE_PROVIDER === STORAGE_PROVIDER.BUNNY) {
-        const destinationPath = `videos/${msg.asset_id}/${msg.height}`;
+      } else if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.BUNNY) {
+        const destinationPath = Utils.getBunnyUriVideoPathByHeight(msg.asset_id.toString(), msg.height);
         let res = await this.bunnyClientService.syncDirToBunny(localFilePath, destinationPath);
         console.log(`video ${msg.height}p uploaded:`, res);
         await this.bunnyClientService.syncMainManifestFile(msg.asset_id.toString());
@@ -124,7 +123,7 @@ export class VideoUploaderJobHandler extends WorkerHost {
         AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
       )}/${msg.asset_id}.mp4`;
 
-      if (AppConfigService.appConfig.STORAGE_PROVIDER === STORAGE_PROVIDER.S3) {
+      if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.S3) {
         let s3SourceFileVideoPath = Utils.getS3UriSourceFileVideoPath(
           msg.asset_id.toString(),
           msg.name,
@@ -132,8 +131,8 @@ export class VideoUploaderJobHandler extends WorkerHost {
         );
         let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
         console.log(`source file uploaded:`, res);
-      } else if (AppConfigService.appConfig.STORAGE_PROVIDER === STORAGE_PROVIDER.BUNNY) {
-        const destinationPath = `videos/${msg.asset_id}/${msg.name}`;
+      } else if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.BUNNY) {
+        const destinationPath = Utils.getServerSourceFileVideoPath(msg.asset_id.toString(), msg.name);
         let res = await this.bunnyClientService.syncFileToBunny(localFilePath, destinationPath);
         console.log(`source file uploaded:`, res);
       } else {
@@ -170,7 +169,7 @@ export class VideoUploaderJobHandler extends WorkerHost {
         AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
       )}/${msg.name}`;
 
-      if (AppConfigService.appConfig.STORAGE_PROVIDER == STORAGE_PROVIDER.S3) {
+      if (AppConfigService.appConfig.STORAGE_PROVIDER == Constants.STORAGE_PROVIDER.S3) {
         let s3SourceFileVideoPath = Utils.getS3UriSourceFileVideoPath(
           msg.asset_id.toString(),
           msg.name,
@@ -178,8 +177,8 @@ export class VideoUploaderJobHandler extends WorkerHost {
         );
         let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
         console.log(`source file uploaded:`, res);
-      } else if (AppConfigService.appConfig.STORAGE_PROVIDER == STORAGE_PROVIDER.BUNNY) {
-        const destinationPath = `videos/${msg.asset_id}/${msg.name}`;
+      } else if (AppConfigService.appConfig.STORAGE_PROVIDER == Constants.STORAGE_PROVIDER.BUNNY) {
+        const destinationPath = Utils.getServerDownloadFilePath(msg.asset_id.toString(), msg.name);
         let res = await this.bunnyClientService.syncFileToBunny(localFilePath, destinationPath);
         console.log(`source file uploaded:`, res);
       } else {
@@ -218,7 +217,7 @@ export class VideoUploaderJobHandler extends WorkerHost {
         AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
       )}/${msg.name}`;
 
-      if (AppConfigService.appConfig.STORAGE_PROVIDER === STORAGE_PROVIDER.S3) {
+      if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.S3) {
         let s3SourceFileVideoPath = Utils.getS3UriSourceFileVideoPath(
           msg.asset_id.toString(),
           msg.name,
@@ -226,8 +225,8 @@ export class VideoUploaderJobHandler extends WorkerHost {
         );
         let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
         console.log(`audio file uploaded:`, res);
-      } else if (AppConfigService.appConfig.STORAGE_PROVIDER === STORAGE_PROVIDER.BUNNY) {
-        const destinationPath = `videos/${msg.asset_id}/${msg.name}`;
+      } else if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.BUNNY) {
+        const destinationPath = Utils.getServerAudioFilePath(msg.asset_id.toString(), msg.name);
         let res = await this.bunnyClientService.syncFileToBunny(localFilePath, destinationPath);
         console.log(`audio file uploaded:`, res);
       } else {
@@ -266,7 +265,7 @@ export class VideoUploaderJobHandler extends WorkerHost {
         AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY,
       );
 
-      if (AppConfigService.appConfig.STORAGE_PROVIDER === STORAGE_PROVIDER.S3) {
+      if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.S3) {
         let s3SourceFileVideoPath = Utils.getS3UriSourceFileVideoPath(
           msg.asset_id.toString(),
           msg.name,
@@ -274,8 +273,8 @@ export class VideoUploaderJobHandler extends WorkerHost {
         );
         let res = await this.syncFileToS3(localFilePath, s3SourceFileVideoPath);
         console.log(`transcript file uploaded:`, res);
-      } else if (AppConfigService.appConfig.STORAGE_PROVIDER === STORAGE_PROVIDER.BUNNY) {
-        const destinationPath = `videos/${msg.asset_id}/${msg.name}`;
+      } else if (AppConfigService.appConfig.STORAGE_PROVIDER === Constants.STORAGE_PROVIDER.BUNNY) {
+        const destinationPath = Utils.getServerTranscriptFilePath(msg.asset_id.toString(), msg.name);
         let res = await this.bunnyClientService.syncFileToBunny(localFilePath, destinationPath);
         console.log(`transcript file uploaded:`, res);
       } else {
