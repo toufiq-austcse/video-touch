@@ -3,11 +3,11 @@ import { Args, Query, Resolver } from '@nestjs/graphql';
 import { Types } from 'mongoose';
 import { File } from '../models/file.model';
 import { FileRepository } from '../repositories/file.repository';
-import { FileService } from '@/src/api/assets/services/file.service';
+import { getCdnFileUrl } from '@/src/common/utils';
 
 @Resolver(() => File)
 export class FileResolver {
-  constructor(private fileService: FileService, private fileRepository: FileRepository) {}
+  constructor(private fileRepository: FileRepository) {}
 
   @Query(() => String, { name: 'GetFileUrl' })
   async getFileUrl(@Args('id') fileId: string) {
@@ -15,6 +15,6 @@ export class FileResolver {
     if (!file) {
       throw new NotFoundException('file not found');
     }
-    return this.fileService.getCdnFileUrl(file);
+    return getCdnFileUrl(file);
   }
 }

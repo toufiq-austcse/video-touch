@@ -13,6 +13,7 @@ import { FileMapper } from '@/src/api/assets/mapper/file.mapper';
 import { FILE_TYPE } from 'video-touch-common/dist/constants';
 import { getTranscriptFileName } from 'video-touch-common/dist/utils';
 import { TranscriptService } from '@/src/api/assets/services/transcript.service';
+import { getCdnFileUrl } from '@/src/common/utils';
 
 @Injectable()
 export class FileService {
@@ -62,7 +63,7 @@ export class FileService {
       _id: mongoose.Types.ObjectId(oldDoc._id.toString()),
     });
 
-    let cdnUrl = this.getCdnFileUrl(updatedFile);
+    let cdnUrl = getCdnFileUrl(updatedFile);
 
     this.webhookService.publishFileEvent(updatedFile, cdnUrl).catch((err) => {
       console.log('error while publishing webhook event ', err);
@@ -378,23 +379,5 @@ export class FileService {
     const secs = Math.floor(seconds % 60);
 
     return [hours, minutes, secs].map((unit) => unit.toString().padStart(2, '0')).join(':');
-  }
-
-  getCdnFileUrl(file: FileDocument): string {
-    let cdnBaseUrl = AppConfigService.appConfig.CDN_BASE_URL;
-    switch (file.type) {
-      case Constants.FILE_TYPE.SOURCE:
-        return `${cdnBaseUrl}/${Utils.getServerSourceFileVideoPath(file.asset_id.toString(), file.name)}`;
-      case Constants.FILE_TYPE.THUMBNAIL:
-        return `${cdnBaseUrl}/${Utils.getServerThumbnailPath(file.asset_id.toString())}`;
-      case Constants.FILE_TYPE.AUDIO:
-        return `${cdnBaseUrl}/${Utils.getServerAudioFilePath(file.asset_id.toString(), file.name)}`;
-      case Constants.FILE_TYPE.DOWNLOAD:
-        return `${cdnBaseUrl}/${Utils.getServerDownloadFilePath(file.asset_id.toString(), file.name)}`;
-      case Constants.FILE_TYPE.TRANSCRIPT:
-        return `${cdnBaseUrl}/${Utils.getServerTranscriptFilePath(file.asset_id.toString(), file.name)}`;
-      default:
-        return ``;
-    }
   }
 }

@@ -19,7 +19,7 @@ import { S3ClientService } from '@/src/common/aws/s3/s3-client.service';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { SignedUrlGeneratorService } from '@/src/api/assets/services/signed-url-generator.service';
 import { WebhookService } from '../../webhook/services/webhook.service';
-import { getDownloadFileName, getSourceFileName } from '@/src/common/utils';
+import { getCdnFileUrl, getDownloadFileName, getSourceFileName } from '@/src/common/utils';
 import { UrlValidatorService } from './url-validator.service';
 import { FILE_TYPE } from 'video-touch-common/dist/constants';
 
@@ -419,12 +419,8 @@ export class AssetService {
   }
 
   async getSourceFileUrlToReprocess(asset: AssetDocument, sourceFile: FileDocument): Promise<string> {
-    if (sourceFile) {
-      let sourceFilePath = Utils.getServerSourceFileVideoPath(asset._id.toString(), getSourceFileName());
-      return this.s3ClientService.generateSignedUrlToGetObject(
-        AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
-        sourceFilePath
-      );
+    if (sourceFile && sourceFile.latest_status === Constants.FILE_STATUS.READY) {
+      return getCdnFileUrl(sourceFile);
     }
     if (asset.source_url) {
       let isSourceUrlValid = await this.urlValidatorService.checkUrlValidity(asset.source_url);

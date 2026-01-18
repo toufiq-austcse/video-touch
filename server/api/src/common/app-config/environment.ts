@@ -71,4 +71,9 @@ export interface EnvironmentVariables {
   OPENAI_API_KEY: string;
   OPENAI_MODEL: string;
   AUDIO_CHUNK_DURATION_IN_SEC: number;
+
+  STORAGE_PROVIDER: string;
+  BUNNY_STORAGE_ZONE_NAME: string;
+  BUNNY_STORAGE_URL: string;
+  BUNNY_ACCESS_KEY: string;
 }
