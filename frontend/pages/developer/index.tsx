@@ -11,6 +11,9 @@ import {
   Copy,
   CheckCircle2,
 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -56,6 +59,23 @@ export type Webhook = {
   updated_at: Date;
 };
 
+// Validation schema
+const webhookSchema = z.object({
+  url: z
+    .string()
+    .min(1, "Webhook URL is required")
+    .url("Please enter a valid URL")
+    .refine(
+      (url: string) => url.startsWith("http://") || url.startsWith("https://"),
+      {
+        message: "URL must use HTTP or HTTPS protocol",
+      }
+    ),
+  secret_token: z.string().optional(),
+});
+
+type WebhookFormData = z.infer<typeof webhookSchema>;
+
 const DeveloperPage: NextPage = () => {
   const pageSize = 10;
   const [pageIndex, setPageIndex] = React.useState(0);
@@ -64,8 +84,25 @@ const DeveloperPage: NextPage = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedWebhook, setSelectedWebhook] = useState<Webhook | null>(null);
-  const [formData, setFormData] = useState({ url: "", secret_token: "" });
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
+
+  // Create form
+  const createForm = useForm<WebhookFormData>({
+    resolver: zodResolver(webhookSchema),
+    defaultValues: {
+      url: "",
+      secret_token: "",
+    },
+  });
+
+  // Edit form
+  const editForm = useForm<WebhookFormData>({
+    resolver: zodResolver(webhookSchema),
+    defaultValues: {
+      url: "",
+      secret_token: "",
+    },
+  });
 
   const { data, loading, error, refetch, fetchMore } = useQuery(LIST_WEBHOOKS, {
     variables: {
@@ -75,9 +112,6 @@ const DeveloperPage: NextPage = () => {
     fetchPolicy: "network-only",
   });
 
-  console.log("Webhook data:", data);
-  console.log("Webhook loading:", loading);
-  console.log("Webhook error:", error);
 
   const [createWebhook, { loading: createLoading }] = useMutation(
     CREATE_WEBHOOK_MUTATION,
@@ -85,7 +119,7 @@ const DeveloperPage: NextPage = () => {
       onCompleted: () => {
         refetch();
         setIsCreateDialogOpen(false);
-        setFormData({ url: "", secret_token: "" });
+        createForm.reset();
       },
       onError: (error) => {
         console.error("Error creating webhook:", error);
@@ -101,7 +135,7 @@ const DeveloperPage: NextPage = () => {
         refetch();
         setIsEditDialogOpen(false);
         setSelectedWebhook(null);
-        setFormData({ url: "", secret_token: "" });
+        editForm.reset();
       },
       onError: (error) => {
         console.error("Error updating webhook:", error);
@@ -125,30 +159,25 @@ const DeveloperPage: NextPage = () => {
     },
   );
 
-  const handleCreate = () => {
-    if (!formData.url) {
-      alert("Please enter a webhook URL");
-      return;
-    }
+  const handleCreate = createForm.handleSubmit((data: WebhookFormData) => {
     createWebhook({
       variables: {
-        url: formData.url,
-        secret_token: formData.secret_token || null,
+        url: data.url,
+        secret_token: data.secret_token || null,
       },
     });
-  };
+  });
 
-  const handleUpdate = () => {
+  const handleUpdate = editForm.handleSubmit((data: WebhookFormData) => {
     if (!selectedWebhook) return;
     updateWebhook({
       variables: {
         id: selectedWebhook._id,
-        url: formData.url || null,
-        secret_token:
-          formData.secret_token !== undefined ? formData.secret_token : null,
+        url: data.url || null,
+        secret_token: data.secret_token || null,
       },
     });
-  };
+  });
 
   const handleDelete = () => {
     if (!selectedWebhook) return;
@@ -161,7 +190,10 @@ const DeveloperPage: NextPage = () => {
 
   const handleEdit = (webhook: Webhook) => {
     setSelectedWebhook(webhook);
-    setFormData({ url: webhook.url, secret_token: webhook.secret_token || "" });
+    editForm.reset({
+      url: webhook.url,
+      secret_token: webhook.secret_token || "",
+    });
     setIsEditDialogOpen(true);
   };
 
@@ -379,7 +411,10 @@ const DeveloperPage: NextPage = () => {
               <CardDescription>Manage your webhook endpoints</CardDescription>
             </div>
             <Button
-              onClick={() => setIsCreateDialogOpen(true)}
+              onClick={() => {
+                createForm.reset();
+                setIsCreateDialogOpen(true);
+              }}
               className="bg-indigo-600 hover:bg-indigo-700"
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -403,7 +438,15 @@ const DeveloperPage: NextPage = () => {
       </Card>
 
       {/* Create Webhook Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+      <Dialog
+        open={isCreateDialogOpen}
+        onOpenChange={(open) => {
+          setIsCreateDialogOpen(open);
+          if (!open) {
+            createForm.reset();
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Create Webhook</DialogTitle>
@@ -411,58 +454,68 @@ const DeveloperPage: NextPage = () => {
               Add a new webhook endpoint to receive event notifications
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="url">Webhook URL *</Label>
-              <Input
-                id="url"
-                placeholder="https://example.com/webhook"
-                value={formData.url}
-                onChange={(e) =>
-                  setFormData({ ...formData, url: e.target.value })
-                }
-              />
+          <form onSubmit={handleCreate}>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="url">Webhook URL *</Label>
+                <Input
+                  id="url"
+                  placeholder="https://example.com/webhook"
+                  {...createForm.register("url")}
+                  className={createForm.formState.errors.url ? "border-red-500" : ""}
+                />
+                {createForm.formState.errors.url && (
+                  <p className="text-xs text-red-600 mt-1">
+                    {createForm.formState.errors.url.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="secret_token">Secret Token (Optional)</Label>
+                <Input
+                  id="secret_token"
+                  placeholder="Enter a secret token for verification"
+                  {...createForm.register("secret_token")}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  This token will be sent in the request headers as{" "}
+                  <code className="bg-gray-100 px-1 rounded">
+                    x-vdio-touch-key
+                  </code>
+                </p>
+              </div>
             </div>
-            <div>
-              <Label htmlFor="secret_token">Secret Token (Optional)</Label>
-              <Input
-                id="secret_token"
-                placeholder="Enter a secret token for verification"
-                value={formData.secret_token}
-                onChange={(e) =>
-                  setFormData({ ...formData, secret_token: e.target.value })
-                }
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                This token will be sent in the request headers as{" "}
-                <code className="bg-gray-100 px-1 rounded">x-gumlet-token</code>{" "}
-                and{" "}
-                <code className="bg-gray-100 px-1 rounded">
-                  x-tenms-service-key
-                </code>
-              </p>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsCreateDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleCreate}
-              disabled={createLoading}
-              className="bg-indigo-600 hover:bg-indigo-700"
-            >
-              {createLoading ? "Creating..." : "Create"}
-            </Button>
-          </DialogFooter>
+            <DialogFooter className="mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsCreateDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={createLoading}
+                className="bg-indigo-600 hover:bg-indigo-700"
+              >
+                {createLoading ? "Creating..." : "Create"}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
 
       {/* Edit Webhook Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      <Dialog
+        open={isEditDialogOpen}
+        onOpenChange={(open) => {
+          setIsEditDialogOpen(open);
+          if (!open) {
+            editForm.reset();
+            setSelectedWebhook(null);
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Webhook</DialogTitle>
@@ -470,45 +523,48 @@ const DeveloperPage: NextPage = () => {
               Update your webhook endpoint configuration
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="edit-url">Webhook URL</Label>
-              <Input
-                id="edit-url"
-                placeholder="https://example.com/webhook"
-                value={formData.url}
-                onChange={(e) =>
-                  setFormData({ ...formData, url: e.target.value })
-                }
-              />
+          <form onSubmit={handleUpdate}>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="edit-url">Webhook URL</Label>
+                <Input
+                  id="edit-url"
+                  placeholder="https://example.com/webhook"
+                  {...editForm.register("url")}
+                  className={editForm.formState.errors.url ? "border-red-500" : ""}
+                />
+                {editForm.formState.errors.url && (
+                  <p className="text-xs text-red-600 mt-1">
+                    {editForm.formState.errors.url.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="edit-secret_token">Secret Token</Label>
+                <Input
+                  id="edit-secret_token"
+                  placeholder="Enter a secret token for verification"
+                  {...editForm.register("secret_token")}
+                />
+              </div>
             </div>
-            <div>
-              <Label htmlFor="edit-secret_token">Secret Token</Label>
-              <Input
-                id="edit-secret_token"
-                placeholder="Enter a secret token for verification"
-                value={formData.secret_token}
-                onChange={(e) =>
-                  setFormData({ ...formData, secret_token: e.target.value })
-                }
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsEditDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleUpdate}
-              disabled={updateLoading}
-              className="bg-indigo-600 hover:bg-indigo-700"
-            >
-              {updateLoading ? "Updating..." : "Update"}
-            </Button>
-          </DialogFooter>
+            <DialogFooter className="mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsEditDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={updateLoading}
+                className="bg-indigo-600 hover:bg-indigo-700"
+              >
+                {updateLoading ? "Updating..." : "Update"}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
 
