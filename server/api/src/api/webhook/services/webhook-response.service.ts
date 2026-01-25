@@ -1,57 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { WebhookResponseRepository } from '@/src/api/webhook/repositories/webhook-response.repository';
 import { WebhookResponseDocument } from '@/src/api/webhook/schemas/webhook-response.schema';
-import { AssetDocument } from '@/src/api/assets/schemas/assets.schema';
 import { WebhookPayloadDto } from '@/src/api/webhook/dto/webhook-payload.dto';
 import { AxiosError } from 'axios';
-import { FileDocument } from '@/src/api/assets/schemas/files.schema';
 import mongoose from 'mongoose';
 
 @Injectable()
 export class WebhookResponseService {
   constructor(private webhookResponseRepository: WebhookResponseRepository) {}
 
-  async createAssetWebhookResponse(
-    assetDocument: AssetDocument,
-    status: string,
-    payload: WebhookPayloadDto,
-    responseBody: any,
-    error?: unknown
-  ): Promise<WebhookResponseDocument> {
-    return this.create({
-      user_id: assetDocument.user_id,
-      asset_id: assetDocument._id,
-      event_type: payload.event_type,
-      payload,
-      status,
-      responseBody,
-      error,
-    });
-  }
-
-  async createFileWebhookResponse(
-    fileDocument: FileDocument,
-    status: string,
-    userId: mongoose.Types.ObjectId,
-    payload: WebhookPayloadDto,
-    responseBody: any,
-    error?: unknown
-  ): Promise<WebhookResponseDocument> {
-    return this.create({
-      user_id: userId,
-      asset_id: fileDocument.asset_id,
-      event_type: payload.event_type,
-      payload,
-      status,
-      responseBody,
-      error,
-    });
-  }
-
-  private async create(options: {
-    user_id: mongoose.Types.ObjectId;
-    asset_id: mongoose.Types.ObjectId;
+  async create(options: {
+    user_id: string;
+    asset_id: string;
     event_type: string;
+    webhook_id: string;
+    identification_type: string;
+    identification_value: string;
     payload: WebhookPayloadDto;
     status: string;
     responseBody: any;
@@ -60,9 +24,12 @@ export class WebhookResponseService {
     const { response, errorData } = this.processError(options.responseBody, options.error);
 
     return this.webhookResponseRepository.create({
-      user_id: options.user_id,
-      asset_id: options.asset_id,
+      user_id: mongoose.Types.ObjectId(options.user_id),
+      asset_id: mongoose.Types.ObjectId(options.asset_id),
+      webhook_id: mongoose.Types.ObjectId(options.webhook_id),
       event_type: options.event_type,
+      identification_type: options.identification_type,
+      identification_value: options.identification_value,
       payload: options.payload,
       status: options.status,
       response,

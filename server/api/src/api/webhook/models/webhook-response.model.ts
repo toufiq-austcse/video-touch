@@ -18,6 +18,18 @@ export class WebhookResponse {
 
   @Field()
   @Expose()
+  webhook_id: string;
+
+  @Field()
+  @Expose()
+  identification_type: string;
+
+  @Field()
+  @Expose()
+  identification_value: string;
+
+  @Field()
+  @Expose()
   event_type: string;
 
   @Field(() => GraphQLJSON)

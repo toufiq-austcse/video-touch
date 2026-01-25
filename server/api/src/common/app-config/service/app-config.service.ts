@@ -74,8 +74,6 @@ export class AppConfigService {
       RETRY_JOB_BACKOFF_IN_MINUTE: +this.configService.get('RETRY_JOB_BACKOFF_IN_MINUTE', 10),
       GOTIPATH_CDN_SECRET: this.configService.getOrThrow('GOTIPATH_CDN_SECRET'),
       BULL_DOWNLOAD_FILE_GENERATION_JOB_QUEUE: this.configService.getOrThrow('BULL_DOWNLOAD_FILE_GENERATION_JOB_QUEUE'),
-      WEBHOOK_URL: this.configService.getOrThrow('WEBHOOK_URL'),
-      WEBHOOK_TOKEN: this.configService.getOrThrow('WEBHOOK_TOKEN'),
       BULL_AUDIO_EXTRACTION_JOB_QUEUE: this.configService.getOrThrow('BULL_AUDIO_EXTRACTION_JOB_QUEUE'),
       GOOGLE_GENAI_API_KEY: this.configService.get('GOOGLE_GENAI_API_KEY'),
       TRANSCRIPTION_GENERATION_ENABLED: this.configService.get('TRANSCRIPTION_GENERATION_ENABLED', 'false') === 'true',
@@ -88,6 +86,8 @@ export class AppConfigService {
       BUNNY_STORAGE_ZONE_NAME: this.configService.get('BUNNY_STORAGE_ZONE_NAME'),
       BUNNY_STORAGE_URL: this.configService.get('BUNNY_STORAGE_URL'),
       BUNNY_ACCESS_KEY: this.configService.get('BUNNY_ACCESS_KEY'),
+      RABBIT_MQ_WEBHOOK_NOTIFY_CONSUMER_QUEUE: this.configService.getOrThrow('RABBIT_MQ_WEBHOOK_NOTIFY_CONSUMER_QUEUE'),
+      RABBIT_MQ_WEBHOOK_NOTIFY_ROUTING_KEY: this.configService.getOrThrow('RABBIT_MQ_WEBHOOK_NOTIFY_ROUTING_KEY'),
     };
     this.validateTranscriptionGenerationEnabled();
     this.validateStorageConfig();

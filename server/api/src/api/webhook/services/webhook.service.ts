@@ -1,7 +1,5 @@
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
-import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { firstValueFrom } from 'rxjs';
 import { AssetDocument } from '../../assets/schemas/assets.schema';
 import { WebhookPayloadDto } from '../dto/webhook-payload.dto';
 import { FileDocument } from '@/src/api/assets/schemas/files.schema';
@@ -13,17 +11,14 @@ import { WebhookMapper } from '@/src/api/webhook/mapper/webhook.mapper';
 import { WebhookRepository } from '@/src/api/webhook/repositories/webhook.repository';
 import { ListWebhookInputDto } from '@/src/api/webhook/dto/list-webhook-input.dto';
 import { UpdateWebhookInputDto } from '@/src/api/webhook/dto/update-webhook-input.dto';
-import { WEBHOOOK_RESPONSE_STATUS } from '@/src/common/constants';
-import { WebhookResponseService } from '@/src/api/webhook/services/webhook-response.service';
 import mongoose from 'mongoose';
+import { RabbitMqService } from '@/src/common/rabbit-mq/service/rabbitmq.service';
+import { WebhookNotifyConsumerDto } from '@/src/api/webhook/dto/webhook-notify-consumer.dto';
+import { WEBHOOK_IDENTIFICATION_TYPES } from '@/src/common/constants';
 
 @Injectable()
 export class WebhookService {
-  constructor(
-    private readonly httpService: HttpService,
-    private webhookRepository: WebhookRepository,
-    private webhookResponseService: WebhookResponseService
-  ) {}
+  constructor(private webhookRepository: WebhookRepository, private rabbitMqService: RabbitMqService) {}
 
   async create(input: CreateWebhookInputDto, user: UserDocument): Promise<WebHookDocument> {
     let webhookDocument = WebhookMapper.buildWebhookDocumentForSaving(input, user);
@@ -66,6 +61,10 @@ export class WebhookService {
   async publishAssetEvent(updatedAsset: AssetDocument): Promise<any> {
     let payload: WebhookPayloadDto;
     try {
+      let webhooks = await this.webhookRepository.find({
+        user_id: updatedAsset.user_id,
+      });
+
       payload = {
         event_type: `asset.status.${updatedAsset.latest_status.toLowerCase()}`,
         data: {
@@ -75,31 +74,26 @@ export class WebhookService {
           status: updatedAsset.latest_status,
         },
       };
-      console.log('publishing asset webhook event ', payload);
-      let res = await firstValueFrom(
-        this.httpService.post(`${AppConfigService.appConfig.WEBHOOK_URL}`, payload, {
-          headers: {
-            'x-gumlet-token': AppConfigService.appConfig.WEBHOOK_TOKEN,
-            'x-tenms-service-key': AppConfigService.appConfig.WEBHOOK_TOKEN,
-          },
-        })
-      );
-      await this.webhookResponseService.createAssetWebhookResponse(
-        updatedAsset,
-        WEBHOOOK_RESPONSE_STATUS.SUCCESS,
-        payload,
-        res.data as any
-      );
-      return res;
+
+      for (let webhook of webhooks) {
+        this.rabbitMqService.publish(
+          AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
+          AppConfigService.appConfig.RABBIT_MQ_WEBHOOK_NOTIFY_ROUTING_KEY,
+          {
+            url: webhook.url,
+            auth_token: webhook.secret_token,
+            user_id: updatedAsset.user_id.toString(),
+            asset_id: updatedAsset._id.toString(),
+            webhook_id: webhook._id.toString(),
+            payload: payload,
+            identification_type: WEBHOOK_IDENTIFICATION_TYPES.ASSET,
+            identification_value: updatedAsset._id.toString(),
+          } as WebhookNotifyConsumerDto
+        );
+      }
     } catch (err: unknown) {
       console.log('error in webhook publishEvent ', err);
-      await this.webhookResponseService.createAssetWebhookResponse(
-        updatedAsset,
-        WEBHOOOK_RESPONSE_STATUS.FAILED,
-        payload,
-        null,
-        err
-      );
+
       throw new Error('error in publish webhook event');
     }
   }
@@ -111,6 +105,10 @@ export class WebhookService {
         console.log('skipping webhook for partial transcript file ', updatedFile._id.toString());
         return;
       }
+
+      let webhooks = await this.webhookRepository.find({
+        user_id: userId,
+      });
 
       payload = {
         event_type: `file.status.${updatedFile.latest_status.toLowerCase()}`,
@@ -126,34 +124,21 @@ export class WebhookService {
           file_url: cdnFileUrl,
         },
       };
-      console.log('publishFileEvent payload ', payload);
-      let res = await firstValueFrom(
-        this.httpService.post(`${AppConfigService.appConfig.WEBHOOK_URL}`, payload, {
-          headers: {
-            'x-gumlet-token': AppConfigService.appConfig.WEBHOOK_TOKEN,
-            'x-tenms-service-key': AppConfigService.appConfig.WEBHOOK_TOKEN,
-          },
-        })
-      );
-
-      await this.webhookResponseService.createFileWebhookResponse(
-        updatedFile,
-        WEBHOOOK_RESPONSE_STATUS.SUCCESS,
-        userId,
-        payload,
-        res.data as any
-      );
-      return res;
+      for (let webhook of webhooks) {
+        this.rabbitMqService.publish(
+          AppConfigService.appConfig.RABBIT_MQ_VIDEO_TOUCH_TOPIC_EXCHANGE,
+          AppConfigService.appConfig.RABBIT_MQ_WEBHOOK_NOTIFY_ROUTING_KEY,
+          {
+            url: webhook.url,
+            auth_token: webhook.secret_token,
+            user_id: userId,
+            asset_id: updatedFile.asset_id,
+            payload: payload,
+          }
+        );
+      }
     } catch (err) {
       console.log('error in webhook publishEvent ', err);
-      await this.webhookResponseService.createFileWebhookResponse(
-        updatedFile,
-        WEBHOOOK_RESPONSE_STATUS.FAILED,
-        userId,
-        payload,
-        null,
-        err
-      );
       throw new Error('error in publish webhook event');
     }
   }

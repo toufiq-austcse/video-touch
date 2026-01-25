@@ -15,6 +15,15 @@ export class WebhookResponseDocument extends AbstractDocument {
   @Prop({ required: true, type: Types.ObjectId })
   asset_id: Types.ObjectId;
 
+  @Prop({ required: true, type: Types.ObjectId })
+  webhook_id: Types.ObjectId;
+
+  @Prop({ required: true })
+  identification_type: string;
+
+  @Prop({ required: true })
+  identification_value: string;
+
   @Prop({ required: true })
   event_type: string;
 
