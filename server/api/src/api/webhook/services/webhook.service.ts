@@ -131,10 +131,13 @@ export class WebhookService {
           {
             url: webhook.url,
             auth_token: webhook.secret_token,
-            user_id: userId,
-            asset_id: updatedFile.asset_id,
+            user_id: userId.toString(),
+            asset_id: updatedFile.asset_id.toString(),
             payload: payload,
-          }
+            webhook_id: webhook._id.toString(),
+            identification_type: WEBHOOK_IDENTIFICATION_TYPES.FILE,
+            identification_value: updatedFile._id.toString(),
+          } as WebhookNotifyConsumerDto
         );
       }
     } catch (err) {

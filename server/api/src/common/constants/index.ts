@@ -5,5 +5,5 @@ export const WEBHOOOK_RESPONSE_STATUS = {
 
 export const WEBHOOK_IDENTIFICATION_TYPES = {
   ASSET: 'asset',
-  FILED: 'file',
+  FILE: 'file',
 };
