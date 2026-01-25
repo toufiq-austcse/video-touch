@@ -13,18 +13,25 @@ import { WebhookMapper } from '@/src/api/webhook/mapper/webhook.mapper';
 import { WebhookRepository } from '@/src/api/webhook/repositories/webhook.repository';
 import { ListWebhookInputDto } from '@/src/api/webhook/dto/list-webhook-input.dto';
 import { UpdateWebhookInputDto } from '@/src/api/webhook/dto/update-webhook-input.dto';
+import { WEBHOOOK_RESPONSE_STATUS } from '@/src/common/constants';
+import { WebhookResponseService } from '@/src/api/webhook/services/webhook-response.service';
+import mongoose from 'mongoose';
 
 @Injectable()
 export class WebhookService {
-  constructor(private readonly httpService: HttpService, private repistory: WebhookRepository) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private webhookRepository: WebhookRepository,
+    private webhookResponseService: WebhookResponseService
+  ) {}
 
   async create(input: CreateWebhookInputDto, user: UserDocument): Promise<WebHookDocument> {
     let webhookDocument = WebhookMapper.buildWebhookDocumentForSaving(input, user);
-    return this.repistory.create(webhookDocument);
+    return this.webhookRepository.create(webhookDocument);
   }
 
   async listWebhooks(listWebhookInputDto: ListWebhookInputDto, user: UserDocument) {
-    return this.repistory.getPaginatedWebhooks(
+    return this.webhookRepository.getPaginatedWebhooks(
       listWebhookInputDto.first,
       listWebhookInputDto.after,
       listWebhookInputDto.before,
@@ -34,7 +41,7 @@ export class WebhookService {
   }
 
   async update(oldWebhook: WebHookDocument, updateWebhookInput: UpdateWebhookInputDto) {
-    await this.repistory.findOneAndUpdate(
+    await this.webhookRepository.findOneAndUpdate(
       { _id: oldWebhook._id },
       {
         url: updateWebhookInput.url ? updateWebhookInput.url : oldWebhook.url,
@@ -42,23 +49,24 @@ export class WebhookService {
           updateWebhookInput.secret_token !== undefined ? updateWebhookInput.secret_token : oldWebhook.secret_token,
       }
     );
-    return this.repistory.findOne({ _id: oldWebhook._id });
+    return this.webhookRepository.findOne({ _id: oldWebhook._id });
   }
 
   async getWebhook(_id: string, user: UserDocument) {
-    return this.repistory.findOne({
+    return this.webhookRepository.findOne({
       _id: _id,
       user_id: user._id,
     });
   }
 
   async delete(webhook: WebHookDocument) {
-    await this.repistory.deleteOne({ _id: webhook._id });
+    await this.webhookRepository.deleteOne({ _id: webhook._id });
   }
 
   async publishAssetEvent(updatedAsset: AssetDocument): Promise<any> {
+    let payload: WebhookPayloadDto;
     try {
-      let payload: WebhookPayloadDto = {
+      payload = {
         event_type: `asset.status.${updatedAsset.latest_status.toLowerCase()}`,
         data: {
           asset_id: updatedAsset._id.toString(),
@@ -76,19 +84,35 @@ export class WebhookService {
           },
         })
       );
+      await this.webhookResponseService.createAssetWebhookResponse(
+        updatedAsset,
+        WEBHOOOK_RESPONSE_STATUS.SUCCESS,
+        payload,
+        res.data as any
+      );
       return res;
-    } catch (err) {
+    } catch (err: unknown) {
       console.log('error in webhook publishEvent ', err);
+      await this.webhookResponseService.createAssetWebhookResponse(
+        updatedAsset,
+        WEBHOOOK_RESPONSE_STATUS.FAILED,
+        payload,
+        null,
+        err
+      );
       throw new Error('error in publish webhook event');
     }
   }
-  async publishFileEvent(updatedFile: FileDocument, cdnFileUrl: string): Promise<any> {
+  async publishFileEvent(updatedFile: FileDocument, userId: mongoose.Types.ObjectId, cdnFileUrl: string): Promise<any> {
+    let payload: WebhookPayloadDto;
+
     try {
       if (updatedFile.type === Constants.FILE_TYPE.PARTIAL_TRANSCRIPT) {
         console.log('skipping webhook for partial transcript file ', updatedFile._id.toString());
         return;
       }
-      let payload: WebhookPayloadDto = {
+
+      payload = {
         event_type: `file.status.${updatedFile.latest_status.toLowerCase()}`,
         data: {
           file_id: updatedFile._id.toString(),
@@ -111,9 +135,25 @@ export class WebhookService {
           },
         })
       );
+
+      await this.webhookResponseService.createFileWebhookResponse(
+        updatedFile,
+        WEBHOOOK_RESPONSE_STATUS.SUCCESS,
+        userId,
+        payload,
+        res.data as any
+      );
       return res;
     } catch (err) {
       console.log('error in webhook publishEvent ', err);
+      await this.webhookResponseService.createFileWebhookResponse(
+        updatedFile,
+        WEBHOOOK_RESPONSE_STATUS.FAILED,
+        userId,
+        payload,
+        null,
+        err
+      );
       throw new Error('error in publish webhook event');
     }
   }

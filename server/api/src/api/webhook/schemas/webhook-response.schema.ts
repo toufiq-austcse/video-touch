@@ -19,13 +19,16 @@ export class WebhookResponseDocument extends AbstractDocument {
   event_type: string;
 
   @Prop({ required: true, type: Object })
-  req_body: Record<string, any>;
+  payload: Record<string, any>;
 
   @Prop({ required: true })
   status: string;
 
   @Prop({ required: true, type: Object })
-  response_body: Record<string, any>;
+  response: Record<string, any>;
+
+  @Prop({ required: false, type: Object })
+  error?: any;
 }
 
 export const WebhookResponseSchema = SchemaFactory.createForClass(WebhookResponseDocument);

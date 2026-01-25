@@ -22,7 +22,7 @@ export class WebhookResponse {
 
   @Field(() => GraphQLJSON)
   @Expose()
-  req_body: Record<string, any>;
+  payload: Record<string, any>;
 
   @Field()
   @Expose()
@@ -30,7 +30,7 @@ export class WebhookResponse {
 
   @Field(() => GraphQLJSON)
   @Expose()
-  response_body: Record<string, any>;
+  response: Record<string, any>;
 
   @Field()
   @Expose()
