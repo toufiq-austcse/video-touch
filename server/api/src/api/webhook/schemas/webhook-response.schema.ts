@@ -28,6 +28,4 @@ export class WebhookResponseDocument extends AbstractDocument {
   response_body: Record<string, any>;
 }
 
-export const WebhookResponseSchema = SchemaFactory.createForClass(
-  WebhookResponseDocument,
-);
+export const WebhookResponseSchema = SchemaFactory.createForClass(WebhookResponseDocument);
