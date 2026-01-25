@@ -11,4 +11,8 @@ export interface EnvironmentVariables {
   AWS_S3_BUCKET_NAME: string;
   REDIS_HOST: string;
   REDIS_PORT: number;
+  STORAGE_PROVIDER: string;
+  BUNNY_STORAGE_ZONE_NAME: string;
+  BUNNY_STORAGE_URL: string;
+  BUNNY_ACCESS_KEY: string;
 }

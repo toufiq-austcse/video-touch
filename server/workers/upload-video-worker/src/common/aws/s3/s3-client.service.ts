@@ -60,7 +60,7 @@ export class S3ClientService implements OnModuleInit {
 
   async syncMainManifestFile(assetId: string) {
     let mainManifestPath = Utils.getMainManifestPath(assetId, AppConfigService.appConfig.TEMP_VIDEO_DIRECTORY);
-    let s3ManifestPath = Utils.getS3ManifestPath(assetId);
+    let s3ManifestPath = Utils.getServerManifestPath(assetId);
     let res = await this.uploadObject({
       bucket: AppConfigService.appConfig.AWS_S3_BUCKET_NAME,
       key: s3ManifestPath,

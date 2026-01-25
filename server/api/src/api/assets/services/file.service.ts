@@ -13,6 +13,7 @@ import { FileMapper } from '@/src/api/assets/mapper/file.mapper';
 import { FILE_TYPE } from 'video-touch-common/dist/constants';
 import { getTranscriptFileName } from 'video-touch-common/dist/utils';
 import { TranscriptService } from '@/src/api/assets/services/transcript.service';
+import { getCdnFileUrl } from '@/src/common/utils';
 
 @Injectable()
 export class FileService {
@@ -62,7 +63,9 @@ export class FileService {
       _id: mongoose.Types.ObjectId(oldDoc._id.toString()),
     });
 
-    this.webhookService.publishFileEvent(updatedFile).catch((err) => {
+    let cdnUrl = getCdnFileUrl(updatedFile);
+
+    this.webhookService.publishFileEvent(updatedFile, cdnUrl).catch((err) => {
       console.log('error while publishing webhook event ', err);
     });
 

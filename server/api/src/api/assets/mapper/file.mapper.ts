@@ -53,6 +53,6 @@ export class FileMapper {
   }
 
   static getThumbnailCDNUrl(assetId: string) {
-    return `${AppConfigService.appConfig.CDN_BASE_URL}/${Utils.getS3ThumbnailPath(assetId)}`;
+    return `${AppConfigService.appConfig.CDN_BASE_URL}/${Utils.getServerThumbnailPath(assetId)}`;
   }
 }

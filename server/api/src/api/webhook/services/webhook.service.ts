@@ -5,7 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { AssetDocument } from '../../assets/schemas/assets.schema';
 import { WebhookPayloadDto } from '../dto/webhook-payload.dto';
 import { FileDocument } from '@/src/api/assets/schemas/files.schema';
-import { Utils, Constants } from 'video-touch-common';
+import { Constants } from 'video-touch-common';
 import { WebHookDocument } from '@/src/api/webhook/schemas/webhook.schema';
 import { CreateWebhookInputDto } from '@/src/api/webhook/dto/create-webhook-input.dto';
 import { UserDocument } from '@/src/api/auth/schemas/user.schema';
@@ -82,7 +82,7 @@ export class WebhookService {
       throw new Error('error in publish webhook event');
     }
   }
-  async publishFileEvent(updatedFile: FileDocument): Promise<any> {
+  async publishFileEvent(updatedFile: FileDocument, cdnFileUrl: string): Promise<any> {
     try {
       if (updatedFile.type === Constants.FILE_TYPE.PARTIAL_TRANSCRIPT) {
         console.log('skipping webhook for partial transcript file ', updatedFile._id.toString());
@@ -99,10 +99,7 @@ export class WebhookService {
           updated_at: updatedFile.updatedAt.toISOString(),
           size: updatedFile.size,
           type: updatedFile.type,
-          file_url: `${AppConfigService.appConfig.CDN_BASE_URL}/${Utils.getS3TranscriptFilePath(
-            updatedFile.asset_id.toString(),
-            updatedFile.name
-          )}`,
+          file_url: cdnFileUrl,
         },
       };
       console.log('publishFileEvent payload ', payload);
