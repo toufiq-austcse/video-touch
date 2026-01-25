@@ -69,7 +69,7 @@ const webhookSchema = z.object({
       (url: string) => url.startsWith("http://") || url.startsWith("https://"),
       {
         message: "URL must use HTTP or HTTPS protocol",
-      }
+      },
     ),
   secret_token: z.string().optional(),
 });
@@ -111,7 +111,6 @@ const DeveloperPage: NextPage = () => {
     },
     fetchPolicy: "network-only",
   });
-
 
   const [createWebhook, { loading: createLoading }] = useMutation(
     CREATE_WEBHOOK_MUTATION,
@@ -462,7 +461,9 @@ const DeveloperPage: NextPage = () => {
                   id="url"
                   placeholder="https://example.com/webhook"
                   {...createForm.register("url")}
-                  className={createForm.formState.errors.url ? "border-red-500" : ""}
+                  className={
+                    createForm.formState.errors.url ? "border-red-500" : ""
+                  }
                 />
                 {createForm.formState.errors.url && (
                   <p className="text-xs text-red-600 mt-1">
@@ -531,7 +532,9 @@ const DeveloperPage: NextPage = () => {
                   id="edit-url"
                   placeholder="https://example.com/webhook"
                   {...editForm.register("url")}
-                  className={editForm.formState.errors.url ? "border-red-500" : ""}
+                  className={
+                    editForm.formState.errors.url ? "border-red-500" : ""
+                  }
                 />
                 {editForm.formState.errors.url && (
                   <p className="text-xs text-red-600 mt-1">
