@@ -7,9 +7,5 @@ services:
       - "3009:3000"
     env_file:
       - .env
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
 
