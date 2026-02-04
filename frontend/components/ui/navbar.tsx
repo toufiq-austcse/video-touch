@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut } from "lucide-react";
+import { LogOut, Code } from "lucide-react";
 
 const Navbar = () => {
   const { currentUser } = useAuthContext();
@@ -91,6 +91,12 @@ const Navbar = () => {
                     <DropdownMenuContent className="w-56">
                       <DropdownMenuLabel>My Account</DropdownMenuLabel>
                       <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link href="/developer">
+                          <Code className="mr-2 h-4 w-4" />
+                          Developer
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem>
                         <LogOut className="mr-2 h-4 w-4" />
                         <span onClick={onLogOutClick}>Log out</span>

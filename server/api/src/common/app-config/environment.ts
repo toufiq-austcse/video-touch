@@ -63,8 +63,6 @@ export interface EnvironmentVariables {
   RETRY_JOB_BACKOFF_IN_MINUTE: number;
   GOTIPATH_CDN_SECRET: string;
 
-  WEBHOOK_URL: string;
-  WEBHOOK_TOKEN: string;
   TRANSCRIPTION_GENERATION_ENABLED: boolean;
   GOOGLE_GENAI_API_KEY: string;
   GOOGLE_GEN_AI_MODEL: string;
@@ -76,4 +74,7 @@ export interface EnvironmentVariables {
   BUNNY_STORAGE_ZONE_NAME: string;
   BUNNY_STORAGE_URL: string;
   BUNNY_ACCESS_KEY: string;
+
+  RABBIT_MQ_WEBHOOK_NOTIFY_CONSUMER_QUEUE: string;
+  RABBIT_MQ_WEBHOOK_NOTIFY_ROUTING_KEY: string;
 }

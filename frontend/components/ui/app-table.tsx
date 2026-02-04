@@ -6,19 +6,12 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
-  PaginationState,
   SortingState,
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, X } from "lucide-react";
+import { X } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -38,6 +31,7 @@ const AppTable = <T,>({
   next,
   prev,
   onSearchEnter,
+  showSearch = true,
 }: {
   data: T[];
   columns: ColumnDef<T, any>[];
@@ -47,6 +41,7 @@ const AppTable = <T,>({
   next: () => void;
   prev: () => void;
   onSearchEnter?: (query: string) => void;
+  showSearch?: boolean;
 }) => {
   console.log("pageIndex", pageIndex);
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -94,16 +89,18 @@ const AppTable = <T,>({
     <div>
       <div className="w-full">
         <div className="flex items-center gap-2 py-4">
-          <Input
-            placeholder="Search with title or asset id ..."
-            value={searchQuery}
-            onChange={(event) => {
-              const value = event.target.value;
-              setSearchQuery(value);
-            }}
-            onKeyDown={handleSearchKeyDown}
-            className="max-w-sm"
-          />
+          {showSearch && (
+            <Input
+              placeholder="Search with title or asset id ..."
+              value={searchQuery}
+              onChange={(event) => {
+                const value = event.target.value;
+                setSearchQuery(value);
+              }}
+              onKeyDown={handleSearchKeyDown}
+              className="max-w-sm"
+            />
+          )}
           {isSearchActive && (
             <Button
               type="button"

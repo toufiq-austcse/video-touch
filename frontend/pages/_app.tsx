@@ -15,6 +15,21 @@ function MyApp({ Component, pageProps }: AppProps) {
     setClient(apolloClient);
   }, []);
 
+  if (!client) {
+    return (
+      <AuthContextProvider>
+        <div className={"min-h-screen flex flex-col"}>
+          <Navbar />
+          <div className="m-4 max-w-full px-5 sm:px-6 lg:px-20">
+            <div className="flex items-center justify-center h-64">
+              <p className="text-gray-500">Loading...</p>
+            </div>
+          </div>
+        </div>
+      </AuthContextProvider>
+    );
+  }
+
   return (
     <AuthContextProvider>
       <div className={"min-h-screen flex flex-col"}>

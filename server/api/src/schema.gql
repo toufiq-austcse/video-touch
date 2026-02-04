@@ -85,12 +85,26 @@ type User {
   updatedAt: String!
 }
 
+type Webhook {
+  _id: String!
+  url: String!
+  secret_token: String
+  created_at: DateTime!
+  updated_at: DateTime!
+}
+
+type PaginatedWebhookResponse {
+  webhooks: [Webhook!]!
+  page_info: PageInfo!
+}
+
 type Query {
   ListAsset(listAssetInputDto: ListAssetInputDto!): PaginatedAssetResponse!
   GetAsset(getAssetInputDto: GetAssetInputDto!): Asset!
   GetAssetMasterPlaylistSignedUrl(_id: String!): PlaylistSignedUrlResponse!
   GetFileUrl(id: String!): String!
   user: User
+  ListWebhook(listWebhookInputDto: ListWebhookInputDto!): PaginatedWebhookResponse!
 }
 
 input ListAssetInputDto {
@@ -104,12 +118,22 @@ input GetAssetInputDto {
   _id: String!
 }
 
+input ListWebhookInputDto {
+  after: String
+  before: String
+  first: Float = 30
+  search: String
+}
+
 type Mutation {
   CreateAsset(createAssetInput: CreateAssetInputDto!): CreateAssetResponse!
   RecreateAsset(recreateAssetInputDto: RecreateAssetInputDto!): CreateAssetResponse!
   ReprocessAsset(reprocessAssetInputDto: ReprocessAssetInputDto!): CreateAssetResponse!
   UpdateAsset(_id: String!, updateAssetInputDto: UpdateAssetInputDto!): Asset!
   DeleteAsset(_id: String!): String!
+  CreateWebhook(createWebhookInput: CreateWebhookInputDto!): Webhook!
+  UpdateWebhook(_id: String!, updateWebhookInputDto: UpdateWebhookInputDto!): Webhook!
+  DeleteWebhook(_id: String!): String!
 }
 
 input CreateAssetInputDto {
@@ -133,4 +157,14 @@ input UpdateAssetInputDto {
   title: String
   description: String
   tags: [String!]
+}
+
+input CreateWebhookInputDto {
+  url: String!
+  secret_token: String
+}
+
+input UpdateWebhookInputDto {
+  url: String
+  secret_token: String
 }
