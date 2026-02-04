@@ -7,11 +7,7 @@ services:
       - 27017:27017
     volumes:
       - .docker-conf/mongodb/data:/data/db
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
   redis:
     image: redis:latest
     container_name: redis
@@ -26,11 +22,6 @@ services:
       - "6379:6379"
     volumes:
       - .docker-conf/redis/data:/data
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -49,5 +40,6 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=admin
+    restart: always
 
 

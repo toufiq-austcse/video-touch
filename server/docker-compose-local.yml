@@ -15,11 +15,7 @@ services:
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
       - ./uploads:$TEMP_UPLOAD_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
 
   download-video-worker:
     build:
@@ -35,11 +31,7 @@ services:
       - RABBIT_MQ_URL=amqp://admin:admin@rabbitmq:5672
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
   validate-video-worker:
     build:
       context: workers/validate-video-worker
@@ -54,11 +46,7 @@ services:
       - RABBIT_MQ_URL=amqp://admin:admin@rabbitmq:5672
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
 
   thumbnail-generation-worker:
     build:
@@ -74,11 +62,7 @@ services:
       - RABBIT_MQ_URL=amqp://admin:admin@rabbitmq:5672
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
 
   process-video-worker-360p:
     build:
@@ -96,11 +80,7 @@ services:
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
     cpuset: "0-3"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
 
   audio-worker:
     build:
@@ -116,11 +96,7 @@ services:
       - RABBIT_MQ_URL=amqp://admin:admin@rabbitmq:5672
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
 
 
 
@@ -138,8 +114,4 @@ services:
       - RABBIT_MQ_URL=amqp://admin:admin@rabbitmq:5672
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always

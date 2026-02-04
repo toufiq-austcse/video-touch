@@ -13,11 +13,7 @@ services:
       - 6379:6379
     volumes:
       - .docker-conf/redis/data:/data
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
 
   video-touch-api:
     build:
@@ -34,11 +30,7 @@ services:
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
       - ./uploads:$TEMP_UPLOAD_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
 
   download-video-worker:
     build:
@@ -53,11 +45,7 @@ services:
       - DOWNLOAD_VIDEO_WORKER_PORT=$DOWNLOAD_VIDEO_WORKER_PORT
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
   validate-video-worker:
     build:
       context: workers/validate-video-worker
@@ -71,11 +59,7 @@ services:
       - VALIDATE_VIDEO_WORKER_PORT=$VALIDATE_VIDEO_WORKER_PORT
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
 
   thumbnail-generation-worker:
     build:
@@ -90,11 +74,7 @@ services:
       - THUMBNAIL_WORKER_PORT=$THUMBNAIL_WORKER_PORT
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
 
   process-video-worker-360p:
     build:
@@ -111,11 +91,7 @@ services:
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
     cpuset: "0-3"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
 
 
   process-video-worker-480p:
@@ -133,11 +109,7 @@ services:
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
     cpuset: "4-7"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
 
   process-video-worker-720p:
     build:
@@ -154,11 +126,7 @@ services:
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
     cpuset: "8-11"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
 
   process-video-worker-1080p:
     build:
@@ -175,11 +143,7 @@ services:
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
     cpuset: "12-15"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
 
   audio-worker:
     build:
@@ -194,11 +158,7 @@ services:
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
     cpuset: "12-15"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
 
 
   upload-video-worker:
@@ -214,8 +174,4 @@ services:
       - UPLOAD_VIDEO_WORKER_PORT=$UPLOAD_VIDEO_WORKER_PORT
     volumes:
       - ./temp_videos:$TEMP_VIDEO_DIRECTORY
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
+    restart: always
