@@ -15,6 +15,7 @@ import { join } from 'path';
 import { AuthModule } from './auth/auth.module';
 import { IndexModule } from './index/index.module';
 import { WebhookModule } from './webhook/webhook.module';
+import { CdnProvidersModule } from '@/src/common/cdn_providers/cdn-providers.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { WebhookModule } from './webhook/webhook.module';
         },
       }),
     }),
+    CdnProvidersModule,
     BullBoardModule.forRoot({
       route: '/queues',
       adapter: ExpressAdapter, // Or FastifyAdapter from `@bull-board/fastify`

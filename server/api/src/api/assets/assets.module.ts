@@ -37,6 +37,7 @@ import { UrlValidatorService } from './services/url-validator.service';
 import { HttpModule } from '@nestjs/axios';
 import { FileResolver } from './resolvers/file.resolver';
 import { TranscriptService } from '@/src/api/assets/services/transcript.service';
+import { CdnService } from '@/src/api/assets/services/cdn.service';
 
 @Module({
   imports: [
@@ -341,6 +342,7 @@ import { TranscriptService } from '@/src/api/assets/services/transcript.service'
     SignedUrlGeneratorService,
     UrlValidatorService,
     TranscriptService,
+    CdnService,
   ],
 })
 export class AssetsModule {}

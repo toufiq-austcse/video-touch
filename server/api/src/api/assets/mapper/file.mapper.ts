@@ -3,8 +3,8 @@ import { StatusMapper } from '@/src/api/assets/mapper/status.mapper';
 import mongoose from 'mongoose';
 import { File } from '@/src/api/assets/models/file.model';
 import { plainToInstance } from 'class-transformer';
-import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { Utils } from 'video-touch-common';
+import { CdnService } from '@/src/api/assets/services/cdn.service';
 
 export class FileMapper {
   static mapForSave(
@@ -53,6 +53,6 @@ export class FileMapper {
   }
 
   static getThumbnailCDNUrl(assetId: string) {
-    return `${AppConfigService.appConfig.CDN_BASE_URL}/${Utils.getServerThumbnailPath(assetId)}`;
+    return `${CdnService.getCdnBaseUrl()}/${Utils.getServerThumbnailPath(assetId)}`;
   }
 }

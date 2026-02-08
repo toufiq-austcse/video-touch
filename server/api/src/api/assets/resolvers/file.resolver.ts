@@ -4,6 +4,7 @@ import { Types } from 'mongoose';
 import { File } from '../models/file.model';
 import { FileRepository } from '../repositories/file.repository';
 import { getCdnFileUrl } from '@/src/common/utils';
+import { CdnService } from '../services/cdn.service';
 
 @Resolver(() => File)
 export class FileResolver {
@@ -15,6 +16,6 @@ export class FileResolver {
     if (!file) {
       throw new NotFoundException('file not found');
     }
-    return getCdnFileUrl(file);
+    return getCdnFileUrl(file, CdnService.getCdnBaseUrl());
   }
 }

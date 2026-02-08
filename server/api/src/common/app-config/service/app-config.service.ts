@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '../environment';
 import { Constants } from 'video-touch-common';
+import { CDN_PROVIDERS } from '@/src/common/constants';
 
 @Injectable()
 export class AppConfigService {
@@ -50,7 +51,7 @@ export class AppConfigService {
       ),
       RABBIT_MQ_UPDATE_FILE_STATUS_QUEUE: this.configService.getOrThrow('RABBIT_MQ_UPDATE_FILE_STATUS_QUEUE'),
       TEMP_VIDEO_DIRECTORY: this.configService.getOrThrow('TEMP_VIDEO_DIRECTORY'),
-      CDN_BASE_URL: this.configService.getOrThrow('CDN_BASE_URL'),
+      CDN_PROVIDER: this.configService.getOrThrow('CDN_PROVIDER'),
       DEFAULT_THUMBNAIL_URL: this.configService.getOrThrow('DEFAULT_THUMBNAIL_URL'),
       JWT_EXPIRATION_TIME_IN_SEC: +this.configService.getOrThrow('JWT_EXPIRATION_TIME_IN_SEC'),
       JWT_SECRET: this.configService.getOrThrow('JWT_SECRET'),
@@ -88,9 +89,68 @@ export class AppConfigService {
       BUNNY_ACCESS_KEY: this.configService.get('BUNNY_ACCESS_KEY'),
       RABBIT_MQ_WEBHOOK_NOTIFY_CONSUMER_QUEUE: this.configService.getOrThrow('RABBIT_MQ_WEBHOOK_NOTIFY_CONSUMER_QUEUE'),
       RABBIT_MQ_WEBHOOK_NOTIFY_ROUTING_KEY: this.configService.getOrThrow('RABBIT_MQ_WEBHOOK_NOTIFY_ROUTING_KEY'),
+      GOTIPATH_API_BASE_URL: this.configService.get('GOTIPATH_API_BASE_URL'),
+      GOTIPATH_API_KEY: this.configService.get('GOTIPATH_API_KEY'),
+      GOTIPATH_CDN_DISTRIBUTION_ID: this.configService.get('GOTIPATH_CDN_DISTRIBUTION_ID'),
+      BUNNY_CDN_API_KEY: this.configService.get('BUNNY_CDN_API_KEY'),
+      BUNNY_CDN_PULL_ZONE_ID: this.configService.get('BUNNY_CDN_PULL_ZONE_ID'),
+      BUNNY_CDN_API_BASE_URL: this.configService.get('BUNNY_CDN_API_BASE_URL'),
+      GOTIPATH_CDN_BASE_URL: this.configService.get('GOTIPATH_CDN_BASE_URL'),
+      BUNNY_CDN_BASE_URL: this.configService.get('BUNNY_CDN_BASE_URL'),
     };
     this.validateTranscriptionGenerationEnabled();
     this.validateStorageConfig();
+    this.validateCDNProviderConfig();
+  }
+
+  validateCDNProviderConfig() {
+    const cdnProvider = AppConfigService.appConfig.CDN_PROVIDER;
+    if (cdnProvider == CDN_PROVIDERS.GOTIPATH) {
+      console.log('GOTIPATH CDN provider is selected, validating required configurations...');
+      if (!AppConfigService.appConfig.GOTIPATH_CDN_SECRET) {
+        console.error('GOTIPATH CDN provider is selected, but GOTIPATH_CDN_SECRET is missing.');
+        process.exit(1);
+      }
+      if (!AppConfigService.appConfig.GOTIPATH_API_BASE_URL) {
+        console.error('GOTIPATH CDN provider is selected, but GOTIPATH_API_BASE_URL is missing.');
+        process.exit(1);
+      }
+      if (!AppConfigService.appConfig.GOTIPATH_API_KEY) {
+        console.error('GOTIPATH CDN provider is selected, but GOTIPATH_API_KEY is missing.');
+        process.exit(1);
+      }
+      if (!AppConfigService.appConfig.GOTIPATH_CDN_DISTRIBUTION_ID) {
+        console.error('GOTIPATH CDN provider is selected, but GOTIPATH_CDN_DISTRIBUTION_ID is missing.');
+        process.exit(1);
+      }
+      if (!AppConfigService.appConfig.GOTIPATH_CDN_BASE_URL) {
+        console.error('GOTIPATH CDN provider is selected, but GOTIPATH_CDN_BASE_URL is missing.');
+        process.exit(1);
+      }
+    }
+
+    if (cdnProvider == CDN_PROVIDERS.BUNNY_CDN) {
+      if (!AppConfigService.appConfig.BUNNY_CDN_API_KEY) {
+        console.error('Bunny CDN provider is selected, but BUNNY_CDN_API_KEY is missing.');
+        process.exit(1);
+      }
+      if (!AppConfigService.appConfig.BUNNY_CDN_PULL_ZONE_ID) {
+        console.error('Bunny CDN provider is selected, but BUNNY_CDN_PULL_ZONE_ID is missing.');
+        process.exit(1);
+      }
+      if (!AppConfigService.appConfig.BUNNY_STORAGE_URL) {
+        console.error('Bunny CDN provider is selected, but BUNNY_STORAGE_URL is missing.');
+        process.exit(1);
+      }
+      if (!AppConfigService.appConfig.BUNNY_STORAGE_ZONE_NAME) {
+        console.error('Bunny CDN provider is selected, but BUNNY_STORAGE_ZONE_NAME is missing.');
+        process.exit(1);
+      }
+      if (!AppConfigService.appConfig.BUNNY_CDN_API_BASE_URL) {
+        console.error('Bunny CDN provider is selected, but BUNNY_CDN_API_BASE_URL is missing.');
+        process.exit(1);
+      }
+    }
   }
 
   validateTranscriptionGenerationEnabled() {

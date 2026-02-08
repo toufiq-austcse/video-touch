@@ -14,6 +14,7 @@ import { FILE_TYPE } from 'video-touch-common/dist/constants';
 import { getTranscriptFileName } from 'video-touch-common/dist/utils';
 import { TranscriptService } from '@/src/api/assets/services/transcript.service';
 import { getCdnFileUrl } from '@/src/common/utils';
+import { CdnService } from './cdn.service';
 
 @Injectable()
 export class FileService {
@@ -22,7 +23,8 @@ export class FileService {
     private assetService: AssetService,
     private jobManagerService: JobManagerService,
     private webhookService: WebhookService,
-    private transcriptService: TranscriptService
+    private transcriptService: TranscriptService,
+    private cdnService: CdnService
   ) {}
 
   async updateFileStatus(fileId: string, status: string, details: string, size?: number) {
@@ -63,7 +65,7 @@ export class FileService {
       _id: mongoose.Types.ObjectId(oldDoc._id.toString()),
     });
 
-    let cdnUrl = getCdnFileUrl(updatedFile);
+    let cdnUrl = getCdnFileUrl(updatedFile, CdnService.getCdnBaseUrl());
 
     this.webhookService.publishFileEvent(updatedFile, assetDocument.user_id, cdnUrl).catch((err) => {
       console.log('error while publishing webhook event ', err);
@@ -84,11 +86,21 @@ export class FileService {
     let assetId = updatedFile.asset_id;
 
     if (updatedFile.latest_status == Constants.FILE_STATUS.READY && updatedFile.type === Constants.FILE_TYPE.PLAYLIST) {
+      this.cdnService
+        .invalidateCache(updatedFile)
+        .then(() => {
+          console.log('cache invalidation completed for file ', updatedFile._id.toString(), updatedFile.name);
+        })
+        .catch((err) => {
+          console.log('error while invalidating cache for file ', updatedFile._id.toString(), updatedFile.name, err);
+        });
       this.checkDownloadFileGeneration(updatedFile)
         .then()
         .catch((err) => {
           console.log('error while checking download file generation', err);
         });
+
+      //TODO: should remove this block after implementing m3u8 file cache invalidation
       this.assetService
         .updateMasterFileVersion(assetId.toString())
         .then((data) => {

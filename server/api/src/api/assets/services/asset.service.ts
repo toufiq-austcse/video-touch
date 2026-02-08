@@ -15,13 +15,11 @@ import { HeightWidthMap } from '@/src/api/assets/models/file.model';
 import { FileDocument } from '@/src/api/assets/schemas/files.schema';
 import { UserDocument } from '@/src/api/auth/schemas/user.schema';
 import { CleanupService } from '@/src/api/assets/services/cleanup.service';
-import { S3ClientService } from '@/src/common/aws/s3/s3-client.service';
-import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
-import { SignedUrlGeneratorService } from '@/src/api/assets/services/signed-url-generator.service';
 import { WebhookService } from '../../webhook/services/webhook.service';
 import { getCdnFileUrl, getDownloadFileName, getSourceFileName } from '@/src/common/utils';
 import { UrlValidatorService } from './url-validator.service';
 import { FILE_TYPE } from 'video-touch-common/dist/constants';
+import { CdnService } from './cdn.service';
 
 @Injectable()
 export class AssetService {
@@ -30,8 +28,6 @@ export class AssetService {
     private fileRepository: FileRepository,
     private jobManagerService: JobManagerService,
     private cleanUpService: CleanupService,
-    private s3ClientService: S3ClientService,
-    private signedUrlGeneratorService: SignedUrlGeneratorService,
     private webhookService: WebhookService,
     private urlValidatorService: UrlValidatorService
   ) {}
@@ -367,49 +363,6 @@ export class AssetService {
     return this.fileRepository.create(fileToBeSaved);
   }
 
-  async getMasterPlaylistSignedUrl(asset: AssetDocument): Promise<{
-    main_playlist_url: string;
-    resolutions_token: Record<string, string>;
-  }> {
-    let resolutionsToken: Record<string, string> = {};
-    // Get the path for the master playlist
-    let s3AssetPath = Utils.getServerManifestPath(asset._id.toString()).replace('main.m3u8', '');
-    let paths = await this.s3ClientService.getAllDirectories(
-      s3AssetPath,
-      AppConfigService.appConfig.AWS_S3_BUCKET_NAME
-    );
-    console.log('s3AssetPath ', s3AssetPath, ' paths ', paths);
-
-    // Generate token for the main playlist
-    const { token, expires } = this.signedUrlGeneratorService.generateSecureUrl(s3AssetPath, 3600);
-
-    // Construct the full URL for the main playlist
-    let mainPlaylistToken = '';
-    if (asset.master_file_name.includes('?v')) {
-      mainPlaylistToken = `v=${asset.master_file_name.split('?v=')[1]}&md5=${token}&expires=${expires}`;
-    } else {
-      mainPlaylistToken = `md5=${token}&expires=${expires}`;
-    }
-
-    // Generate tokens for each resolution path
-    for (let path of paths) {
-      let resolutionPath = `${s3AssetPath}${path}`;
-
-      const { token, expires } = this.signedUrlGeneratorService.generateSecureUrl(`/${resolutionPath}`, 3600);
-
-      // Construct the full URL for each resolution path
-      resolutionsToken[`/${resolutionPath}`] = `md5=${token}&expires=${expires}`;
-    }
-
-    return {
-      main_playlist_url: `${Utils.getMasterPlaylistUrl(
-        asset._id.toString(),
-        AppConfigService.appConfig.CDN_BASE_URL
-      )}?${mainPlaylistToken}`,
-      resolutions_token: resolutionsToken,
-    };
-  }
-
   async reprocessAsset(currentAsset: AssetDocument, sourceFileUrl: string) {
     return this.updateAssetStatus(
       currentAsset._id.toString(),
@@ -420,7 +373,7 @@ export class AssetService {
 
   async getSourceFileUrlToReprocess(asset: AssetDocument, sourceFile: FileDocument): Promise<string> {
     if (sourceFile && sourceFile.latest_status === Constants.FILE_STATUS.READY) {
-      return getCdnFileUrl(sourceFile);
+      return getCdnFileUrl(sourceFile, CdnService.getCdnBaseUrl());
     }
     if (asset.source_url) {
       let isSourceUrlValid = await this.urlValidatorService.checkUrlValidity(asset.source_url);

@@ -1,4 +1,3 @@
-import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { Constants, Utils } from 'video-touch-common';
 import { FileDocument } from '@/src/api/assets/schemas/files.schema';
 
@@ -18,8 +17,7 @@ export const getSourceFileName = (): string => {
 export const getDownloadFileName = (): string => {
   return 'download.mp4';
 };
-export const getCdnFileUrl = (file: FileDocument): string => {
-  let cdnBaseUrl = AppConfigService.appConfig.CDN_BASE_URL;
+export const getCdnFileUrl = (file: FileDocument, cdnBaseUrl: string): string => {
   switch (file.type) {
     case Constants.FILE_TYPE.SOURCE:
       return `${cdnBaseUrl}/${Utils.getServerSourceFileVideoPath(file.asset_id.toString(), file.name)}`;

@@ -6,15 +6,14 @@ import { StatusDocument } from '@/src/api/assets/schemas/status.schema';
 import { StatusLogResponse } from '@/src/api/assets/models/status-logs.model';
 import { CreateAssetFromUploadInputDto, CreateAssetInputDto } from '@/src/api/assets/dtos/create-asset-input.dto';
 import { Constants } from 'video-touch-common';
-import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { UserDocument } from '@/src/api/auth/schemas/user.schema';
+import { CdnService } from '@/src/api/assets/services/cdn.service';
 
 export class AssetMapper {
   static buildAssetDocumentForSaving(
     createVideoInput: CreateAssetInputDto,
     userDocument: UserDocument
   ): Omit<AssetDocument, '_id'> {
-    console.log('createVideoInput ', createVideoInput);
     let title = createVideoInput.title;
     if (!title) {
       title = this.parsedTitle(createVideoInput.source_url);
@@ -77,11 +76,7 @@ export class AssetMapper {
         size: asset.size,
         master_playlist_url:
           asset.latest_status === Constants.VIDEO_STATUS.READY
-            ? this.getMasterPlaylistUrl(
-                asset._id.toString(),
-                AppConfigService.appConfig.CDN_BASE_URL,
-                asset.master_file_name
-              )
+            ? this.getMasterPlaylistUrl(asset._id.toString(), CdnService.getCdnBaseUrl(), asset.master_file_name)
             : null,
         latest_status: asset.latest_status,
         status_logs: statusLogs,

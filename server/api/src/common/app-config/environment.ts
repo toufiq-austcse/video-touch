@@ -51,7 +51,7 @@ export interface EnvironmentVariables {
   TEMP_UPLOAD_DIRECTORY: string;
   TEMP_VIDEO_DIRECTORY: string;
 
-  CDN_BASE_URL: string;
+  CDN_PROVIDER: string;
 
   DEFAULT_THUMBNAIL_URL: string;
   JWT_EXPIRATION_TIME_IN_SEC: number;
@@ -61,20 +61,30 @@ export interface EnvironmentVariables {
   MIN_AVAILABLE_DISK_SPACE_REQUIRED_IN_BYTES: number;
   RETRY_JOB_ATTEMPT_COUNT: number;
   RETRY_JOB_BACKOFF_IN_MINUTE: number;
-  GOTIPATH_CDN_SECRET: string;
-
   TRANSCRIPTION_GENERATION_ENABLED: boolean;
+
   GOOGLE_GENAI_API_KEY: string;
   GOOGLE_GEN_AI_MODEL: string;
   OPENAI_API_KEY: string;
   OPENAI_MODEL: string;
   AUDIO_CHUNK_DURATION_IN_SEC: number;
-
   STORAGE_PROVIDER: string;
+
   BUNNY_STORAGE_ZONE_NAME: string;
   BUNNY_STORAGE_URL: string;
   BUNNY_ACCESS_KEY: string;
-
   RABBIT_MQ_WEBHOOK_NOTIFY_CONSUMER_QUEUE: string;
+
   RABBIT_MQ_WEBHOOK_NOTIFY_ROUTING_KEY: string;
+
+  GOTIPATH_CDN_SECRET: string;
+  GOTIPATH_API_BASE_URL: string;
+  GOTIPATH_API_KEY: string;
+  GOTIPATH_CDN_DISTRIBUTION_ID: string;
+  GOTIPATH_CDN_BASE_URL: string;
+
+  BUNNY_CDN_PULL_ZONE_ID: string;
+  BUNNY_CDN_API_KEY: string;
+  BUNNY_CDN_API_BASE_URL: string;
+  BUNNY_CDN_BASE_URL: string;
 }
