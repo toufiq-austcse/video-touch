@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { BunnyCdnService } from '@/src/common/cdn_providers/gotipath/bunny_cdn.service';
 import { GotipathCdnService } from '@/src/common/cdn_providers/gotipath/gotipath_cdn.service';
-import { FileDocument } from '@/src/api/assets/schemas/files.schema';
 import { AppConfigService } from '@/src/common/app-config/service/app-config.service';
 import { CDN_PROVIDERS } from '@/src/common/constants';
 import { getServerManifestPath } from 'video-touch-common/dist/utils';
@@ -10,8 +9,8 @@ import { getServerManifestPath } from 'video-touch-common/dist/utils';
 export class CdnService {
   constructor(private bunnyCdnService: BunnyCdnService, private gotipathCdnService: GotipathCdnService) {}
 
-  async invalidateCache(file: FileDocument) {
-    const masterFilePath = getServerManifestPath(file.asset_id.toString());
+  async invalidateCache(assetId: string) {
+    const masterFilePath = getServerManifestPath(assetId);
 
     if (AppConfigService.appConfig.CDN_PROVIDER === CDN_PROVIDERS.GOTIPATH) {
       this.gotipathCdnService
@@ -26,12 +25,12 @@ export class CdnService {
 
     if (AppConfigService.appConfig.CDN_PROVIDER === CDN_PROVIDERS.BUNNY_CDN) {
       this.bunnyCdnService
-        .clearCache(file.asset_id.toString())
+        .clearCache(masterFilePath)
         .then(() => {
-          console.log(`Cache invalidated for asset ${file.asset_id} on BunnyCDN`);
+          console.log(`Cache invalidated for asset ${assetId} on BunnyCDN`);
         })
         .catch((err) => {
-          console.error(`Error invalidating cache for asset ${file.asset_id} on BunnyCDN:`, err);
+          console.error(`Error invalidating cache for asset ${assetId} on BunnyCDN:`, err);
         });
     }
   }

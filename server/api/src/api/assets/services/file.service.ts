@@ -87,7 +87,7 @@ export class FileService {
 
     if (updatedFile.latest_status == Constants.FILE_STATUS.READY && updatedFile.type === Constants.FILE_TYPE.PLAYLIST) {
       this.cdnService
-        .invalidateCache(updatedFile)
+        .invalidateCache(updatedFile.asset_id.toString())
         .then(() => {
           console.log('cache invalidation completed for file ', updatedFile._id.toString(), updatedFile.name);
         })
