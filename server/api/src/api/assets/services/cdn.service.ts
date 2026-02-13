@@ -10,7 +10,7 @@ export class CdnService {
   constructor(private bunnyCdnService: BunnyCdnService, private gotipathCdnService: GotipathCdnService) {}
 
   async invalidateCache(assetId: string) {
-    const masterFilePath = getServerManifestPath(assetId);
+    const masterFilePath = `/${getServerManifestPath(assetId)}`;
 
     if (AppConfigService.appConfig.CDN_PROVIDER === CDN_PROVIDERS.GOTIPATH) {
       this.gotipathCdnService
