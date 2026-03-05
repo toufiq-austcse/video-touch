@@ -43,7 +43,7 @@ const Navbar = () => {
               <img
                 src="/logo.svg"
                 alt="VDIO Touch Logo"
-                className="h-16 w-16 object-contain"
+                className="h-24 w-24 object-contain -my-4"
               />
             </Link>
             {/*<div className="hidden sm:ml-6 sm:block">*/}

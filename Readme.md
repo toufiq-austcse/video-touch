@@ -1,8 +1,8 @@
 <h1 align="center" style="border-bottom: none">
     <a href="" target="_blank">
-        <img alt="SigNoz" src="./images/logo.png" width="100" height="100">
+        <img alt="SigNoz" src="./images/logo.png" >
     </a>
-    <br>Video Touch
+
 </h1>
 > Video Touch is a Video Hosting & Streaming platform. In Video Touch users can easily upload, manage and stream videos on demand.
 
