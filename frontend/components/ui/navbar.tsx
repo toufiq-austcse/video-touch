@@ -40,19 +40,11 @@ const Navbar = () => {
           </div>
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <Link className="flex flex-shrink-0 items-center gap-2" href="/">
-              <svg
-                className="h-8 w-auto text-indigo-500"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M4 8H2V4C2 3.46957 2.21071 2.96086 2.58579 2.58579C2.96086 2.21071 3.46957 2 4 2H8V4H4V8Z" />
-                <path d="M20 8H22V4C22 3.46957 21.7893 2.96086 21.4142 2.58579C21.0391 2.21071 20.5304 2 20 2H16V4H20V8Z" />
-                <path d="M20 20H16V22H20C20.5304 22 21.0391 21.7893 21.4142 21.4142C21.7893 21.0391 22 20.5304 22 20V16H20V20Z" />
-                <path d="M4 20H8V22H4C3.46957 22 2.96086 21.7893 2.58579 21.4142C2.21071 21.0391 2 20.5304 2 20V16H4V20Z" />
-                <path d="M9 7L15 12L9 17V7Z" />
-              </svg>
-              <h1 className="text-indigo-500 text-2xl font-bold">VDIO Touch</h1>
+              <img
+                src="/logo.svg"
+                alt="VDIO Touch Logo"
+                className="h-16 w-16 object-contain"
+              />
             </Link>
             {/*<div className="hidden sm:ml-6 sm:block">*/}
             {/*  <div className="flex space-x-4">*/}
@@ -84,7 +76,7 @@ const Navbar = () => {
                 {currentUser ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <h1 className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 underline hover:cursor-pointer">
+                      <h1 className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-[#2D4AEC]/10 hover:text-[#2D4AEC] underline hover:cursor-pointer">
                         {currentUser.name}
                       </h1>
                     </DropdownMenuTrigger>

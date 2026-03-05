@@ -290,7 +290,7 @@ const DeveloperPage: NextPage = () => {
               onClick={() => copyToClipboard(url)}
             >
               {copiedToken === url ? (
-                <CheckCircle2 className="h-4 w-4 text-indigo-600" />
+                <CheckCircle2 className="h-4 w-4 text-[#2D4AEC]" />
               ) : (
                 <Copy className="h-4 w-4" />
               )}
@@ -315,7 +315,7 @@ const DeveloperPage: NextPage = () => {
               onClick={() => copyToClipboard(token)}
             >
               {copiedToken === token ? (
-                <CheckCircle2 className="h-4 w-4 text-indigo-600" />
+                <CheckCircle2 className="h-4 w-4 text-[#2D4AEC]" />
               ) : (
                 <Copy className="h-4 w-4" />
               )}
@@ -405,7 +405,7 @@ const DeveloperPage: NextPage = () => {
               <p className="text-sm text-gray-500">{error.message}</p>
               <Button
                 onClick={() => refetch()}
-                className="mt-4 bg-indigo-600 hover:bg-indigo-700"
+                className="mt-4 bg-[#2D4AEC] hover:bg-[#2D4AEC]/90"
               >
                 Retry
               </Button>
@@ -438,7 +438,7 @@ const DeveloperPage: NextPage = () => {
                 createForm.reset();
                 setIsCreateDialogOpen(true);
               }}
-              className="bg-indigo-600 hover:bg-indigo-700"
+              className="bg-[#2D4AEC] hover:bg-[#2D4AEC]/90"
             >
               <Plus className="mr-2 h-4 w-4" />
               Add Webhook
@@ -521,7 +521,7 @@ const DeveloperPage: NextPage = () => {
               <Button
                 type="submit"
                 disabled={createLoading}
-                className="bg-indigo-600 hover:bg-indigo-700"
+                className="bg-[#2D4AEC] hover:bg-[#2D4AEC]/90"
               >
                 {createLoading ? "Creating..." : "Create"}
               </Button>
@@ -586,7 +586,7 @@ const DeveloperPage: NextPage = () => {
               <Button
                 type="submit"
                 disabled={updateLoading}
-                className="bg-indigo-600 hover:bg-indigo-700"
+                className="bg-[#2D4AEC] hover:bg-[#2D4AEC]/90"
               >
                 {updateLoading ? "Updating..." : "Update"}
               </Button>
@@ -642,25 +642,25 @@ const DeveloperPage: NextPage = () => {
             <h4 className="font-semibold text-sm mb-2">Asset Events:</h4>
             <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside mb-3">
               <li>
-                <code className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded">
+                <code className="bg-[#2D4AEC]/10 text-[#2D4AEC] px-2 py-0.5 rounded">
                   asset.status.pending
                 </code>{" "}
                 - Asset processing started
               </li>
               <li>
-                <code className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded">
+                <code className="bg-[#2D4AEC]/10 text-[#2D4AEC] px-2 py-0.5 rounded">
                   asset.status.processing
                 </code>{" "}
                 - Asset is being processed
               </li>
               <li>
-                <code className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded">
+                <code className="bg-[#2D4AEC]/10 text-[#2D4AEC] px-2 py-0.5 rounded">
                   asset.status.ready
                 </code>{" "}
                 - Asset processing completed
               </li>
               <li>
-                <code className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded">
+                <code className="bg-[#2D4AEC]/10 text-[#2D4AEC] px-2 py-0.5 rounded">
                   asset.status.failed
                 </code>{" "}
                 - Asset processing failed
@@ -669,25 +669,25 @@ const DeveloperPage: NextPage = () => {
             <h4 className="font-semibold text-sm mb-2 mt-4">File Events:</h4>
             <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
               <li>
-                <code className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded">
+                <code className="bg-[#2D4AEC]/10 text-[#2D4AEC] px-2 py-0.5 rounded">
                   file.status.pending
                 </code>{" "}
                 - File processing started
               </li>
               <li>
-                <code className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded">
+                <code className="bg-[#2D4AEC]/10 text-[#2D4AEC] px-2 py-0.5 rounded">
                   file.status.processing
                 </code>{" "}
                 - File is being processed
               </li>
               <li>
-                <code className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded">
+                <code className="bg-[#2D4AEC]/10 text-[#2D4AEC] px-2 py-0.5 rounded">
                   file.status.ready
                 </code>{" "}
                 - File processing completed (includes file_url)
               </li>
               <li>
-                <code className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded">
+                <code className="bg-[#2D4AEC]/10 text-[#2D4AEC] px-2 py-0.5 rounded">
                   file.status.failed
                 </code>{" "}
                 - File processing failed

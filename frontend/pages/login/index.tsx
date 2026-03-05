@@ -70,7 +70,7 @@ const Login: NextPage = () => {
               {`Don't have an account yet? `}
               <Link
                 href={"signup"}
-                className="font-medium text-indigo-600 hover:text-indigo-500"
+                className="font-medium text-[#2D4AEC] hover:text-[#2D4AEC]/80"
               >
                 Sign up
               </Link>
@@ -123,7 +123,7 @@ const Login: NextPage = () => {
                   <Button
                     disabled={loading}
                     type="submit"
-                    className="w-full bg-indigo-600 hover:bg-indigo-700"
+                    className="w-full bg-[#2D4AEC] hover:bg-[#2D4AEC]/90"
                   >
                     {loading ? "Signing in..." : "Sign in"}
                   </Button>

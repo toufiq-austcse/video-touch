@@ -161,7 +161,7 @@ const LinkImportDialog = ({
                 type="submit"
                 size="sm"
                 form="link-form"
-                className="bg-indigo-500 hover:bg-indigo-600 text-white"
+                className="bg-[#2D4AEC] hover:bg-[#2D4AEC]/90 text-white"
               >
                 Import
               </Button>

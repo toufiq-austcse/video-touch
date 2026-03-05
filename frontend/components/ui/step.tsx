@@ -27,7 +27,7 @@ const Step = ({
           {!isFinal && (
             <div className={"py-2.5 pl-4 pr-4"}>
               <div
-                className={"p-0 border-t-2 border-indigo-500 min-w-32"}
+                className={"p-0 border-t-2 border-[#2D4AEC] min-w-32"}
               ></div>
             </div>
           )}

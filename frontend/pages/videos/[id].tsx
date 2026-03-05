@@ -52,7 +52,7 @@ const VideoDetailsPage: NextPage = () => {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="flex flex-col items-center space-y-4">
-          <Loader2 className="h-12 w-12 animate-spin text-indigo-500" />
+          <Loader2 className="h-12 w-12 animate-spin text-[#2D4AEC]" />
           <p className="text-lg font-medium">Loading video details...</p>
         </div>
       </div>
@@ -189,9 +189,9 @@ const VideoDetailsPage: NextPage = () => {
                           className="flex items-start space-x-3 pb-4 border-b last:border-0"
                         >
                           <div
-                            className={`bg-indigo-100 p-2 rounded-full ${index === 0 && status.status !== "READY" ? "blink" : ""}`}
+                            className={`bg-[#2D4AEC]/10 p-2 rounded-full ${index === 0 && status.status !== "READY" ? "blink" : ""}`}
                           >
-                            <div className="h-2 w-2 rounded-full bg-indigo-500"></div>
+                            <div className="h-2 w-2 rounded-full bg-[#2D4AEC]"></div>
                           </div>
                           <div>
                             <p className="font-medium">{status.status}</p>
