@@ -344,5 +344,6 @@ import { CdnService } from '@/src/api/assets/services/cdn.service';
     TranscriptService,
     CdnService,
   ],
+  exports: [AssetRepository, FileRepository],
 })
 export class AssetsModule {}

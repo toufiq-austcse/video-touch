@@ -269,7 +269,14 @@ src/api/sla/
     sla.controller.ts
   dto/
     list-sla-alerts-query.dto.ts
+  models/
+    sla-check-summary.model.ts
+    delivery-result.model.ts
+    notification-group.model.ts
+    sla-alert-context.model.ts
 ```
+
+Shared types live in `models/`, one per file, not inside the service files.
 
 ### 5.2 Constants
 

@@ -16,6 +16,7 @@ import { AuthModule } from './auth/auth.module';
 import { IndexModule } from './index/index.module';
 import { WebhookModule } from './webhook/webhook.module';
 import { CdnProvidersModule } from '@/src/common/cdn_providers/cdn-providers.module';
+import { SlaModule } from '@/src/api/sla/sla.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { CdnProvidersModule } from '@/src/common/cdn_providers/cdn-providers.mod
     AwsModule,
     AuthModule,
     WebhookModule,
+    SlaModule,
   ],
   controllers: [],
   providers: [],
