@@ -87,4 +87,14 @@ export interface EnvironmentVariables {
   BUNNY_CDN_API_KEY: string;
   BUNNY_CDN_API_BASE_URL: string;
   BUNNY_CDN_BASE_URL: string;
+
+  SLA_ALERTS_ENABLED: boolean;
+  SLA_TARGET_MINUTES: number;
+  SLA_WARNING_THRESHOLD_MINUTES: number;
+  SLA_LOOKBACK_HOURS: number;
+  SLA_CHECK_BATCH_LIMIT: number;
+  SLA_DIGEST_THRESHOLD: number;
+  SLA_MAX_DELIVERY_ATTEMPTS: number;
+  SLA_SLACK_WEBHOOK_URL?: string;
+  INTERNAL_API_KEY?: string;
 }

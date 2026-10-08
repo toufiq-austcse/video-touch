@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { AbstractDocument } from '@/src/common/database/schemas/abstract.schema';
 import { StatusDocument, StatusSchema } from '@/src/api/assets/schemas/status.schema';
+import { AssetSlaDocument, AssetSlaSchema } from '@/src/api/assets/schemas/sla.schema';
 import { Types } from 'mongoose';
 
 export const ASSET_COLLECTION_NAME = 'assets';
@@ -77,6 +78,14 @@ export class AssetDocument extends AbstractDocument {
 
   @Prop({ required: false, default: true })
   with_transcoding?: boolean;
+
+  @Prop({ required: false, type: AssetSlaSchema, default: undefined })
+  sla?: AssetSlaDocument;
 }
 
 export const VideoSchema = SchemaFactory.createForClass(AssetDocument);
+
+VideoSchema.index(
+  { 'sla.started_at': 1, latest_status: 1 },
+  { partialFilterExpression: { 'sla.started_at': { $exists: true } } }
+);

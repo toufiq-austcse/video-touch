@@ -97,6 +97,15 @@ export class AppConfigService {
       BUNNY_CDN_API_BASE_URL: this.configService.get('BUNNY_CDN_API_BASE_URL'),
       GOTIPATH_CDN_BASE_URL: this.configService.get('GOTIPATH_CDN_BASE_URL'),
       BUNNY_CDN_BASE_URL: this.configService.get('BUNNY_CDN_BASE_URL'),
+      SLA_ALERTS_ENABLED: this.configService.get('SLA_ALERTS_ENABLED', 'false') === 'true',
+      SLA_TARGET_MINUTES: +this.configService.get('SLA_TARGET_MINUTES', 60),
+      SLA_WARNING_THRESHOLD_MINUTES: +this.configService.get('SLA_WARNING_THRESHOLD_MINUTES', 30),
+      SLA_LOOKBACK_HOURS: +this.configService.get('SLA_LOOKBACK_HOURS', 24),
+      SLA_CHECK_BATCH_LIMIT: +this.configService.get('SLA_CHECK_BATCH_LIMIT', 500),
+      SLA_DIGEST_THRESHOLD: +this.configService.get('SLA_DIGEST_THRESHOLD', 5),
+      SLA_MAX_DELIVERY_ATTEMPTS: +this.configService.get('SLA_MAX_DELIVERY_ATTEMPTS', 5),
+      SLA_SLACK_WEBHOOK_URL: this.configService.get('SLA_SLACK_WEBHOOK_URL'),
+      INTERNAL_API_KEY: this.configService.get('INTERNAL_API_KEY'),
     };
     this.validateTranscriptionGenerationEnabled();
     this.validateStorageConfig();

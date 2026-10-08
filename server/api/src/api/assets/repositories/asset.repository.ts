@@ -6,6 +6,7 @@ import { FilterQuery, Model, UpdateQuery } from 'mongoose';
 import { BasePaginatedResponse } from '@/src/common/database/models/abstract.model';
 import { UserDocument } from '@/src/api/auth/schemas/user.schema';
 import mongoose from 'mongoose';
+import { Constants } from 'video-touch-common';
 
 @Injectable()
 export class AssetRepository extends BaseRepository<AssetDocument> {
@@ -15,6 +16,47 @@ export class AssetRepository extends BaseRepository<AssetDocument> {
 
   async updateMany(filter: FilterQuery<AssetDocument>, update: UpdateQuery<AssetDocument>): Promise<any> {
     return this.videoModel.updateMany(filter, update);
+  }
+
+  /** Starts the SLA clock only if it isn't already running. updateOne: does not fire the asset post-hook. */
+  async startSlaClock(assetId: string, at: Date) {
+    return this.videoModel.updateOne(
+      { _id: mongoose.Types.ObjectId(assetId), 'sla.started_at': { $exists: false } },
+      { $set: { 'sla.started_at': at } }
+    );
+  }
+
+  async findSlaWarningCandidates(cutoff: Date, lookback: Date, limit: number): Promise<AssetDocument[]> {
+    return this.videoModel
+      .find(
+        {
+          is_deleted: { $ne: true },
+          'sla.started_at': { $lte: cutoff, $gte: lookback },
+          latest_status: { $ne: Constants.VIDEO_STATUS.READY },
+          'sla.warning_alerted_at': { $exists: false },
+        },
+        { _id: 1, user_id: 1, title: 1, latest_status: 1, sla: 1 }
+      )
+      .sort({ 'sla.started_at': 1 })
+      .limit(limit)
+      .lean();
+  }
+
+  /** Atomic claim. Returns true only for the caller that set the flag. */
+  async claimSlaWarning(assetId: mongoose.Types.ObjectId, at: Date): Promise<boolean> {
+    const res = await this.videoModel.updateOne(
+      {
+        _id: assetId,
+        'sla.warning_alerted_at': { $exists: false },
+        latest_status: { $ne: Constants.VIDEO_STATUS.READY },
+      },
+      { $set: { 'sla.warning_alerted_at': at } }
+    );
+    return res.nModified === 1; // Mongoose 5 result shape
+  }
+
+  async releaseSlaWarning(assetIds: mongoose.Types.ObjectId[]) {
+    return this.videoModel.updateMany({ _id: { $in: assetIds } }, { $unset: { 'sla.warning_alerted_at': '' } });
   }
 
   async getPaginatedVideos(

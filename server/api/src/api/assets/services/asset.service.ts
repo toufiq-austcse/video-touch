@@ -5,7 +5,7 @@ import { AssetRepository } from '@/src/api/assets/repositories/asset.repository'
 import { ListAssetInputDto } from '@/src/api/assets/dtos/list-asset-input.dto';
 import { GetAssetInputDto } from '@/src/api/assets/dtos/get-asset-input.dto';
 import { UpdateAssetInputDto } from '@/src/api/assets/dtos/update-asset-input.dto';
-import mongoose from 'mongoose';
+import mongoose, { UpdateQuery } from 'mongoose';
 import { FileRepository } from '@/src/api/assets/repositories/file.repository';
 import { AssetMapper } from '@/src/api/assets/mapper/asset.mapper';
 import { JobManagerService } from '@/src/api/assets/services/job-manager.service';
@@ -20,6 +20,7 @@ import { getCdnFileUrl, getDownloadFileName, getSourceFileName } from '@/src/com
 import { UrlValidatorService } from './url-validator.service';
 import { FILE_TYPE } from 'video-touch-common/dist/constants';
 import { CdnService } from './cdn.service';
+import { buildSlaResetUnset, shouldResetSlaClock, shouldStartSlaClock } from '@/src/api/sla/sla-clock';
 
 @Injectable()
 export class AssetService {
@@ -82,23 +83,39 @@ export class AssetService {
   }
 
   async updateAssetStatus(videoId: string, status: string, details: string) {
-    return this.repository.findOneAndUpdate(
+    const update: UpdateQuery<AssetDocument> = {
+      latest_status: status,
+      $push: {
+        status_logs: {
+          status: status,
+          details: details,
+        },
+      },
+    };
+    if (shouldResetSlaClock(status)) {
+      update.$unset = buildSlaResetUnset();
+    }
+
+    const result = await this.repository.findOneAndUpdate(
       {
         _id: mongoose.Types.ObjectId(videoId),
         latest_status: {
           $ne: status,
         },
       },
-      {
-        latest_status: status,
-        $push: {
-          status_logs: {
-            status: status,
-            details: details,
-          },
-        },
-      }
+      update
     );
+
+    if (shouldStartSlaClock(status)) {
+      try {
+        await this.repository.startSlaClock(videoId, new Date());
+      } catch (err) {
+        // Never let SLA bookkeeping break the pipeline.
+        console.log('error while starting sla clock ', err);
+      }
+    }
+
+    return result;
   }
 
   async checkForDeleteLocalAssetFile(assetId: string) {
